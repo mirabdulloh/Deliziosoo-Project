@@ -1,12 +1,14 @@
-import express from "express";
-import path from "path";
-import router from "./router";
-import routerAdmin from "./router-admin";
-import morgan from "morgan";
-import { MORGAN_FORMAT } from "./libs/config";
-import session from "express-session";
-import ConnectMongoDB from "connect-mongodb-session";
-import { T } from "./libs/types/common";
+import express from "express"
+import cors from 'cors';
+import path from "path"
+import router from "./router"
+import routerAdmin from "./router-admin"
+import morgan from "morgan"
+import { MORGAN_FORMAT } from "./libs/config"
+import cookieParser from "cookie-parser";
+import session from "express-session"
+import ConnectMongoDB from "connect-mongodb-session" 
+import { T } from "./libs/types/common"
 
 const MongoDBStore = ConnectMongoDB(session);
 
@@ -19,10 +21,15 @@ const store = new MongoDBStore({
 
 const app = express();
 
-app.use(express.static(path.join(__dirname, "public")));
-app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname,"public")));
+app.use(express.urlencoded({extended:true}));
 app.use(express.json());
-app.use("/uploads", express.static("./uploads"));
+app.use(cors({
+  origin: true,
+  credentials: true,
+}));
+app.use(cookieParser());
+app.use("/uploads",express.static("./uploads"));
 app.use(morgan(MORGAN_FORMAT));
 
 /** Sessions   */
@@ -35,8 +42,8 @@ app.use(
     },
     store: store,
     resave: true,
-    saveUninitialized: true, // (1) kirib kelayotgan req+ session
-    //(2)  req icidagi cookies tekwirib database bilan taqoslash
+    saveUninitialized: true,
+
   })
 );
 

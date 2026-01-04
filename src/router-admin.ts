@@ -1,11 +1,28 @@
-import express from "express"
+import express from "express";
 import restaurantController from "./controllers/restaurant.controller";
 
 import makeUploader from "./libs/utils/uploader";
-const routerAdmin = express.Router()
+const routerAdmin = express.Router();
+
+routerAdmin.get("/", restaurantController.goHome);
+
+routerAdmin
+  .get("/signup", restaurantController.getSignUp)
+  .post(
+    "/signup",
+    makeUploader("members").single("memberImage"),
+    restaurantController.processSignUp
+  );
+
+routerAdmin
+  .get("/login", restaurantController.getLogin)
+  .post("/login", restaurantController.processLogin);
 
 
-routerAdmin.get("/", restaurantController.goHome)
+/** Checking Restaurant is Authenticated */
+routerAdmin.get("/check-me", restaurantController.checkAuthSession);
 
+/* Log out the Restaurant Admin */
+routerAdmin.get("/logout", restaurantController.logout)
 
 export default routerAdmin;
