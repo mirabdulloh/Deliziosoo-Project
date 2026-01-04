@@ -1,6 +1,12 @@
+import { shapeIntoMongooseObjectId } from "../libs/config";
 import { MemberType } from "../libs/enum/member.enum";
 import Errors, { HttpCode, Message } from "../libs/Errors";
-import { LoginInput, Member, MemberInput } from "../libs/types/member";
+import {
+  LoginInput,
+  Member,
+  MemberInput,
+  memberUpdateInput,
+} from "../libs/types/member";
 import MemberModel from "../schema/Member.model";
 import * as bcrypt from "bcryptjs";
 
@@ -35,7 +41,7 @@ class MemberService {
   public async processLogin(input: LoginInput): Promise<Member> {
     const member = await this.memberModel
       .findOne(
-        { memberNick: input.memberNick }, 
+        { memberNick: input.memberNick },
         { memberNick: 1, memberPassword: 1 }
       )
       .exec();
@@ -52,6 +58,15 @@ class MemberService {
       throw new Errors(HttpCode.UNAUTHORIZED, Message.WRONG_PASSWORD);
 
     return await this.memberModel.findById(member._id).exec();
+  }
+
+  /* ! For Admin Controlling Users */
+  public async getUsers(): Promise<Member[]> {
+    const result = await this.memberModel
+      .find({ MemberType: MemberType.USER })
+      .exec();
+    if (!result) throw new Errors(HttpCode.NOT_MODIFIED, Message.UPDATE_FAILED);
+    return result;
   }
 }
 

@@ -116,8 +116,8 @@ restaurantController.checkAuthSession = async (
   }
 };
 
+/\* Log Out of Restaurant Admin */
 
-/* Log Out of Restaurant Admin */
 restaurantController.logout = async (req: AdminRequest, res: Response) => {
   try {
     console.log("logout:");
@@ -129,6 +129,38 @@ restaurantController.logout = async (req: AdminRequest, res: Response) => {
     console.log("ERROR, logout:", err);
   }
 };
-restaurantController;
+
+/\* ! For Admin Controlling Users */
+
+restaurantController.getUsers = async(req:Request,res:Response)=>{
+    // service model
+     try{
+     console.log("getUsers:");
+     const result = await memberService.getUsers();
+     res.render("users", {users:result});
+    }catch(err){
+      console.log("ERROR, getUsers:", err)
+      res.redirect("/admin/login");
+    }
+  }
+
+
+
+/* For Verifying the Admin */
+restaurantController.verifyRestaurant = (
+  req: AdminRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  if (req.session?.member?.memberType === MemberType.RESTAURANT) {
+    req.member = req.session.member;
+    next();
+  } else {
+    const message = Message.NOT_AUTHENTICATED;
+    res.send(
+      `<script> alert("${message}"); window.location.replace("/admin/login")</script>`
+    );
+  }
+};
 
 export default restaurantController;
