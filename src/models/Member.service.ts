@@ -68,6 +68,24 @@ class MemberService {
     if (!result) throw new Errors(HttpCode.NOT_MODIFIED, Message.UPDATE_FAILED);
     return result;
   }
+
+
+  
+  // ! SPA REACT
+
+  public async signUp(input: MemberInput): Promise<Member> {
+    const salt = await bcrypt.genSalt();
+    input.memberPassword = await bcrypt.hash(input.memberPassword, salt);
+
+    try {
+      const result = await this.memberModel.create(input);
+      result.memberPassword = "";
+      return result.toJSON();
+    } catch (err) {
+      console.error("ERROR: model: signUp", err);
+      throw new Errors(HttpCode.BAD_REQUEST, Message.USED_NICK_PHONE);
+    }
+  }
 }
 
 export default MemberService;
