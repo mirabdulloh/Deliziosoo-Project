@@ -39,5 +39,19 @@ routerAdmin.post(
   restaurantController.updateChosenUser
 );
 
+// ! For Admin Controlling Reservation Table Panel
+
+routerAdmin.get("/getAll/reservations",
+  restaurantController.verifyRestaurant,
+  restaurantController.getAllReservations
+)
+routerAdmin.post(
+  "/reservation/update",
+  restaurantController.verifyRestaurant,
+  restaurantController.updateReservation
+);
+
+
+
 
 export default routerAdmin;

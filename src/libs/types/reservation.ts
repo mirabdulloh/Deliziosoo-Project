@@ -20,3 +20,11 @@ export interface Reservation {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export interface ReservationUpdateInput {
+    _id: Types.ObjectId;
+    reservationStatus: ReservationStatus;
+    cancelReason?: string;
+    cancelledAt?: Date;
+  }
+  

@@ -1,1 +1,12 @@
-<div>Welcome to Reservation page </div>
+<% reservations.map(function (value, key) { %>
+    <tbody style="background: white">
+      <td><%= key + 1 %></td>
+  
+      <td><%= value._id %></td>
+      <td><%= value.email %></td>
+      <td><%= value.dateTime %></td>
+      <td><%= value.peopleCount %></td>
+      <td><%= value.note %></td>
+    </tbody>
+  <% }) %>
+  

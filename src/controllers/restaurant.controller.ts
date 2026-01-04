@@ -4,8 +4,11 @@ import MemberService from "../models/Member.service";
 import { AdminRequest, LoginInput, MemberInput } from "../libs/types/member";
 import { MemberType } from "../libs/enum/member.enum";
 import Errors, { HttpCode, Message } from "../libs/Errors";
+import ReservationService from "../models/Reservation.service";
+import { ReservationStatus } from "../libs/enum/reservation.enum";
 
 const memberService = new MemberService();
+const reservationService = new ReservationService();
 
 const restaurantController: T = {};
 
@@ -168,6 +171,38 @@ restaurantController.verifyRestaurant = (
     const message = Message.NOT_AUTHENTICATED;
     res.send(
       `<script> alert("${message}"); window.location.replace("/admin/login")</script>`
+    );
+  }
+};
+
+// ! For Admin Controlling Reservation Table Panel
+
+restaurantController.getAllReservations = async (
+  req: AdminRequest,
+  res: Response
+) => {
+  try {
+    const result = await reservationService.getAllReservations();
+    return res.render("reservation", { reservations: result });
+  } catch (err) {
+    console.log("ERROR getReservations:", err);
+    return res.redirect("/admin");
+  }
+};
+
+restaurantController.updateReservation = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    await reservationService.updateReservation(req.body);
+    return res.redirect("/admin/getAll/reservations");
+  } catch (err) {
+    console.log("ERROR updateReservation:", err);
+    const message =
+      err instanceof Errors ? err.message : Message.SOMETHING_WENT_WRONG;
+    return res.send(
+      `<script>alert("${message}"); window.location.replace("/admin/reservation/all")</script>`
     );
   }
 };

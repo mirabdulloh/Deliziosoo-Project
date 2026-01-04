@@ -1,13 +1,12 @@
 import mongoose, { Schema } from "mongoose";
 import { ReservationStatus } from "../libs/enum/reservation.enum";
 
-
 const reservationSchema = new Schema(
   {
     memberId: {
       type: Schema.Types.ObjectId,
       ref: "Member",
-      required:true,
+      required: true,
     },
     dateTime: {
       type: Date,
@@ -23,15 +22,17 @@ const reservationSchema = new Schema(
       enum: ReservationStatus,
       default: ReservationStatus.PENDING,
     },
-    note:{
-      type:String,
+    note: {
+      type: String,
     },
     email: {
       type: String,
       required: true,
-    }
+    },
+    cancelReason: { type: String },
+    cancelledAt: { type: Date },
   },
-  { timestamps: true}
+  { timestamps: true }
 );
 
-export default mongoose.model('reservation',reservationSchema)
+export default mongoose.model("reservation", reservationSchema);
