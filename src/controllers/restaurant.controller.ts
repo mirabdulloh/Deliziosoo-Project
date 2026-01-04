@@ -117,6 +117,18 @@ restaurantController.checkAuthSession = async (
 };
 
 
-
+/* Log Out of Restaurant Admin */
+restaurantController.logout = async (req: AdminRequest, res: Response) => {
+  try {
+    console.log("logout:");
+    req.session.destroy(function () {
+      res.redirect("/admin");
+    });
+  } catch (err) {
+    res.redirect("/admin");
+    console.log("ERROR, logout:", err);
+  }
+};
+restaurantController;
 
 export default restaurantController;
