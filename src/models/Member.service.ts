@@ -16,6 +16,7 @@ class MemberService {
     this.memberModel = MemberModel;
   }
 
+  // ! BSSR EJS
   public async processSignUp(input: MemberInput): Promise<Member> {
     const exist = await this.memberModel
       .findOne({ memberType: MemberType.RESTAURANT })
@@ -60,7 +61,7 @@ class MemberService {
     return await this.memberModel.findById(member._id).exec();
   }
 
-  /* ! For Admin Controlling Users */
+  //!  For Admin Controlling Users */
   public async getUsers(): Promise<Member[]> {
     const result = await this.memberModel
       .find({ MemberType: MemberType.USER })
@@ -69,8 +70,17 @@ class MemberService {
     return result;
   }
 
+  public async updateChosenUser(input: memberUpdateInput): Promise<Member> {
+    input._id = shapeIntoMongooseObjectId(input._id);
+    const result = await this.memberModel
+      .findByIdAndUpdate({ _id: input._id }, input, { new: true })
+      .exec();
+    if (!result) throw new Errors(HttpCode.NOT_MODIFIED, Message.UPDATE_FAILED);
 
-  
+    return result;
+  }
+
+
   // ! SPA REACT
 
   public async signUp(input: MemberInput): Promise<Member> {

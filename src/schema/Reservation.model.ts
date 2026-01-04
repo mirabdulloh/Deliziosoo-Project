@@ -7,6 +7,7 @@ const reservationSchema = new Schema(
     memberId: {
       type: Schema.Types.ObjectId,
       ref: "Member",
+      required:true,
     },
     dateTime: {
       type: Date,
@@ -14,7 +15,7 @@ const reservationSchema = new Schema(
     },
     peopleCount: {
       type: Number,
-      default: 0,
+      min: 1,
       required: true,
     },
     reservationStatus: {
@@ -22,6 +23,13 @@ const reservationSchema = new Schema(
       enum: ReservationStatus,
       default: ReservationStatus.PENDING,
     },
+    note:{
+      type:String,
+    },
+    email: {
+      type: String,
+      required: true,
+    }
   },
   { timestamps: true}
 );

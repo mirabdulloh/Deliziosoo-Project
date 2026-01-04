@@ -15,6 +15,7 @@ export enum Message {
     CREATE_FAILED = "Create Failed",
     UPDATE_FAILED = "Update Failed",
 
+    CAN_RESERVE_ONE_IN_DAY = "You can reserve table one time in a day",
     NO_MEMBER_NICK = "No member with that member nick",
     TOKEN_CREATION_FAILED = "Token creation failed",
     USED_NICK_PHONE = 'You are inserting already used phone or nick',

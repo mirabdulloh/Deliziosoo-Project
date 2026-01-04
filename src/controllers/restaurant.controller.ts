@@ -116,7 +116,7 @@ restaurantController.checkAuthSession = async (
   }
 };
 
-/\* Log Out of Restaurant Admin */
+/\* Log Out of Restaurant Admin */;
 
 restaurantController.logout = async (req: AdminRequest, res: Response) => {
   try {
@@ -130,23 +130,32 @@ restaurantController.logout = async (req: AdminRequest, res: Response) => {
   }
 };
 
-/\* ! For Admin Controlling Users */
+/\* ! For Admin Controlling Users */;
 
-restaurantController.getUsers = async(req:Request,res:Response)=>{
-    // service model
-     try{
-     console.log("getUsers:");
-     const result = await memberService.getUsers();
-     res.render("users", {users:result});
-    }catch(err){
-      console.log("ERROR, getUsers:", err)
-      res.redirect("/admin/login");
-    }
+restaurantController.getUsers = async (req: Request, res: Response) => {
+  try {
+    console.log("getUsers:");
+    const result = await memberService.getUsers();
+    res.render("users", { users: result });
+  } catch (err) {
+    console.log("ERROR, getUsers:", err);
+    res.redirect("/admin/login");
   }
+};
 
+restaurantController.updateChosenUser = async (req: Request, res: Response) => {
+  try {
+    console.log("updateChosenUser:");
+    const result = await memberService.updateChosenUser(req.body);
+    res.status(HttpCode.OK).json({ data: result });
+  } catch (err) {
+    console.log("ERROR, updateChosenUser:", err);
+    if (err instanceof Errors) res.status(err.code).json(err);
+    else res.status(Errors.standard.code).json(Errors.standard);
+  }
+};
 
-
-/* For Verifying the Admin */
+// ! For Verifying the Admin */
 restaurantController.verifyRestaurant = (
   req: AdminRequest,
   res: Response,
