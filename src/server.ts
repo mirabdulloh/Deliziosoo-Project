@@ -4,6 +4,7 @@ dotenv.config();
 import mongoose from "mongoose";
 import app from "./app";
 // TCP
+mongoose.set("strictQuery", true);
 mongoose
   .connect(process.env.MONGO_URL as string, {})
   .then((data) => {
