@@ -58,7 +58,7 @@ restaurantController.processSignUp = async (
     const result = await memberService.processSignUp(newMember);
     req.session.member = result;
     req.session.save(function () {
-      res.send("product page"); /** Product pagega jonatiwim kerak wu joyda */
+      res.render("home"); /** Product pagega jonatiwim kerak wu joyda */
     });
   } catch (err) {
     console.log("ERROR, processSignUp:", err);
