@@ -1,7 +1,68 @@
-html,
-body {
-  padding: 0;
+* {
   margin: 0;
-  height: 100%;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  background: #f5f6f8;
+  color: #222;
+}
+
+.layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* SIDEBAR */
+aside {
+  width: 220px;
+  background: #fff;
+  padding: 20px;
+  border-right: 1px solid #ddd;
+}
+
+aside h2 {
+  margin-bottom: 20px;
+}
+
+aside ul {
+  list-style: none;
+}
+
+aside li {
+  margin-bottom: 10px;
+}
+
+aside a {
+  text-decoration: none;
+  color: #333;
+}
+
+aside a:hover {
+  font-weight: bold;
+}
+
+/* MAIN */
+main {
+  flex: 1;
+  padding: 24px;
+}
+
+/* TABLE */
+table {
   width: 100%;
+  border-collapse: collapse;
+  margin-top: 16px;
+}
+
+th, td {
+  border-bottom: 1px solid #ddd;
+  padding: 12px;
+  text-align: left;
+}
+
+th {
+  background: #fafafa;
 }

@@ -1,45 +1,91 @@
-<%- include('includes/header') %>
-
-<link rel="stylesheet" type="text/css" href="/css/login.css" />
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Login</title>
+  <link rel="stylesheet" href="../css/login.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+</head>
 <body>
-  <form class="login-container" action="/admin/login" METHOD="POST">
-    <div class="login-frame">
-      <div class="login-top">
-        <span>Enter</span>
-        <div>Go back <a href="/admin" style="color: #6440fb">Home</a></div>
-        <p>
-          Not registered yet?
-          <a href="/admin/signup" style="color: #6440fb">Signup</a>
-        </p>
+  <div class="auth-page">
+    <div class="auth-card">
+      <div class="brand">
+        <img src="/img/Logo_Delizioso.svg" alt="Delizioso" class="brand-logo" />
+        <h1>Welcome back</h1>
+        <p>Login to manage your restaurant dashboard.</p>
       </div>
-      <div class="login-input-frame">
-        <div class="login-input-container">
-          <label>Restaurant *</label>
-          <input
-            type="text"
-            name="memberNick"
-            class="member-nick"
-            placeholder="Username"
-            value=""
-            required
-          />
-        </div>
-        <div class="login-input-container">
-          <label>Password *</label>
-          <input
-            type="password"
-            name="memberPassword"
-            class="member-password"
-            placeholder="Password"
-            value=""
-            required
-          />
-        </div>
-      </div>
-      <button class="login-btn btn" name="login" type="submit">Login</button>
-    </div>
-  </form>
-</body>
 
-<%- include('includes/footer') %>
+      <% if (typeof message !== "undefined" && message) { %>
+        <div class="alert"><i class="fa-solid fa-circle-exclamation"></i> <%= message %></div>
+      <% } %>
+
+      <form class="auth-form" method="POST" action="/admin/login" autocomplete="on">
+        <label class="field">
+          <span>Email</span>
+          <div class="input">
+            <i class="fa-regular fa-envelope"></i>
+            <input
+              type="text"
+              name="memberNick"
+              placeholder="restaurant nick"
+              required
+            />
+          </div>
+        </label>
+
+        <label class="field">
+          <span>Password</span>
+          <div class="input">
+            <i class="fa-solid fa-lock"></i>
+            <input
+              id="password"
+              type="password"
+              name="memberPassword"
+              placeholder="••••••••"
+              required
+              minlength="6"
+            />
+            <button class="toggle" type="button" onclick="togglePass('password', this)">
+              <i class="fa-regular fa-eye"></i>
+            </button>
+          </div>
+        </label>
+
+        <div class="row">
+          <label class="checkbox">
+            <input type="checkbox" name="rememberMe" />
+            <span>Remember me</span>
+          </label>
+
+          <a class="link" href="/admin/signup">Create account</a>
+        </div>
+
+        <button class="btn primary" type="submit">
+          <i class="fa-solid fa-right-to-bracket"></i>
+          Login
+        </button>
+      </form>
+
+      <div class="divider"><span>or</span></div>
+
+      <a class="btn ghost" href="/admin">
+        <i class="fa-solid fa-arrow-left"></i>
+        Back to Dashboard
+      </a>
+    </div>
+
+
+  </div>
+
+  <script>
+    function togglePass(id, btn) {
+      const input = document.getElementById(id);
+      const icon = btn.querySelector("i");
+      const isPass = input.type === "password";
+      input.type = isPass ? "text" : "password";
+      icon.className = isPass ? "fa-regular fa-eye-slash" : "fa-regular fa-eye";
+    }
+  </script>
+</body>
+</html>

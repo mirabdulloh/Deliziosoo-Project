@@ -87,10 +87,8 @@ restaurantController.processLogin = async (
     // TODO: SESSION AUTHENTICATION
     req.session.member = result;
     req.session.save(function () {
-      //   res.redirect("/admin/product/all");
-      res.send(
-        "logged in successfully"
-      ); /* Product all page ga yonaltirishim kerak after log in da */
+      res.redirect("/admin");
+      /* Product all page ga yonaltirishim kerak after log in da */
     });
   } catch (err) {
     console.log("ERROR, processLogin:", err);
