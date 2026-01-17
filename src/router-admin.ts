@@ -11,11 +11,7 @@ routerAdmin.get("/", restaurantController.goHome);
 
 routerAdmin
   .get("/signup", restaurantController.getSignUp)
-  .post(
-    "/signup",
-    makeUploader("members").single("memberImage"),
-    restaurantController.processSignUp
-  );
+  .post("/signup", restaurantController.processSignUp);
 
 routerAdmin
   .get("/login", restaurantController.getLogin)
@@ -41,8 +37,6 @@ routerAdmin.post(
   restaurantController.updateChosenUser
 );
 
-
-
 // ! For Admin Controlling Reservation Table Panel
 
 routerAdmin.get(
@@ -63,17 +57,19 @@ routerAdmin.get(
   productController.getAllProduct
 );
 
-// ! For Creation Products 
+// ! For Creation Products
 routerAdmin.post(
   "/product/create",
   restaurantController.verifyRestaurant,
   makeUploader("products").array("productImages", 5),
   productController.createNewProduct
 );
-// ! For Updating Products 
-routerAdmin.post("/product/:id",restaurantController.verifyRestaurant, productController.updateChosenProduct);
-
-
+// ! For Updating Products
+routerAdmin.post(
+  "/product/:id",
+  restaurantController.verifyRestaurant,
+  productController.updateChosenProduct
+);
 
 // ! For Admin Controlling Orders
 
@@ -82,6 +78,5 @@ routerAdmin.get(
   restaurantController.verifyRestaurant,
   orderController.getFinishedToday
 );
-
 
 export default routerAdmin;

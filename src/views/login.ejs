@@ -1,12 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin Login</title>
-  <link rel="stylesheet" href="../css/login.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
-</head>
+<%- include('includes/header') %>
+
+<link rel="stylesheet" href="/css/login.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+
 <body>
   <div class="auth-page">
     <div class="auth-card">
@@ -17,23 +13,28 @@
       </div>
 
       <% if (typeof message !== "undefined" && message) { %>
-        <div class="alert"><i class="fa-solid fa-circle-exclamation"></i> <%= message %></div>
+        <div class="alert">
+          <i class="fa-solid fa-circle-exclamation"></i>
+          <%= message %>
+        </div>
       <% } %>
 
       <form class="auth-form" method="POST" action="/admin/login" autocomplete="on">
+        <!-- NICKNAME -->
         <label class="field">
-          <span>Email</span>
+          <span>Restaurant Nickname</span>
           <div class="input">
-            <i class="fa-regular fa-envelope"></i>
+            <i class="fa-solid fa-store"></i>
             <input
               type="text"
               name="memberNick"
-              placeholder="restaurant nick"
+              placeholder="e.g. delizioso_admin"
               required
             />
           </div>
         </label>
 
+        <!-- PASSWORD -->
         <label class="field">
           <span>Password</span>
           <div class="input">
@@ -53,12 +54,8 @@
         </label>
 
         <div class="row">
-          <label class="checkbox">
-            <input type="checkbox" name="rememberMe" />
-            <span>Remember me</span>
-          </label>
-
-          <a class="link" href="/admin/signup">Create account</a>
+          <a class="link" href="/admin/signup">Not signed up? Sign up</a>
+          <a class="link muted" href="/admin">Back</a>
         </div>
 
         <button class="btn primary" type="submit">
@@ -66,16 +63,7 @@
           Login
         </button>
       </form>
-
-      <div class="divider"><span>or</span></div>
-
-      <a class="btn ghost" href="/admin">
-        <i class="fa-solid fa-arrow-left"></i>
-        Back to Dashboard
-      </a>
     </div>
-
-
   </div>
 
   <script>
@@ -88,4 +76,5 @@
     }
   </script>
 </body>
-</html>
+
+<%- include('includes/footer') %>

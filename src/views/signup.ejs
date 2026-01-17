@@ -1,38 +1,96 @@
-<div class="modal" id="signupModal" aria-hidden="true">
-  <div class="modal-backdrop" data-close="signupModal"></div>
+<%- include('includes/header') %>
 
-  <div class="modal-card" role="dialog" aria-modal="true">
-    <button class="modal-close" data-close="signupModal">&times;</button>
+<link rel="stylesheet" href="/css/signup.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
 
-    <h2 class="modal-title">Sign up</h2>
-
-    <form method="POST" action="/admin/signup" enctype="multipart/form-data" class="modal-form">
-      <div class="field">
-        <label>Name</label>
-        <input type="text" name="memberNick" required />
+<body>
+  <div class="auth-page">
+    <div class="auth-card">
+      <div class="brand">
+        <img src="/img/Logo_Delizioso.svg" alt="Delizioso" class="brand-logo" />
+        <h1>Create Admin</h1>
+        <p>Register your restaurant admin account.</p>
       </div>
 
-      <div class="field">
-        <label>Phone</label>
-        <input type="text" name="memberPhone" required />
-      </div>
+      <% if (typeof message !== "undefined" && message) { %>
+        <div class="alert">
+          <i class="fa-solid fa-circle-exclamation"></i>
+          <%= message %>
+        </div>
+      <% } %>
 
-      <div class="field">
-        <label>Email</label>
-        <input type="email" name="memberEmail" required />
-      </div>
+      <form class="auth-form" method="POST" action="/admin/signup">
+        <!-- NICKNAME -->
+        <label class="field">
+          <span>Restaurant Nickname</span>
+          <div class="input">
+            <i class="fa-solid fa-store"></i>
+            <input
+              type="text"
+              name="memberNick"
+              placeholder="e.g. delizioso_admin"
+              required
+            />
+          </div>
+        </label>
 
-      <div class="field">
-        <label>Password</label>
-        <input type="password" name="memberPassword" required />
-      </div>
+        <!-- PHONE -->
+        <label class="field">
+          <span>Phone</span>
+          <div class="input">
+            <i class="fa-solid fa-phone"></i>
+            <input
+              type="text"
+              name="memberPhone"
+              placeholder="010-1234-5678"
+              required
+            />
+          </div>
+        </label>
 
-      <div class="field">
-        <label>Profile image</label>
-        <input type="file" name="memberImage" accept="image/*" />
-      </div>
+        <!-- PASSWORD -->
+        <label class="field">
+          <span>Password</span>
+          <div class="input">
+            <i class="fa-solid fa-lock"></i>
+            <input
+              id="password2"
+              type="password"
+              name="memberPassword"
+              placeholder="••••••••"
+              required
+              minlength="6"
+            />
+            <button class="toggle" type="button" onclick="togglePass('password2', this)">
+              <i class="fa-regular fa-eye"></i>
+            </button>
+          </div>
+        </label>
 
-      <button class="btn-primary" type="submit">Create account</button>
-    </form>
+        <input name="memberType" value="RESTAURANT" hidden />
+
+        <div class="row">
+          <a class="link" href="/admin/login">Already have an account? Login</a>
+          <a class="link muted" href="/admin">Back</a>
+        </div>
+
+        <button class="btn primary" type="submit">
+          <i class="fa-solid fa-user-plus"></i>
+          Sign up
+        </button>
+      </form>
+    </div>
   </div>
-</div>
+
+  <script>
+    function togglePass(id, btn) {
+      const input = document.getElementById(id);
+      const icon = btn.querySelector("i");
+      const isPass = input.type === "password";
+      input.type = isPass ? "text" : "password";
+      icon.className = isPass ? "fa-regular fa-eye-slash" : "fa-regular fa-eye";
+    }
+  </script>
+</body>
+
+<%- include('includes/footer') %>

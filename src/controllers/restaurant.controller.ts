@@ -11,14 +11,18 @@ const memberService = new MemberService();
 const reservationService = new ReservationService();
 
 const restaurantController: T = {};
-
 restaurantController.goHome = (req: Request, res: Response) => {
   try {
     console.log("goHome:");
-    res.render("home");
+
+    if (!res.locals.member) {
+      return res.render("login");
+    }
+
+    return res.render("home", { member: res.locals.member });
   } catch (err) {
     console.log("ERROR, goHome:", err);
-    res.redirect("/admin");
+    return res.redirect("/admin");
   }
 };
 
@@ -49,14 +53,7 @@ restaurantController.processSignUp = async (
   try {
     console.log("processSignUp:");
     console.log("req.body:", req.body);
-
-    const file = req.file;
-    if (!file)
-      throw new Errors(HttpCode.BAD_REQUEST, Message.SOMETHING_WENT_WRONG);
-    console.log("req.body:", req.body);
-
     const newMember: MemberInput = req.body;
-    newMember.memberImg = file?.path;
     newMember.memberType = MemberType.RESTAURANT;
     const result = await memberService.processSignUp(newMember);
     req.session.member = result;
