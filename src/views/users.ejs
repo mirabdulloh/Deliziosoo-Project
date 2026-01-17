@@ -1,137 +1,190 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Users Dashboard</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="/css/users.css" />
+  </head>
+  <body>
     <div class="dashboard-container">
-        <!-- Sidebar -->
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <div class="logo">
-                    <i class="fas fa-circle-nodes"></i>
-                </div>
-                <button class="menu-toggle"><i class="fas fa-bars"></i></button>
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <div class="logo">
+            <i class="fas fa-circle-nodes"></i>
+          </div>
+          <button class="menu-toggle"><i class="fas fa-bars"></i></button>
+        </div>
+
+        <nav class="sidebar-nav">
+          <ul>
+            <li>
+              <a href="#"><i class="fas fa-chart-pie"></i> Overview</a>
+            </li>
+            <li class="active">
+              <a href="#" class="has-dropdown"
+                ><i class="fas fa-file-lines"></i> Pages
+                <i class="fas fa-chevron-down dropdown-icon"></i
+              ></a>
+              <ul class="submenu">
+                <li class="active"><a href="#">Users</a></li>
+                <li><a href="#">Profile</a></li>
+                <li><a href="#">Settings</a></li>
+                <li><a href="#">Pricing</a></li>
+                <li><a href="#">Calendar</a></li>
+                <li><a href="#">Kanban</a></li>
+              </ul>
+            </li>
+            <li>
+              <a href="#" class="has-dropdown"
+                ><i class="fas fa-shopping-bag"></i> Sales
+                <i class="fas fa-chevron-down dropdown-icon"></i
+              ></a>
+            </li>
+            <li>
+              <a href="#" class="has-dropdown"
+                ><i class="fas fa-message"></i> Messages
+                <span class="badge">1</span>
+                <i class="fas fa-chevron-down dropdown-icon"></i
+              ></a>
+            </li>
+            <li>
+              <a href="#" class="has-dropdown"
+                ><i class="fas fa-lock"></i> Authentication
+                <i class="fas fa-chevron-down dropdown-icon"></i
+              ></a>
+            </li>
+          </ul>
+
+          <div class="nav-divider"></div>
+
+          <ul>
+            <li>
+              <a href="#"><i class="fas fa-book"></i> Docs</a>
+            </li>
+            <li>
+              <a href="#"><i class="fas fa-layer-group"></i> Components</a>
+            </li>
+            <li>
+              <a href="#"><i class="fas fa-circle-question"></i> Help</a>
+            </li>
+          </ul>
+        </nav>
+
+        <div class="sidebar-footer">
+          <i class="fas fa-sliders"></i>
+          <i class="fas fa-globe"></i>
+          <i class="fas fa-gear"></i>
+        </div>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="main-content">
+        <!-- Top Header -->
+        <header class="top-header">
+          <div class="search-bar">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="Search" />
+          </div>
+          <div class="header-actions">
+            <i class="fas fa-bell"></i>
+            <img
+              src="https://i.pravatar.cc/150?u=admin"
+              alt="Admin"
+              class="admin-avatar"
+            />
+          </div>
+        </header>
+
+        <!-- Table Section -->
+        <section class="table-section">
+          <div class="table-header">
+            <div class="table-search">
+              <input
+                id="userSearch"
+                type="text"
+                placeholder="Search for users"
+              />
             </div>
-            
-            <nav class="sidebar-nav">
-                <ul>
-                    <li><a href="#"><i class="fas fa-chart-pie"></i> Overview</a></li>
-                    <li class="active">
-                        <a href="#" class="has-dropdown"><i class="fas fa-file-lines"></i> Pages <i class="fas fa-chevron-down dropdown-icon"></i></a>
-                        <ul class="submenu">
-                            <li class="active"><a href="#">Users</a></li>
-                            <li><a href="#">Profile</a></li>
-                            <li><a href="#">Settings</a></li>
-                            <li><a href="#">Pricing</a></li>
-                            <li><a href="#">Calendar</a></li>
-                            <li><a href="#">Kanban</a></li>
-                        </ul>
-                    </li>
-                    <li><a href="#" class="has-dropdown"><i class="fas fa-shopping-bag"></i> Sales <i class="fas fa-chevron-down dropdown-icon"></i></a></li>
-                    <li><a href="#" class="has-dropdown"><i class="fas fa-message"></i> Messages <span class="badge">1</span> <i class="fas fa-chevron-down dropdown-icon"></i></a></li>
-                    <li><a href="#" class="has-dropdown"><i class="fas fa-lock"></i> Authentication <i class="fas fa-chevron-down dropdown-icon"></i></a></li>
-                </ul>
-                
-                <div class="nav-divider"></div>
-                
-                <ul>
-                    <li><a href="#"><i class="fas fa-book"></i> Docs</a></li>
-                    <li><a href="#"><i class="fas fa-layer-group"></i> Components</a></li>
-                    <li><a href="#"><i class="fas fa-circle-question"></i> Help</a></li>
-                </ul>
-            </nav>
-            
-            <div class="sidebar-footer">
-                <i class="fas fa-sliders"></i>
-                <i class="fas fa-globe"></i>
-                <i class="fas fa-gear"></i>
+          </div>
+
+          <div class="table-container">
+            <table id="usersTable">
+              <thead>
+                <tr>
+                  <th>NAME</th>
+                  <th>TYPE</th>
+                  <th>STATUS</th>
+                  <th>CREATED AT</th>
+                  <th>EDIT</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <% users.map(user => { %>
+                <tr>
+                  <td>
+                    <div class="user-info">
+                      <img
+                        src="<%= user.memberImage ? '/uploads/members/' + user.memberImage : 'https://i.pravatar.cc/40?img=5' %>"
+                        alt="user"
+                      />
+                      <div>
+                        <div class="user-name"><%= user.memberNick %></div>
+                        <div class="user-email"><%= user.memberPhone %></div>
+                      </div>
+                    </div>
+                  </td>
+
+                  <td><%= user.memberType %></td>
+
+                  <% const statusText = user.memberStatus || "UNKNOWN"; const
+                  statusClass = (statusText === "ACTIVE") ? "active" :
+                  "offline"; %>
+                  <td>
+                    <span class="status-dot <%= statusClass %>"></span>
+                    <%= statusText %>
+                  </td>
+
+                  <td><%= new Date(user.createdAt).toLocaleDateString() %></td>
+
+                  <td>
+                    <form method="POST" action="/admin/user/edit">
+                      <input type="hidden" name="_id" value="<%= user._id %>" />
+                      <button class="edit-btn" type="submit">
+                        <i class="fa-regular fa-pen-to-square"></i> Edit
+                      </button>
+                    </form>
+                  </td>
+                </tr>
+
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="table-footer">
+            <div class="pagination">
+              <button class="page-nav">
+                <i class="fas fa-chevron-left"></i>
+              </button>
+              <button class="page-nav">
+                <i class="fas fa-chevron-right"></i>
+              </button>
+              <span>Show 1-15 of 987</span>
             </div>
-        </aside>
-
-        <!-- Main Content -->
-        <main class="main-content">
-            <!-- Top Header -->
-            <header class="top-header">
-                <div class="search-bar">
-                    <i class="fas fa-search"></i>
-                    <input type="text" placeholder="Search">
-                </div>
-                <div class="header-actions">
-                    <i class="fas fa-bell"></i>
-                    <img src="https://i.pravatar.cc/150?u=admin" alt="Admin" class="admin-avatar">
-                </div>
-            </header>
-
-            <!-- Table Section -->
-            <section class="table-section">
-                <div class="table-header">
-                    <div class="table-search">
-                        <input type="text" placeholder="Search for users">
-                    </div>
-                    <div class="table-tools">
-                        <i class="fas fa-gear"></i>
-                        <i class="fas fa-trash"></i>
-                        <i class="fas fa-circle-exclamation"></i>
-                        <i class="fas fa-ellipsis-vertical"></i>
-                        <button class="export-btn"><i class="fas fa-download"></i> Export</button>
-                    </div>
-                </div>
-
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th><input type="checkbox"></th>
-                                <th>NAME</th>
-                                <th>POSITION</th>
-                                <th>COUNTRY</th>
-                                <th>STATUS</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <% users.forEach(user => { %>
-                            <tr>
-                                <td><input type="checkbox" <%= user.selected ? 'checked' : '' %>></td>
-                                <td class="user-info">
-                                    <img src="<%= user.avatar %>" alt="<%= user.name %>">
-                                    <div>
-                                        <div class="user-name"><%= user.name %></div>
-                                        <div class="user-email"><%= user.email %></div>
-                                    </div>
-                                </td>
-                                <td><%= user.position %></td>
-                                <td><%= user.country %></td>
-                                <td>
-                                    <span class="status-dot <%= user.status.toLowerCase() %>"></span>
-                                    <%= user.status %>
-                                </td>
-                                <td>
-                                    <button class="edit-btn"><i class="fas fa-pen-to-square"></i> Edit Item</button>
-                                </td>
-                            </tr>
-                            <% }); %>
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="table-footer">
-                    <div class="pagination">
-                        <button class="page-nav"><i class="fas fa-chevron-left"></i></button>
-                        <button class="page-nav"><i class="fas fa-chevron-right"></i></button>
-                        <span>Show 1-15 of 987</span>
-                    </div>
-                    <div class="footer-info">
-                        Last account activity: 2 hours ago <i class="fas fa-eye"></i>
-                    </div>
-                </div>
-            </section>
-        </main>
+            <div class="footer-info">
+              Last account activity: 2 hours ago <i class="fas fa-eye"></i>
+            </div>
+          </div>
+        </section>
+      </main>
     </div>
-</body>
+    <script src="/js/users.js"></script>
+  </body>
 </html>
