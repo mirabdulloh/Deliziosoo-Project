@@ -72,14 +72,24 @@
 
                   <td><%= user.memberType %></td>
 
-                  <% const statusText = user.memberStatus || "UNKNOWN"; const
-                  statusClass = (statusText === "ACTIVE") ? "active" :
-                  "offline"; %>
-                  <td>
-                    <span class="status-dot <%= statusClass %>"></span>
-                    <%= statusText %>
-                  </td>
-
+                  <%
+                  const now = new Date();
+                  const lastActive = user.lastActiveAt ? new Date(user.lastActiveAt) : null;
+                
+                  let onlineStatus = "OFFLINE";
+                  let statusClass = "offline";
+                
+                  if (lastActive && (now - lastActive) < 5 * 60 * 1000) {
+                    onlineStatus = "ONLINE";
+                    statusClass = "active";
+                  }
+                %>
+                
+                <td>
+                  <span class="status-dot <%= statusClass %>"></span>
+                  <%= onlineStatus %>
+                </td>
+                
                   <td><%= new Date(user.createdAt).toLocaleDateString() %></td>
 
                   <td>
