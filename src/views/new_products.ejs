@@ -37,11 +37,10 @@
 
       <form
         class="product-create-card"
-        action="/admin/product/new-products"
+        action="/admin/product/create"
         method="POST"
         enctype="multipart/form-data"
       >
-        <!-- Inner form padding -->
         <div class="product-create-inner">
           <div class="product-create-grid">
             <!-- Product Name -->
@@ -67,6 +66,7 @@
                 placeholder="Price"
                 required
               />
+              
             </div>
 
             <!-- Product Left Count -->
@@ -85,21 +85,37 @@
             <!-- Product Type -->
             <div class="field">
               <label class="field-label">Product Type</label>
-              <select class="field-select" name="productCollection" required>
-                <option value="DISH">Dish</option>
-                <option value="DRINK">Drink</option>
+              <select class="field-select product-collection" name="productCollection" required>
+                <option value="BREAKFAST">BREAKFAST</option>
+                <option value="LUNCH">LUNCH</option>
+                <option value="DINNER">DINNER</option>
+                <option value="DRINK">DRINK</option>
+                <option value="OTHER">OTHER</option>
               </select>
             </div>
 
-            <!-- Dish Volume -->
-            <div class="field">
-              <label class="field-label">Dish Volume</label>
-              <select class="field-select" name="productVolume">
-                <option value="SMALL">Small</option>
-                <option value="NORMAL" selected>Normal</option>
-                <option value="LARGE">Large</option>
-              </select>
-            </div>
+        <!-- Dish Size (productSize) -->
+<div class="field" id="food-size-field">
+    <label class="field-label">Dish Size</label>
+    <select class="field-select" name="productSize" id="productSize">
+      <option value="SMALL">Small</option>
+      <option value="NORMAL" selected>Normal</option>
+      <option value="LARGE">Large</option>
+      <option value="SET">Set</option>
+    </select>
+  </div>
+  
+  <!-- Drink Volume (productVolume) -->
+  <div class="field" id="drink-volume-field" style="display:none;">
+    <label class="field-label">Drink Volume</label>
+    <select class="field-select" name="productVolume" id="productVolume" disabled>
+      <option value="0.5 liter">0.5 liter</option>
+      <option value="1 liter">1 liter</option>
+      <option value="1.2 liter">1.2 liter</option>
+      <option value="1.5 liter">1.5 liter</option>
+      <option value="2l">2l</option>
+    </select>
+  </div>
 
             <!-- Description -->
             <div class="field field-full">
@@ -162,5 +178,5 @@
   </main>
 </div>
 
-
+<script src="/js/new-products.js"></script>
 <%- include('includes/footer') %>

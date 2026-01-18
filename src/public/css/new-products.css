@@ -253,6 +253,7 @@
   transform: translateY(0);
 }
 
+
 /* Responsive */
 @media (max-width: 1100px) {
   .upload-grid {
