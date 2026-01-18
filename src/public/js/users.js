@@ -19,29 +19,17 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 console.log("Users frontend javascript file");
-
 $(function () {
   $(".member-status").on("change", (e) => {
-    const id = e.target.id,
-      memberStatus = $(`#${id}.member-status`).val();
-    console.log("member Id", id);
-    console.log("memberStatus:", memberStatus);
+    const id = e.target.id;
+    const memberStatus = $(`#${id}.member-status`).val();
 
-    axios
-      .post("/admin/user/edit", { _id: id, memberStatus: memberStatus })
-      .then((response) => {
-        const result = response.data;
-        if (result.data) {
-          console.log("User Updated!:");
-          $(".member-status").blur();
-        } else alert("User Update Failed!:");
-      })
-      .catch((err) => {
-        console.log(err);
-        alert("User Update Failed!");
-      });
+    axios.post("/admin/user/edit", { _id: id, memberStatus })
+      .then(() => $(".member-status").blur())
+      .catch((err) => console.log(err.response?.data || err));
   });
 });
+
 function applyStatusStyle(selectEl) {
   const $el = $(selectEl);
   const v = $el.val();

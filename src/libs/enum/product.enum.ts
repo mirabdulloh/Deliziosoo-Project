@@ -6,11 +6,11 @@ export enum ProductSize {
 }
 
 export enum ProductVolume{
-    HALF = 0.5,
-    ONE = 1,
-    ONE_POINT_TWO = 1.2,
-    ONE_POINT_FIVE = 1.5,
-    TWO = 2
+    HALF = "0.5 liter",
+    ONE = "1 liter",
+    ONE_POINT_TWO = "1.2 liter",
+    ONE_POINT_FIVE = "1.5 liter",
+    TWO = "2l"
 } 
 
 export enum ProductStatus{

@@ -1,1 +1,120 @@
-<%- include('includes/navbar') %>
+<%- include('includes/navbar') %><%- include('includes/header') %>
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+/>
+<link rel="stylesheet" href="/css/main.css" />
+<link rel="stylesheet" href="/css/users.css" />
+<link rel="stylesheet" href="/css/products.css">
+
+</head>
+<body>
+<div class="dashboard-container">
+  <!-- Sidebar -->
+  <%- include('includes/navbar') %>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Top Header -->
+    <header class="top-header">
+      <div class="search-bar">
+        <i class="fas fa-search"></i>
+        <input type="text" placeholder="Search" />
+      </div>
+      <div class="header-actions">
+        <i class="fas fa-bell"></i>
+        <img
+          src="https://i.pravatar.cc/150?u=admin"
+          alt="Admin"
+          class="admin-avatar"
+        />
+      </div>
+    </header>
+
+    <!-- Table Section -->
+    <section class="table-section">
+        <div class="table-header">
+          <div class="table-search">
+            <input id="productSearch" type="text" placeholder="Search for products" />
+          </div>
+        </div>
+      
+        <div class="table-container">
+          <table id="productsTable">
+            <thead>
+              <tr>
+                <th>PRODUCT NAME</th>
+                <th>PRODUCT TYPE</th>
+                <th>PRODUCT VOLUME</th>
+                <th>PRODUCT PRICE</th>
+                <th>PRODUCT LEFT</th>
+                <th>PRODUCT STATUS</th>
+              </tr>
+            </thead>
+      
+            <tbody>
+              <% products.map((product) => { %>
+                <tr>
+                  <td>
+                    <div class="product-info">
+                        <img
+                            class="product-img"
+                            src="<%= product.productImages?.[0]
+                             ? '/' + product.productImages[0]
+                              : '/img/default-food.jpg' %>"
+                              alt="product"
+                        />
+
+                      
+                      <div class="product-meta">
+                        <div class="product-name"><%= product.productName %></div>
+                      </div>
+                    </div>
+                  </td>
+      
+                  <td><%= product.productCollection %></td>
+      
+                  <td>
+                    <%= product.productCollection === "DRINK" ? product.productVolume : product.productSize %>
+                  </td>
+      
+                  <td><%= product.productPrice %></td>
+      
+                  <td><%= product.productLeftCount %></td>
+      
+                  <td style="width: 13%">
+                    <select class="spec-select product-status new-product-status" id="<%= product._id %>">
+                      <option value="PAUSE" <%= product.productStatus === "PAUSE" ? "selected" : "" %>>PAUSE</option>
+                      <option value="PROCESS" <%= product.productStatus === "PROCESS" ? "selected" : "" %>>PROCESS</option>
+                      <option value="DELETE" <%= product.productStatus === "DELETE" ? "selected" : "" %>>DELETE</option>
+                    </select>
+                  </td>
+                  
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      
+        <div class="table-footer">
+          <div class="pagination">
+            <button class="page-nav"><i class="fas fa-chevron-left"></i></button>
+            <button class="page-nav"><i class="fas fa-chevron-right"></i></button>
+            <span>Total: <%= products.length %> products</span>
+          </div>
+      
+          <div class="footer-info">
+            <%
+              const processCount = products.filter(p => p.productStatus === "PROCESS").length;
+              const pauseCount = products.filter(p => p.productStatus === "PAUSE").length;
+            %>
+            <i class="fas fa-box"></i>
+            PROCESS: <b><%= processCount %></b> | PAUSE: <b><%= pauseCount %></b>
+          </div>
+        </div>
+      </section>
+      
+  </main>
+</div>
+<script src="/js/products.js"></script>
+<%- include('includes/footer') %>
