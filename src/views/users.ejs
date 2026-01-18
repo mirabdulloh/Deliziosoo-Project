@@ -1,3 +1,18 @@
+<%
+  const profile =
+    (typeof user !== "undefined" && user) ||
+    (typeof admin !== "undefined" && admin) ||
+    (typeof member !== "undefined" && member) ||
+    (locals && locals.member) ||
+    {};
+
+  const rawImg = profile?.memberImage;
+
+  const profileImg = rawImg
+    ? (rawImg.startsWith("/") ? rawImg : "/uploads/members/" + rawImg)
+    : "/img/default_img.jpg";
+%>
+
 <%- include('includes/header') %>
     <link
       rel="stylesheet"
@@ -42,55 +57,56 @@
                 </tr>
               </thead>
               <tbody>
-                <% users.map(user => { %>
-                <tr>
-                  <td>
-                    <div class="user-info">
-                        <img class="user-default-img"
-                        src="<%= user.memberImage ? '/uploads/members/' + user.memberImage : '/img/default_img.jpg' %>"
-                        alt="user"
-                      />
-                      <div>
-                        <div class="user-name"><%= user.memberNick %></div>
-                        <div class="user-email"><%= user.memberPhone %></div>
-                      </div>
-                    </div>
-                  </td>
-
-                  <td><%= user.memberType %></td>
-
+                <% users.forEach((user) => { %>
                   <%
-                  const now = new Date();
-                  const lastActive = user.lastActiveAt ? new Date(user.lastActiveAt) : null;
-                
-                  let onlineStatus = "OFFLINE";
-                  let statusClass = "offline";
-                
-                  if (lastActive && (now - lastActive) < 5 * 60 * 1000) {
-                    onlineStatus = "ONLINE";
-                    statusClass = "active";
-                  }
-                %>
-                
-                <td>
-                  <span class="status-dot <%= statusClass %>"></span>
-                  <%= onlineStatus %>
-                </td>
-                
-                  <td><%= new Date(user.createdAt).toLocaleDateString() %></td>
-
-                  <td style="width: 13%">
-                    <select class="spec-select member-status" id="<%= user._id %>">
-                      <option value="ACTIVE" <%= user.memberStatus === "ACTIVE" ? "selected" : "" %>>ACTIVE</option>
-                      <option value="BLOCK"  <%= user.memberStatus === "BLOCK"  ? "selected" : "" %>>BLOCK</option>
-                      <option value="DELETE" <%= user.memberStatus === "DELETE" ? "selected" : "" %>>DELETE</option>
-                    </select>
-                  </td>
-                  
-                </tr>
-
-                <% }); %>
+                    const rawImg = user?.memberImage;
+                    const userImg = rawImg
+                      ? (rawImg.startsWith("/") ? rawImg : "/uploads/members/" + rawImg)
+                      : "/img/default_img.jpg";
+              
+                    const now = new Date();
+                    const lastActive = user.lastActiveAt ? new Date(user.lastActiveAt) : null;
+              
+                    let onlineStatus = "OFFLINE";
+                    let statusClass = "offline";
+              
+                    if (lastActive && (now.getTime() - lastActive.getTime()) < 5 * 60 * 1000) {
+                      onlineStatus = "ONLINE";
+                      statusClass = "active";
+                    }
+                  %>
+              
+                  <tr>
+                    <td>
+                      <div class="user-info">
+                        <img class="user-default-img" src="<%= userImg %>" alt="user" />
+                        <div>
+                          <div class="user-name"><%= user.memberNick || "" %></div>
+                          <div class="user-email"><%= user.memberPhone || "" %></div>
+                        </div>
+                      </div>
+                    </td>
+              
+                    <td><%= user.memberType %></td>
+              
+                    <td>
+                      <span class="status-dot <%= statusClass %>"></span>
+                      <%= onlineStatus %>
+                    </td>
+              
+                    <td><%= new Date(user.createdAt).toLocaleDateString() %></td>
+              
+                    <td style="width: 13%">
+                      <select class="spec-select member-status" id="<%= user._id %>">
+                        <option value="ACTIVE" <%= user.memberStatus === "ACTIVE" ? "selected" : "" %>>ACTIVE</option>
+                        <option value="BLOCK"  <%= user.memberStatus === "BLOCK"  ? "selected" : "" %>>BLOCK</option>
+                        <option value="DELETE" <%= user.memberStatus === "DELETE" ? "selected" : "" %>>DELETE</option>
+                      </select>
+                    </td>
+                  </tr>
+                <% }) %>
               </tbody>
+              
             </table>
           </div>
 
