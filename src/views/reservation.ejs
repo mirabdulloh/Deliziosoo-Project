@@ -64,7 +64,17 @@
                 <td><%= key + 1 %></td>
                 <td class="mono"><%= value._id %></td>
                 <td><%= value.email %></td>
-                <td><%= value.dateTime %></td>
+                <td>
+                  <%= new Date(value.dateTime).toLocaleString("en-GB", {
+                    timeZone: "Asia/Seoul",
+                    year: "numeric",
+                    month: "short",
+                    day: "2-digit",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: false,
+                  }) %>
+                </td>
                 <td><%= value.peopleCount %></td>
                 <td class="note-cell">
             <div class="note-wrap">
