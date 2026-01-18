@@ -1,199 +1,72 @@
 <%- include('includes/header') %>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    />
-    <link rel="stylesheet" href="/css/main.css" />
-    <link rel="stylesheet" href="/css/home.css" />
+
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+/>
+<link rel="stylesheet" href="/css/main.css" />
+<link rel="stylesheet" href="/css/home.css" />
+
+</head>
+<body>
+
+<!-- Sidebar -->
+<%- include('includes/navbar') %>
+
+<!-- Main Content -->
+<main class="main-content">
+  <!-- Top Bar -->
+  <%- include('includes/top-header') %>
+
+  <!-- Dashboard Content -->
+  <div class="dashboard-content">
+
+    <!-- Food Showcase -->
+    <section class="showcase">
+      <div class="showcase-head">
+      
+      </div>
     
-  </head>
-  <body>
-    <!-- Sidebar -->
-    <!-- Sidebar -->
-    <%- include('includes/navbar') %>
-
-    <!-- Main Content -->
-    <main class="main-content">
-      <!-- Top Bar -->
-      <header class="top-bar">
-        <div class="search-container">
-          <i class="fas fa-search"></i>
-          <input type="text" placeholder="Search" class="search-input" />
-        </div>
-
-        <div class="auth-links">
-          <% if (!member) { %>
-          <a href="/admin/login" class="auth-btn login-btn">
-            <i class="fas fa-right-to-bracket"></i>
-            <span>Login</span>
-          </a>
-
-          <a href="/admin/signup" class="auth-btn signup-btn">
-            <i class="fas fa-user-plus"></i>
-            <span>Sign up</span>
-          </a>
-          <% } else { %>
-          <a
-            href="/admin/logout"
-            class="auth-btn logout-btn"
-            onclick="return confirm('Do you want to logout?')"
-          >
-            <i class="fas fa-sign-out-alt"></i>
-            <span>Logout</span>
-          </a>
-          <% } %>
-        </div>
-      </header>
-
-      <!-- Dashboard Content -->
-      <div class="dashboard-content">
-        <!-- Sales Section Header -->
-        <div class="section-header">
-          <h1 class="section-title">
-            Sales
-            <i class="fas fa-info-circle info-icon"></i>
-          </h1>
-          <div class="time-filter">
-            <button class="filter-btn">Year</button>
-            <button class="filter-btn">Month</button>
-            <button class="filter-btn active">Day</button>
-          </div>
-        </div>
-
-        <!-- Main Sales Chart -->
-        <div class="chart-card main-chart">
-          <canvas id="salesChart"></canvas>
-        </div>
-
-        <!-- Statistics Cards -->
-        <div class="stats-grid">
-          <!-- Burger Card -->
-          <div class="stat-card">
-            <div class="stat-image">
-              <img
-                src="/img/default_img.jpg"
-                alt="Burger"
-                width="400px"
-                height="400px"
-              />
-            </div>
-          </div>
-
-          <!-- Pizza Card -->
-          <div class="stat-card">
-            <div class="stat-image">
-              <img
-                src="https://images.unsplash.com/photo-1601924582975-5e74d4d0c5f3"
-                alt="Pizza"
-                width="400px"
-                height="400px"
-              />
-            </div>
-          </div>
-
-          <!-- Pasta Card -->
-          <div class="stat-card">
-            <div class="stat-image">
-              <img
-                src="https://images.unsplash.com/photo-1523986371872-9d3ba2e2a389"
-                alt="Pasta"
-                width="400px"
-                height="400px"
-              />
-            </div>
-          </div>
-
-          <!-- Dessert Card -->
-          <div class="stat-card">
-            <div class="stat-image">
-              <img
-                src="https://images.unsplash.com/photo-1505253213348-8b2b496df3c6"
-                alt="Dessert"
-                width="400px"
-                height="400px"
-              />
-            </div>
-          </div>
-        </div>
+      <div class="img-grid-pro">
+        <a class="tile normal" href="#">
+          <img src="https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=2000&q=80" alt="Classic Burger" />
+          <div class="tile-overlay"><span>Classic Burger</span></div>
+        </a>
+      
+        <a class="tile wide" href="#">
+          <img src="https://images.unsplash.com/photo-1601924582975-5e74d4d0c5f3?auto=format&fit=crop&w=2000&q=80" alt="Pepperoni Pizza" />
+          <div class="tile-overlay"><span>Pepperoni Pizza</span></div>
+        </a>
+      
+        <a class="tile wide" href="#">
+          <img src="https://images.unsplash.com/photo-1523986371872-9d3ba2e2a389?auto=format&fit=crop&w=2000&q=80" alt="Creamy Pasta" />
+          <div class="tile-overlay"><span>Creamy Pasta</span></div>
+        </a>
+      
+        <a class="tile normal" href="#">
+          <img src="https://images.unsplash.com/photo-1505253213348-8b2b496df3c6?auto=format&fit=crop&w=2000&q=80" alt="Sweet Dessert" />
+          <div class="tile-overlay"><span>Sweet Dessert</span></div>
+        </a>
+      
+        <a class="tile normal" href="#">
+          <img src="https://images.unsplash.com/photo-1551024601-bec78aea704b?auto=format&fit=crop&w=2000&q=80" alt="Donuts" />
+          <div class="tile-overlay"><span>Donuts</span></div>
+        </a>
+      
+        <a class="tile normal" href="#">
+          <img src="https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?auto=format&fit=crop&w=2000&q=80" alt="Healthy Bowl" />
+          <div class="tile-overlay"><span>Healthy Bowl</span></div>
+        </a>
       </div>
-    </main>
+      
+    </section>
+    
 
-    <!-- LOGIN MODAL -->
-    <div class="modal" id="loginModal" aria-hidden="true">
-      <div class="modal-backdrop" data-close="loginModal"></div>
+  </div>
+</main>
 
-      <div class="modal-card" role="dialog" aria-modal="true">
-        <button type="button" class="modal-close" data-close="loginModal">
-          &times;
-        </button>
+<!-- Chart.js Library -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="/js/home.js"></script>
 
-        <h2 class="modal-title">Login</h2>
-
-        <form method="POST" action="/admin/login" class="modal-form">
-          <div class="field">
-            <label>Email</label>
-            <input type="email" name="memberEmail" required />
-          </div>
-
-          <div class="field">
-            <label>Password</label>
-            <input type="password" name="memberPassword" required />
-          </div>
-
-          <button class="btn-primary" type="submit">Login</button>
-        </form>
-      </div>
-    </div>
-
-    <!-- SIGNUP MODAL -->
-    <div class="modal" id="signupModal" aria-hidden="true">
-      <div class="modal-backdrop" data-close="signupModal"></div>
-
-      <div class="modal-card" role="dialog" aria-modal="true">
-        <button type="button" class="modal-close" data-close="signupModal">
-          &times;
-        </button>
-
-        <h2 class="modal-title">Sign up</h2>
-
-        <form
-          method="POST"
-          action="/admin/signup"
-          enctype="multipart/form-data"
-          class="modal-form"
-        >
-          <div class="field">
-            <label>Name</label>
-            <input type="text" name="memberNick" required />
-          </div>
-
-          <div class="field">
-            <label>Phone</label>
-            <input type="text" name="memberPhone" required />
-          </div>
-
-          <div class="field">
-            <label>Email</label>
-            <input type="email" name="memberEmail" required />
-          </div>
-
-          <div class="field">
-            <label>Password</label>
-            <input type="password" name="memberPassword" required />
-          </div>
-
-          <div class="field">
-            <label>Profile image</label>
-            <input type="file" name="memberImage" accept="image/*" />
-          </div>
-
-          <button class="btn-primary" type="submit">Create account</button>
-        </form>
-      </div>
-    </div>
-
-    <!-- Chart.js Library -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <script src="/js/home.js"></script>
-
-  <%- include('includes/footer') %>
+<%- include('includes/footer') %>

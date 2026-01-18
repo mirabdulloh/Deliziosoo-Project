@@ -1,28 +1,15 @@
 <link rel="stylesheet" href="/css/main.css" />
 
-<%
-  const avatarPath = (member && member.memberImage)
-    ? (member.memberImage.startsWith("/")
-        ? member.memberImage
-        : "/" + member.memberImage)
-    : "/img/default_img.jpg";
-%>
+<% const avatarPath = (member && member.memberImage) ?
+(member.memberImage.startsWith("/") ? member.memberImage : "/" +
+member.memberImage) : "/img/default_img.jpg"; %>
 
 <header class="top-header">
-  <div class="search-bar">
-    <i class="fas fa-search"></i>
-    <input type="text" placeholder="Search" />
-  </div>
-
   <div class="header-actions">
     <i class="fas fa-bell"></i>
 
     <a href="/admin/settings">
-      <img
-        src="<%= avatarPath %>"
-        alt="Admin"
-        class="admin-avatar"
-      />
+      <img src="<%= avatarPath %>" alt="Admin" class="admin-avatar" />
     </a>
   </div>
 </header>
