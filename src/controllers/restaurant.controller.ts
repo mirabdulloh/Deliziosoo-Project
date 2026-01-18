@@ -218,25 +218,30 @@ restaurantController.getAdminSettingsPage = async (req: any, res: Response) => {
 
 restaurantController.updateAdminSettings = async (req: any, res: Response) => {
   try {
-    console.log("updateAdminSettings:");
-
     const input: any = {
       memberNick: req.body.memberNick,
     };
 
+    // if new image uploaded, save web path into DB
     if (req.file) {
-      input.memberImage = req.file.path;
+      input.memberImage = `/uploads/members/${req.file.filename}`;
     }
 
-    const result = await memberService.updateAdminSettings(req.member, input);
+    const updated = await memberService.updateAdminSettings(req.member, input);
 
-    res.status(HttpCode.OK).json({ data: result });
+    // ✅ CRITICAL: refresh session + locals so header/settings show new image
+    (req.session as any).member = updated;
+    res.locals.member = updated;
+
+    return res.redirect("/admin/settings");
   } catch (err) {
     console.log("ERROR updateAdminSettings:", err);
-    if (err instanceof Errors) res.status(err.code).json(err);
-    else res.status(Errors.standard.code).json(Errors.standard);
+    const msg =
+      err instanceof Errors ? err.message : Message.SOMETHING_WENT_WRONG;
+    return res.send(
+      `<script>alert("${msg}"); window.location.replace("/admin/settings")</script>`
+    );
   }
 };
-
 
 export default restaurantController;

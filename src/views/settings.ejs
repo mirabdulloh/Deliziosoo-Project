@@ -32,7 +32,13 @@
           <span class="settings-badge"><i class="fas fa-user-cog"></i> Account</span>
         </div>
 
-        <form class="settings-form" id="settingsForm" enctype="multipart/form-data">
+        <form
+          class="settings-form"
+          id="settingsForm"
+          action="/admin/settings/update"
+          method="POST"
+          enctype="multipart/form-data"
+        >
 
 
           <!-- Avatar row -->
