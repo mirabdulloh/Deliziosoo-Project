@@ -12,6 +12,8 @@ router.post(
   memberController.signUp,
 );
 
+router.post("/member/login", memberController.login);
+
 router.post(
   "/member/create/reservation",
   memberController.verifyAuth,

@@ -48,7 +48,7 @@
                 <tr>
                   <th>NAME</th>
                   <th>TYPE</th>
-                  <th>STATUS</th>
+                  <th>ONLINE/OFFLINE</th>
                   <th>CREATED AT</th>
                   <th>EDIT</th>
                   <th></th>
@@ -108,8 +108,21 @@
               <span>Show 1-15 of 987</span>
             </div>
             <div class="footer-info">
-              Last account activity: 2 hours ago <i class="fas fa-eye"></i>
-            </div>
+                <%
+                  const now = Date.now();
+              
+                  const onlineUsers = users.filter(u => {
+                    if (!u.lastActiveAt) return false;
+                    return (now - new Date(u.lastActiveAt).getTime()) < 5 * 60 * 1000;
+                  }).length;
+              
+                  const totalUsers = users.length;
+                %>
+              
+                <i class="fas fa-eye"></i>
+                Currently online: <b><%= onlineUsers %></b> of <b><%= totalUsers %></b> users
+              </div>
+              
           </div>
         </section>
       </main>

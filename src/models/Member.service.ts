@@ -1,5 +1,5 @@
 import { shapeIntoMongooseObjectId } from "../libs/config";
-import { MemberType } from "../libs/enum/member.enum";
+import { MemberStatus, MemberType } from "../libs/enum/member.enum";
 import Errors, { HttpCode, Message } from "../libs/Errors";
 import {
   LoginInput,
@@ -80,7 +80,6 @@ class MemberService {
     return result;
   }
 
-
   // ! SPA REACT
 
   public async signUp(input: MemberInput): Promise<Member> {
@@ -95,6 +94,44 @@ class MemberService {
       console.error("ERROR: model: signUp", err);
       throw new Errors(HttpCode.BAD_REQUEST, Message.USED_NICK_PHONE);
     }
+  }
+
+  public async login(input: LoginInput): Promise<Member> {
+    // TODO: Consider member status later
+    const member = await this.memberModel
+      .findOne(
+        {
+          memberNick: input.memberNick,
+          memberStatus: { $ne: MemberStatus.DELETE },
+        }, // Filter
+        { memberNick: 1, memberPassword: 1, memberStatus: 1 }
+      )
+      .exec(); // Projection
+    console.log("member:", member);
+
+    if (!member) throw new Errors(HttpCode.NOT_FOUND, Message.NO_MEMBER_NICK);
+    else if (member.memberStatus === MemberStatus.BLOCK) {
+      throw new Errors(HttpCode.FORBIDDEN, Message.BLOCKED_USER);
+    }
+
+    const isMatch: boolean = await bcrypt.compare(
+      input.memberPassword, // max2020
+      member.memberPassword // dedefefwfw4fwfwfw4fwf
+    );
+    console.log("isMatch:", isMatch);
+    if (!isMatch)
+      throw new Errors(HttpCode.UNAUTHORIZED, Message.WRONG_PASSWORD);
+    
+    // =========== ADD HERE ===========
+    await this.memberModel.updateOne(
+      { _id: member._id },
+      { $set: { lastLoginAt: new Date(), lastActiveAt: new Date() } }
+    );
+    // =================================
+    
+    return await this.memberModel.findById(member._id).lean().exec();
+
+    return await this.memberModel.findById(member._id).lean().exec();
   }
 }
 

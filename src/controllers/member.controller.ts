@@ -2,9 +2,10 @@ import { NextFunction, Request, Response } from "express";
 import Errors, { HttpCode, Message } from "../libs/Errors";
 import MemberService from "../models/Member.service";
 import { T } from "../libs/types/common";
-import { ExtendedRequest, Member, MemberInput } from "../libs/types/member";
+import { ExtendedRequest, LoginInput, Member, MemberInput } from "../libs/types/member";
 import AuthService from "../models/Auth.service";
 import { AUTH_TIME } from "../libs/config";
+import MemberModel from "../schema/Member.model";
 
 const memberService = new MemberService();
 const authService = new AuthService();
@@ -37,6 +38,28 @@ memberController.signUp = async (req: Request, res: Response) => {
 
 
 
+memberController.login = async (req: Request, res: Response) => {
+  // service model
+  try {
+    console.log("login:");
+    const input: LoginInput = req.body,
+      result = await memberService.login(input);
+    console.log("login result=>", result);
+    // token creation
+    const token = await authService.createToken(result);
+    // browser cookies ichiga joylanishi
+    res.cookie("accessToken", token, {
+      maxAge: AUTH_TIME * 3600 * 1000,
+      httpOnly: false,
+    });
+
+    res.status(HttpCode.OK).json({ member: result, accessToken: token });
+  } catch (err) {
+    if (err instanceof Errors) res.status(err.code).json(err);
+    else res.status(Errors.standard.code).json(Errors.standard);
+    console.log("ERROR, login:", err);
+  }
+};
 memberController.verifyAuth = async (
   req: ExtendedRequest,
   res: Response,
@@ -45,7 +68,24 @@ memberController.verifyAuth = async (
   try {
     console.log("verifyAuth:");
     const token = req.cookies["accessToken"];
+
     if (token) req.member = await authService.checkAuth(token);
+
+    // ========== ADD THIS BLOCK HERE ==========
+    if (req.member?._id) {
+      await MemberModel.updateOne(
+        {
+          _id: req.member._id,
+          $or: [
+            { lastActiveAt: null },
+            { lastActiveAt: { $lte: new Date(Date.now() - 60_000) } },
+          ],
+        },
+        { $set: { lastActiveAt: new Date() } }
+      );
+    }
+    // ========================================
+
     if (!req.member)
       throw new Errors(HttpCode.UNAUTHORIZED, Message.NOT_AUTHENTICATED);
 
@@ -56,6 +96,7 @@ memberController.verifyAuth = async (
     console.log("ERROR, verifyAuth:", err);
   }
 };
+
 
 
 export default memberController;

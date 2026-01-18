@@ -2,7 +2,6 @@ import mongoose, { Schema } from "mongoose";
 import { MemberStatus, MemberType } from "../libs/enum/member.enum";
 import { Member } from "../libs/types/member";
 
-
 const memberSchema = new Schema(
   {
     memberType: {
@@ -43,6 +42,8 @@ const memberSchema = new Schema(
       type: Number,
       default: 0,
     },
+    lastActiveAt: { type: Date, default: null },
+    lastLoginAt: { type: Date, default: null },
   },
   { timestamps: true }
 );

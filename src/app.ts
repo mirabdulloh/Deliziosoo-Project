@@ -9,6 +9,7 @@ import cookieParser from "cookie-parser";
 import session from "express-session";
 import ConnectMongoDB from "connect-mongodb-session";
 import { T } from "./libs/types/common";
+import MemberModel from "./schema/Member.model";
 
 const MongoDBStore = ConnectMongoDB(session);
 
@@ -47,6 +48,9 @@ app.use(
     saveUninitialized: true,
   })
 );
+
+
+
 
 app.use(function (req, res, next) {
   const sessionInstance = req.session as T;
