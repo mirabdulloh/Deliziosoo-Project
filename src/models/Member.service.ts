@@ -1,3 +1,4 @@
+import { T } from "../libs/types/common";
 import { shapeIntoMongooseObjectId } from "../libs/config";
 import { MemberStatus, MemberType } from "../libs/enum/member.enum";
 import Errors, { HttpCode, Message } from "../libs/Errors";
@@ -79,6 +80,27 @@ class MemberService {
 
     return result;
   }
+
+  public async updateAdminSettings(member: Member, input: MemberInput): Promise<Member> {
+    const memberId = shapeIntoMongooseObjectId(member._id);
+  
+    const updateData: T = {};
+  
+    // only allow these fields
+    if (input.memberNick) updateData.memberNick = input.memberNick;
+    if (input.memberImage) updateData.memberImage = input.memberImage;
+  
+    const result = await this.memberModel.findOneAndUpdate(
+      { _id: memberId, memberType: MemberType.RESTAURANT},
+      updateData,
+      { new: true }
+    );
+  
+    if (!result) throw new Errors(HttpCode.NOT_MODIFIED, Message.UPDATE_FAILED);
+  
+    return result;
+  }
+  
 
   // ! SPA REACT
 

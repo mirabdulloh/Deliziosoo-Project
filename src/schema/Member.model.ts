@@ -35,7 +35,7 @@ const memberSchema = new Schema(
     memberDesc: {
       type: String,
     },
-    memberImg: {
+    memberImage: {
       type: String,
     },
     memberPoints: {

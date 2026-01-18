@@ -202,4 +202,41 @@ restaurantController.updateReservation = async (
   }
 };
 
+// ! SETTINGS
+
+restaurantController.getAdminSettingsPage = async (req: any, res: Response) => {
+  try {
+    return res.render("settings", {
+      admin: req.member,
+      currentPath: req.path,
+    });
+  } catch (err) {
+    console.log("ERROR getAdminSettingsPage:", err);
+    return res.redirect("/admin");
+  }
+};
+
+restaurantController.updateAdminSettings = async (req: any, res: Response) => {
+  try {
+    console.log("updateAdminSettings:");
+
+    const input: any = {
+      memberNick: req.body.memberNick,
+    };
+
+    if (req.file) {
+      input.memberImage = req.file.path;
+    }
+
+    const result = await memberService.updateAdminSettings(req.member, input);
+
+    res.status(HttpCode.OK).json({ data: result });
+  } catch (err) {
+    console.log("ERROR updateAdminSettings:", err);
+    if (err instanceof Errors) res.status(err.code).json(err);
+    else res.status(Errors.standard.code).json(Errors.standard);
+  }
+};
+
+
 export default restaurantController;

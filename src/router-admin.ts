@@ -86,4 +86,19 @@ routerAdmin.get(
   orderController.getAdminStatsPage
 );
 
+
+// ! SEttings
+routerAdmin.get(
+  "/settings",
+  restaurantController.verifyRestaurant,
+  restaurantController.getAdminSettingsPage
+);
+
+routerAdmin.post(
+  "/settings/update",
+  restaurantController.verifyRestaurant,
+  makeUploader("members").single("memberImage"),
+  restaurantController.updateAdminSettings
+);
+
 export default routerAdmin;
