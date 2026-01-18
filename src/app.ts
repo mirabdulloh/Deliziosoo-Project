@@ -49,7 +49,25 @@ app.use(
   })
 );
 
+app.use(async (req, res, next) => {
+  const s = req.session as any;
 
+  if (s?.member?._id) {
+    const now = Date.now();
+
+    // avoid updating DB on every request
+    if (!s.lastActivePing || now - s.lastActivePing > 60_000) {
+      s.lastActivePing = now;
+
+      await MemberModel.updateOne(
+        { _id: s.member._id },
+        { $set: { lastActiveAt: new Date() } }
+      );
+    }
+  }
+
+  next();
+});
 
 
 app.use(function (req, res, next) {

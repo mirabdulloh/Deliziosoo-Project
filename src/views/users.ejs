@@ -46,7 +46,7 @@
             <table id="usersTable">
               <thead>
                 <tr>
-                  <th>NAME</th>
+                  <th>NAME/NUMBER</th>
                   <th>TYPE</th>
                   <th>ONLINE/OFFLINE</th>
                   <th>CREATED AT</th>
@@ -92,14 +92,14 @@
                 
                   <td><%= new Date(user.createdAt).toLocaleDateString() %></td>
 
-                  <td>
-                    <form method="POST" action="/admin/user/edit">
-                      <input type="hidden" name="_id" value="<%= user._id %>" />
-                      <button class="edit-btn" type="submit">
-                        <i class="fa-regular fa-pen-to-square"></i> Edit
-                      </button>
-                    </form>
+                  <td style="width: 13%">
+                    <select class="spec-select member-status" id="<%= user._id %>">
+                      <option value="ACTIVE" <%= user.memberStatus === "ACTIVE" ? "selected" : "" %>>ACTIVE</option>
+                      <option value="BLOCK"  <%= user.memberStatus === "BLOCK"  ? "selected" : "" %>>BLOCK</option>
+                      <option value="DELETE" <%= user.memberStatus === "DELETE" ? "selected" : "" %>>DELETE</option>
+                    </select>
                   </td>
+                  
                 </tr>
 
                 <% }); %>
