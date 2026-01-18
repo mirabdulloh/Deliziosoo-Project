@@ -7,10 +7,7 @@ import orderController from "./controllers/order.controller";
 
 const router = express.Router();
 
-router.post(
-  "/member/signup",
-  memberController.signUp,
-);
+router.post("/member/signup", memberController.signUp);
 
 router.post("/member/login", memberController.login);
 
@@ -20,14 +17,24 @@ router.post(
   reservationController.createReservation
 );
 
-
 //! ORders SPA
-
 
 router.post(
   "/order/create",
   memberController.verifyAuth,
   orderController.createOrder
+);
+
+router.get(
+  "/order/all",
+  memberController.verifyAuth,
+  orderController.getMyOrders
+);
+
+router.post(
+  "/order/update",
+  memberController.verifyAuth,
+  orderController.updateOrder
 );
 
 export default router;

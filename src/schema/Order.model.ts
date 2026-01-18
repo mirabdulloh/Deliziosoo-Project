@@ -21,8 +21,15 @@ const orderSchema = new Schema(
       required: true,
       ref: "Member",
     },
+    paidAt: { type: Date }, // when moved to PROCESS (payment)
+    finishedAt: { type: Date }, // when moved to FINISH
+    canceledAt: { type: Date }, // optional if you add cancel
   },
+
   { timestamps: true }
 );
+orderSchema.index({ orderStatus: 1, createdAt: 1 });
+orderSchema.index({ paidAt: 1 });
+orderSchema.index({ finishedAt: 1 });
 
 export default mongoose.model("Order", orderSchema);

@@ -121,17 +121,30 @@ class MemberService {
     console.log("isMatch:", isMatch);
     if (!isMatch)
       throw new Errors(HttpCode.UNAUTHORIZED, Message.WRONG_PASSWORD);
-    
+
     // =========== ADD HERE ===========
     await this.memberModel.updateOne(
       { _id: member._id },
       { $set: { lastLoginAt: new Date(), lastActiveAt: new Date() } }
     );
     // =================================
-    
-    return await this.memberModel.findById(member._id).lean().exec();
 
     return await this.memberModel.findById(member._id).lean().exec();
+  }
+  public async addUserPoint(member: Member, point: number): Promise<Member> {
+    const memberId = shapeIntoMongooseObjectId(member._id);
+
+    return await this.memberModel
+      .findOneAndUpdate(
+        {
+          _id: memberId,
+          memberType: MemberType.USER,
+          memberStatus: MemberStatus.ACTIVE,
+        },
+        { $inc: { memberPoints: point } },
+        { new: true }
+      )
+      .exec();
   }
 }
 

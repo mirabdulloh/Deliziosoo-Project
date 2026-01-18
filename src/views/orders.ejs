@@ -1,2 +1,146 @@
-<h2>Finished Orders Today</h2>
-<p><strong><%= finishedTodayCount %></strong></p>
+<%- include('includes/header') %>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
+<link rel="stylesheet" href="/css/main.css" />
+<link rel="stylesheet" href="/css/orders-stats.css" />
+
+</head>
+<body>
+<div class="dashboard-container">
+  <%- include('includes/navbar') %>
+
+  <main class="main-content">
+    <header class="top-header">
+      <div class="search-bar">
+        <i class="fas fa-search"></i>
+        <input id="orderSearch" type="text" placeholder="Search by order id or user..." />
+      </div>
+      <div class="header-actions">
+        <i class="fas fa-bell"></i>
+        <img src="https://i.pravatar.cc/150?u=admin" alt="Admin" class="admin-avatar" />
+      </div>
+    </header>
+
+    <section class="table-section">
+      <div class="table-header">
+        <div class="table-title">
+          <h2>Orders Statistics</h2>
+          <span class="badge">Total Orders: <%= orders?.length || 0 %></span>
+        </div>
+
+        <div class="table-actions">
+          <div class="mini-stats">
+            <span class="chip chip-pending">PENDING TODAY: <b><%= pendingTodayCount || 0 %></b></span>
+            <span class="chip chip-confirmed">FINISHED TODAY: <b><%= finishedTodayCount || 0 %></b></span>
+            <span class="chip chip-total">TODAY TOTAL: <b><%= todayTotalCount || 0 %></b></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- STAT CARDS -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon"><i class="fa-solid fa-bag-shopping"></i></div>
+          <div class="stat-meta">
+            <p class="stat-title">Finished Orders Today</p>
+            <p class="stat-value"><%= finishedTodayCount || 0 %></p>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon"><i class="fa-solid fa-clock"></i></div>
+          <div class="stat-meta">
+            <p class="stat-title">Pending Orders Today</p>
+            <p class="stat-value"><%= pendingTodayCount || 0 %></p>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon"><i class="fa-solid fa-won-sign"></i></div>
+          <div class="stat-meta">
+            <p class="stat-title">Revenue Today</p>
+            <p class="stat-value">
+              <%= (revenueToday || 0).toLocaleString("ko-KR") %> WON
+            </p>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon"><i class="fa-solid fa-chart-line"></i></div>
+          <div class="stat-meta">
+            <p class="stat-title">Revenue This Month</p>
+            <p class="stat-value">
+              <%= (revenueMonth || 0).toLocaleString("ko-KR") %> WON
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- RECENT ORDERS TABLE -->
+      <div class="table-container">
+        <table id="ordersTable">
+          <thead>
+            <tr>
+              <th style="width:60px">#</th>
+              <th>ORDER ID</th>
+              <th>USER</th>
+              <th>DATE / TIME</th>
+              <th>AMOUNT</th>
+              <th style="width:180px">STATUS</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <% (orders || []).slice(0, 15).map(function(o, idx){ %>
+              <tr>
+                <td><%= idx + 1 %></td>
+                <td class="mono"><%= o._id %></td>
+                <td><%= o?.memberNick || o?.userNick || o?.customerName || '-' %></td>
+                <td>
+                  <%= new Date(o.createdAt || o.orderDate || Date.now()).toLocaleString("en-GB", {
+                    timeZone: "Asia/Seoul",
+                    year: "numeric",
+                    month: "short",
+                    day: "2-digit",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: false,
+                  }) %>
+                </td>
+                <td>
+                  <%= (o.totalPrice || o.orderTotal || 0).toLocaleString("ko-KR") %> WON
+                </td>
+                <td>
+                  <span class="status-pill status-<%= String(o.orderStatus || o.status || 'PENDING').toLowerCase() %>">
+                    <%= o.orderStatus || o.status || 'PENDING' %>
+                  </span>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+
+    </section>
+  </main>
+</div>
+
+<script>
+  // simple filter
+  document.addEventListener("DOMContentLoaded", () => {
+    const input = document.getElementById("orderSearch");
+    const table = document.getElementById("ordersTable");
+    if (!input || !table) return;
+
+    input.addEventListener("input", () => {
+      const q = input.value.trim().toLowerCase();
+      const rows = table.querySelectorAll("tbody tr");
+      rows.forEach((tr) => {
+        const text = tr.textContent?.toLowerCase() || "";
+        tr.style.display = text.includes(q) ? "" : "none";
+      });
+    });
+  });
+</script>
+
+<%- include('includes/footer') %>

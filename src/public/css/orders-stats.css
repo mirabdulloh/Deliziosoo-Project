@@ -1,0 +1,76 @@
+.stats-grid{
+    display:grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap:16px;
+    margin: 14px 0 18px;
+  }
+  
+  .stat-card{
+    background:#fff;
+    border:1px solid #eef0f4;
+    border-radius:16px;
+    padding:16px;
+    display:flex;
+    align-items:center;
+    gap:14px;
+    box-shadow: 0 6px 18px rgba(16,24,40,.04);
+  }
+  
+  .stat-icon{
+    width:44px;height:44px;
+    border-radius:12px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:#f6f7fb;
+    color:#2b2f38;
+    flex:0 0 auto;
+  }
+  
+  .stat-title{
+    margin:0;
+    font-size:12px;
+    color:#6b7280;
+    font-weight:600;
+    letter-spacing:.2px;
+  }
+  
+  .stat-value{
+    margin:4px 0 0;
+    font-size:22px;
+    font-weight:800;
+    color:#111827;
+  }
+  
+  .chip-total{
+    border-color:#dbeafe;
+    background:#eff6ff;
+    color:#1e40af;
+  }
+  
+  .status-pill{
+    display:inline-flex;
+    align-items:center;
+    padding:8px 12px;
+    border-radius:999px;
+    font-weight:700;
+    font-size:12px;
+    border:1px solid #e5e7eb;
+    background:#f9fafb;
+    color:#111827;
+  }
+  
+  /* adjust these to your statuses */
+  .status-pending{ background:#fff7ed; border-color:#fed7aa; color:#9a3412; }
+  .status-finished{ background:#ecfdf5; border-color:#a7f3d0; color:#065f46; }
+  .status-confirmed{ background:#ecfdf5; border-color:#a7f3d0; color:#065f46; }
+  .status-canceled{ background:#fef2f2; border-color:#fecaca; color:#991b1b; }
+  .status-cancelled{ background:#fef2f2; border-color:#fecaca; color:#991b1b; }
+  
+  @media(max-width: 1100px){
+    .stats-grid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media(max-width: 640px){
+    .stats-grid{ grid-template-columns: 1fr; }
+  }
+  
