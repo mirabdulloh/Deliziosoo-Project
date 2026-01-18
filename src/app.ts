@@ -1,14 +1,14 @@
-import express from "express"
-import cors from 'cors';
-import path from "path"
-import router from "./router"
-import routerAdmin from "./router-admin"
-import morgan from "morgan"
-import { MORGAN_FORMAT } from "./libs/config"
+import express from "express";
+import cors from "cors";
+import path from "path";
+import router from "./router";
+import routerAdmin from "./router-admin";
+import morgan from "morgan";
+import { MORGAN_FORMAT } from "./libs/config";
 import cookieParser from "cookie-parser";
-import session from "express-session"
-import ConnectMongoDB from "connect-mongodb-session" 
-import { T } from "./libs/types/common"
+import session from "express-session";
+import ConnectMongoDB from "connect-mongodb-session";
+import { T } from "./libs/types/common";
 
 const MongoDBStore = ConnectMongoDB(session);
 
@@ -21,15 +21,17 @@ const store = new MongoDBStore({
 
 const app = express();
 
-app.use(express.static(path.join(__dirname,"public")));
-app.use(express.urlencoded({extended:true}));
+app.use(express.static(path.join(__dirname, "public")));
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(cors({
-  origin: true,
-  credentials: true,
-}));
+app.use(
+  cors({
+    origin: true,
+    credentials: true,
+  })
+);
 app.use(cookieParser());
-app.use("/uploads",express.static("./uploads"));
+app.use("/uploads", express.static("./uploads"));
 app.use(morgan(MORGAN_FORMAT));
 
 /** Sessions   */
@@ -43,13 +45,17 @@ app.use(
     store: store,
     resave: true,
     saveUninitialized: true,
-
   })
 );
 
 app.use(function (req, res, next) {
   const sessionInstance = req.session as T;
   res.locals.member = sessionInstance.member;
+  next();
+});
+
+app.use((req, res, next) => {
+  res.locals.currentPath = req.path;
   next();
 });
 

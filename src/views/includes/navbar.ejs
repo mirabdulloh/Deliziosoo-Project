@@ -1,0 +1,43 @@
+<link rel="stylesheet" href="/css/home.css" />
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <div class="logo">
+      <img src="/img/Logo_Delizioso.svg" alt="Delizioso" />
+    </div>
+   
+  </div>
+
+  <!-- ALWAYS SHOW -->
+  <a href="/admin"
+  class="nav-item <%= currentPath === '/admin' ? 'active' : '' %>">
+  <i class="fas fa-chart-pie"></i>
+  <span>Dashboard</span>
+</a>
+
+<a href="/admin/user/all"
+  class="nav-item <%= currentPath.includes('/admin/user') ? 'active' : '' %>">
+  <i class="fas fa-users"></i>
+  <span>Users</span>
+</a>
+
+<a href="/admin/product/all"
+  class="nav-item <%= currentPath.includes('/admin/product') ? 'active' : '' %>">
+  <i class="fas fa-shopping-bag"></i>
+  <span>Products</span>
+</a>
+
+<a href="/admin/order/all"
+  class="nav-item <%= currentPath.includes('/admin/order') ? 'active' : '' %>">
+  <i class="fas fa-list"></i>
+  <span>Orders</span>
+</a>
+
+<a href="/admin/getAll/reservations"
+  class="nav-item <%= currentPath.includes('/reservations') ? 'active' : '' %>">
+  <i class="fas fa-calendar"></i>
+  <span>Reservations</span>
+</a>
+
+</aside>
+
+  

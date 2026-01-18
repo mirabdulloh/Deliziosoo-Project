@@ -10,64 +10,13 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
     <link rel="stylesheet" href="/css/main.css" />
+    <link rel="stylesheet" href="/css/home.css" />
+    
   </head>
   <body>
     <!-- Sidebar -->
     <!-- Sidebar -->
-    <aside class="sidebar">
-      <div class="sidebar-header">
-        <div class="logo">
-          <img src="/img/Logo_Delizioso.svg" alt="Delizioso" />
-        </div>
-        <button class="menu-toggle">
-          <i class="fas fa-bars"></i>
-        </button>
-      </div>
-
-      <!-- ALWAYS SHOW -->
-
-      <% if (!member) { %>
-      <!-- NOT LOGGED IN -->
-      <a href="/admin" class="nav-item active">
-        <i class="fas fa-chart-pie"></i>
-        <span>Dashboard</span>
-      </a>
-      <% } else { %>
-      <!-- LOGGED IN -->
-      <a href="/admin" class="nav-item active">
-        <i class="fas fa-chart-pie"></i>
-        <span>Dashboard</span>
-      </a>
-      <a href="/admin/user/all" class="nav-item">
-        <i class="fas fa-users"></i>
-        <span>Users</span>
-      </a>
-
-      <a href="/admin/product/all" class="nav-item">
-        <i class="fas fa-shopping-bag"></i>
-        <span>Products</span>
-      </a>
-
-      <a href="/admin/order/all" class="nav-item">
-        <i class="fas fa-list"></i>
-        <span>Orders</span>
-      </a>
-
-      <a href="/admin/getAll/reservations" class="nav-item">
-        <i class="fas fa-calendar"></i>
-        <span>Reservations</span>
-      </a>
-
-      <a
-        href="/admin/logout"
-        class="nav-item"
-        onclick="return confirm('Do you want to logout?')"
-      >
-        <i class="fas fa-sign-out-alt"></i>
-        <span>Logout</span>
-      </a>
-      <% } %>
-    </aside>
+    <%- include('includes/navbar') %>
 
     <!-- Main Content -->
     <main class="main-content">

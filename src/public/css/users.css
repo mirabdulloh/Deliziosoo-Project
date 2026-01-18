@@ -1,146 +1,12 @@
-:root {
-  --sidebar-width: 240px;
-  --bg-color: #f9fafb;
-  --sidebar-bg: #ffffff;
-  --text-main: #111827;
-  --text-muted: #6b7280;
-  --primary-blue: #1c64f2;
-  --border-color: #e5e7eb;
-  --active-bg: #f3f4f6;
-}
+/* =========================
+   USERS PAGE ONLY
+   ========================= */
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-}
-
-body {
-  background-color: var(--bg-color);
-  color: var(--text-main);
-}
-
-.dashboard-container {
-  display: flex;
-  min-height: 100vh;
-}
-
-/* Sidebar Styles */
-.sidebar {
-  width: var(--sidebar-width);
-  background: var(--sidebar-bg);
-  border-right: 1px solid var(--border-color);
-  display: flex;
-  flex-direction: column;
-  position: fixed;
-  height: 100vh;
-}
-
-.sidebar-header {
-  padding: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.logo {
-  font-size: 24px;
-  color: var(--text-main);
-}
-
-.sidebar-nav {
-  flex: 1;
-  padding: 10px;
-}
-
-.sidebar-nav ul {
-  list-style: none;
-}
-
-.sidebar-nav li {
-  margin-bottom: 4px;
-}
-
-.sidebar-nav a {
-  display: flex;
-  align-items: center;
-  padding: 10px 12px;
-  text-decoration: none;
-  color: var(--text-main);
-  font-size: 14px;
-  font-weight: 500;
-  border-radius: 8px;
-  transition: background 0.2s;
-}
-
-.sidebar-nav a i:first-child {
-  width: 20px;
-  margin-right: 12px;
-  font-size: 16px;
-  color: var(--text-muted);
-}
-
-.sidebar-nav a:hover, .sidebar-nav li.active > a {
-  background: var(--active-bg);
-}
-
-.dropdown-icon {
-  margin-left: auto;
-  font-size: 12px;
-  color: var(--text-muted);
-}
-
-.submenu {
-  margin-left: 32px;
-  margin-top: 4px;
-}
-
-.submenu li a {
-  padding: 8px 12px;
-  color: var(--text-muted);
-}
-
-.submenu li.active a {
-  color: var(--primary-blue);
-  background: transparent;
-}
-
-.badge {
-  background: #fee2e2;
-  color: #991b1b;
-  font-size: 11px;
-  padding: 2px 6px;
-  border-radius: 10px;
-  margin-left: 8px;
-}
-
-.nav-divider {
-  height: 1px;
-  background: var(--border-color);
-  margin: 15px 10px;
-}
-
-.sidebar-footer {
-  padding: 20px;
-  border-top: 1px solid var(--border-color);
-  display: flex;
-  gap: 20px;
-  color: var(--text-muted);
-}
-
-/* Main Content Styles */
-.main-content {
-  margin-left: var(--sidebar-width);
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
+/* Users top header (your users page uses .top-header) */
 .top-header {
   height: 64px;
   background: #fff;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid #e2e8f0;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -157,7 +23,7 @@ body {
 }
 
 .search-bar i {
-  color: var(--text-muted);
+  color: #64748b;
   margin-right: 10px;
 }
 
@@ -176,7 +42,7 @@ body {
 }
 
 .header-actions i {
-  color: var(--text-muted);
+  color: #64748b;
   font-size: 18px;
 }
 
@@ -186,7 +52,7 @@ body {
   border-radius: 50%;
 }
 
-/* Table Section Styles */
+/* Table Section */
 .table-section {
   padding: 24px;
 }
@@ -194,7 +60,7 @@ body {
 .table-header {
   background: #fff;
   padding: 16px;
-  border: 1px solid var(--border-color);
+  border: 1px solid #e2e8f0;
   border-bottom: none;
   border-radius: 12px 12px 0 0;
   display: flex;
@@ -204,7 +70,7 @@ body {
 
 .table-search input {
   padding: 10px 16px;
-  border: 1px solid var(--border-color);
+  border: 1px solid #e2e8f0;
   border-radius: 8px;
   width: 320px;
   background: #f9fafb;
@@ -215,15 +81,15 @@ body {
   display: flex;
   align-items: center;
   gap: 16px;
-  color: var(--text-muted);
+  color: #64748b;
 }
 
 .export-btn {
   background: #fff;
-  border: 1px solid var(--border-color);
+  border: 1px solid #e2e8f0;
   padding: 8px 16px;
   border-radius: 8px;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -232,7 +98,7 @@ body {
 
 .table-container {
   background: #fff;
-  border: 1px solid var(--border-color);
+  border: 1px solid #e2e8f0;
   overflow-x: auto;
 }
 
@@ -246,15 +112,16 @@ th {
   background: #f9fafb;
   padding: 12px 16px;
   font-size: 12px;
-  font-weight: 600;
-  color: var(--text-muted);
-  border-bottom: 1px solid var(--border-color);
+  font-weight: 700;
+  color: #64748b;
+  border-bottom: 1px solid #e2e8f0;
 }
 
 td {
   padding: 16px;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid #e2e8f0;
   font-size: 14px;
+  color: #1e293b;
 }
 
 .user-info {
@@ -270,15 +137,16 @@ td {
 }
 
 .user-name {
-  font-weight: 600;
-  color: var(--text-main);
+  font-weight: 700;
+  color: #111827;
 }
 
 .user-email {
   font-size: 12px;
-  color: var(--text-muted);
+  color: #64748b;
 }
 
+/* Status */
 .status-dot {
   display: inline-block;
   width: 8px;
@@ -287,33 +155,45 @@ td {
   margin-right: 6px;
 }
 
-.status-dot.active { background: #10b981; }
-.status-dot.offline { background: #ef4444; }
+.status-dot.active {
+  background: #10b981;
+}
 
+.status-dot.offline {
+  background: #ef4444;
+}
+
+/* Edit Button */
 .edit-btn {
-  background: var(--primary-blue);
+  background: #2563eb;
   color: #fff;
   border: none;
   padding: 8px 12px;
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 13px;
   cursor: pointer;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 6px;
 }
 
+.edit-btn:hover {
+  opacity: 0.95;
+  transform: translateY(-1px);
+}
+
+/* Footer */
 .table-footer {
   background: #fff;
   padding: 16px;
-  border: 1px solid var(--border-color);
+  border: 1px solid #e2e8f0;
   border-top: none;
   border-radius: 0 0 12px 12px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   font-size: 14px;
-  color: var(--text-muted);
+  color: #64748b;
 }
 
 .pagination {
@@ -324,10 +204,10 @@ td {
 
 .page-nav {
   background: #fff;
-  border: 1px solid var(--border-color);
+  border: 1px solid #e2e8f0;
   width: 32px;
   height: 32px;
-  border-radius: 6px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
