@@ -123,29 +123,39 @@ td {
   font-size: 14px;
   color: #1e293b;
 }
-
 .user-info {
   display: flex;
   align-items: center;
   gap: 12px;
 }
-
-.user-info img {
-  width: 40px;
-  height: 40px;
+.user-info .user-default-img {
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
+  
+  object-fit: cover;
+  border: 2px solid #eaeef5;
+  background: #f2f4f8;
+  transition: 0.2s ease;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+}
+
+/* subtle hover effect */
+.user-info .user-default-img:hover {
+  border-color: #6c63ff;
+  transform: scale(1.03);
 }
 
 .user-name {
-  font-weight: 700;
-  color: #111827;
+  font-weight: 600;
+  font-size: 14px;
+  color: #2d2f3a;
 }
 
 .user-email {
   font-size: 12px;
-  color: #64748b;
+  color: #8a8fa3;
 }
-
 /* Status */
 .status-dot {
   display: inline-block;
