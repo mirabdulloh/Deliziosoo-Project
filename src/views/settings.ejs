@@ -1,0 +1,90 @@
+<%- include('includes/header') %>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
+<link rel="stylesheet" href="/css/main.css" />
+<link rel="stylesheet" href="/css/settings.css" />
+
+</head>
+<body>
+
+<%
+  const adminSafe = typeof admin !== "undefined" ? admin : (locals?.admin || {});
+  const imgPath = adminSafe?.memberImage ? (adminSafe.memberImage.startsWith("/") ? adminSafe.memberImage : "/" + adminSafe.memberImage) : "/img/default_img.jpg";
+%>
+
+<div class="dashboard-container">
+  <%- include('includes/navbar') %>
+
+  <main class="main-content">
+
+    <header class="top-header">
+      <div class="page-title">
+        <h2>Admin Settings</h2>
+        <p>Update your profile image and name</p>
+      </div>
+    </header>
+
+    <section class="table-section">
+      <div class="settings-card">
+
+        <div class="settings-head">
+          <h3>Profile Settings</h3>
+          <span class="settings-badge"><i class="fas fa-user-cog"></i> Account</span>
+        </div>
+
+        <form class="settings-form" id="settingsForm" enctype="multipart/form-data">
+
+
+          <!-- Avatar row -->
+          <div class="avatar-row">
+            <div class="avatar-wrap">
+              <img id="previewImg" class="avatar-img" src="<%= imgPath %>" alt="Admin Image" />
+            </div>
+
+            <div class="avatar-actions">
+              <label class="field-label">Profile Image</label>
+
+              <label class="file-btn">
+                <i class="fas fa-upload"></i>
+                <span>Choose Image</span>
+                <input
+                  type="file"
+                  name="memberImage"
+                  id="memberImage"
+                  accept="image/*"
+                  onchange="previewFile(event)"
+                />
+              </label>
+
+              <p class="help-text">PNG/JPG only. Recommended: 400x400</p>
+            </div>
+          </div>
+
+          <!-- Name -->
+          <div class="field">
+            <label class="field-label">Admin Name</label>
+            <input
+              class="field-input"
+              type="text"
+              name="memberNick"
+              value="<%= adminSafe?.memberNick || '' %>"
+              placeholder="Your name"
+              required
+            />
+          </div>
+
+          <div class="actions">
+            <button type="submit" class="btn-primary">
+              <i class="fas fa-save"></i> Save Changes
+            </button>
+          </div>
+        </form>
+
+      </div>
+    </section>
+  </main>
+</div>
+
+<script src="/js/settings.js"></script>
+
+<%- include('includes/footer') %>
