@@ -217,3 +217,61 @@ td {
 .footer-info i {
   margin-left: 8px;
 }
+/* Modern pill select */
+.spec-select.member-status {
+  width: 130px;
+  padding: 10px 38px 10px 14px;
+  border-radius: 14px;
+  border: 1px solid #e6e8ef;
+  background: #f7f8fc;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  outline: none;
+  text-align: center;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+
+  transition: 0.2s ease;
+}
+
+/* Arrow */
+.spec-select.member-status {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23111' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 16px;
+}
+
+/* Hover / Focus */
+.spec-select.member-status:hover {
+  background-color: #ffffff;
+  border-color: #cfd6e6;
+}
+
+.spec-select.member-status:focus {
+  background-color: #ffffff;
+  border-color: #6c63ff;
+  box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.18);
+}
+
+/* Status themes (JS will toggle these classes) */
+.member-status.is-active {
+  color: #1f9d55;
+  background: #eafaf1;
+  border-color: #bdebd0;
+}
+
+.member-status.is-block {
+  color: #d64545;
+  background: #fdecec;
+  border-color: #f5b7b7;
+}
+
+.member-status.is-delete {
+  color: #6b7280;
+  background: #f3f4f6;
+  border-color: #e5e7eb;
+}

@@ -42,3 +42,23 @@ $(function () {
       });
   });
 });
+function applyStatusStyle(selectEl) {
+  const $el = $(selectEl);
+  const v = $el.val();
+
+  $el.removeClass("is-active is-block is-delete");
+
+  if (v === "ACTIVE") $el.addClass("is-active");
+  else if (v === "BLOCK") $el.addClass("is-block");
+  else $el.addClass("is-delete");
+}
+
+$(function () {
+  $(".member-status").each(function () {
+    applyStatusStyle(this);
+  });
+
+  $(".member-status").on("change", function () {
+    applyStatusStyle(this);
+  });
+});
