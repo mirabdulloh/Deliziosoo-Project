@@ -10,7 +10,6 @@ const productService = new ProductService();
 
 const productController: T = {};
 
-
 /! SSR */;
 
 productController.getAllProduct = async (req: Request, res: Response) => {
@@ -22,6 +21,15 @@ productController.getAllProduct = async (req: Request, res: Response) => {
     console.log("ERROR, getAllProduct:", err);
     if (err instanceof Errors) res.status(err.code).json(err);
     else res.status(Errors.standard.code).json(Errors.standard);
+  }
+};
+
+productController.getNewProductPage = async (req: Request, res: Response) => {
+  try {
+    return res.render("new_products");
+  } catch (err) {
+    console.log("ERROR getNewProductPage:", err);
+    return res.redirect("/admin/product/all");
   }
 };
 

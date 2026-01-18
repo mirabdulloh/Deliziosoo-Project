@@ -57,6 +57,12 @@ routerAdmin.get(
   productController.getAllProduct
 );
 
+routerAdmin.get(
+  "/product/create",
+  restaurantController.verifyRestaurant,
+  productController.getNewProductPage
+);
+
 // ! For Creation Products
 routerAdmin.post(
   "/product/create",

@@ -287,6 +287,54 @@ body {
   background: #1d4ed8;
 }
 
+.top-header {
+  height: 64px;
+  background: #fff;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  background: #f3f4f6;
+  padding: 8px 16px;
+  border-radius: 10px;
+  width: 300px;
+}
+
+.search-bar i {
+  color: #64748b;
+  margin-right: 10px;
+}
+
+.search-bar input {
+  border: none;
+  background: transparent;
+  outline: none;
+  width: 100%;
+  font-size: 14px;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.header-actions i {
+  color: #64748b;
+  font-size: 18px;
+}
+
+.admin-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+}
 
 /* Responsive */
 @media (max-width: 768px) {

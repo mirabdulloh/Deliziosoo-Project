@@ -1,12 +1,118 @@
-<% reservations.map(function (value, key) { %>
-    <tbody style="background: white">
-      <td><%= key + 1 %></td>
-  
-      <td><%= value._id %></td>
-      <td><%= value.email %></td>
-      <td><%= value.dateTime %></td>
-      <td><%= value.peopleCount %></td>
-      <td><%= value.note %></td>
-    </tbody>
-  <% }) %>
-  
+<%- include('includes/header') %>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
+<link rel="stylesheet" href="/css/main.css" />
+<link rel="stylesheet" href="/css/reservations.css" />
+
+</head>
+<body>
+<div class="dashboard-container">
+  <%- include('includes/navbar') %>
+
+  <main class="main-content">
+    <header class="top-header">
+      <div class="search-bar">
+        <i class="fas fa-search"></i>
+        <input id="reservationSearch" type="text" placeholder="Search by email or id..." />
+      </div>
+      <div class="header-actions">
+        <i class="fas fa-bell"></i>
+        <img src="https://i.pravatar.cc/150?u=admin" alt="Admin" class="admin-avatar" />
+      </div>
+    </header>
+
+    <section class="table-section">
+      <div class="table-header">
+        <div class="table-title">
+          <h2>Reservations</h2>
+          <span class="badge">Total: <%= reservations?.length || 0 %></span>
+        </div>
+
+        <div class="table-actions">
+          <div class="mini-stats">
+            <%
+              const pendingCount = (reservations || []).filter(r => (r.reservationStatus || 'PENDING') === 'PENDING').length;
+              const confirmedCount = (reservations || []).filter(r => r.reservationStatus === 'CONFIRMED').length;
+              const cancelledCount = (reservations || []).filter(r => r.reservationStatus === 'CANCELLED').length;
+            %>
+            <span class="chip chip-pending">PENDING: <b><%= pendingCount %></b></span>
+            <span class="chip chip-confirmed">CONFIRMED: <b><%= confirmedCount %></b></span>
+            <span class="chip chip-cancelled">CANCELLED: <b><%= cancelledCount %></b></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-container">
+        <table id="reservationsTable">
+          <thead>
+            <tr>
+              <th style="width:60px">#</th>
+              <th>RESERVATION ID</th>
+              <th>EMAIL</th>
+              <th>DATE / TIME</th>
+              <th>PEOPLE</th>
+              <th>NOTE</th>
+              <th style="width:180px">STATUS</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <% (reservations || []).map(function(value, key){ 
+              const st = value.reservationStatus || 'PENDING';
+            %>
+              <tr>
+                <td><%= key + 1 %></td>
+                <td class="mono"><%= value._id %></td>
+                <td><%= value.email %></td>
+                <td><%= value.dateTime %></td>
+                <td><%= value.peopleCount %></td>
+                <td class="note-cell">
+            <div class="note-wrap">
+                <span class="note-preview"><%= value.note || '-' %></span>
+
+                  <% if (value.note && value.note.length > 10) { %>
+                  <button
+                    type="button"
+                    class="note-btn"
+                    data-note="<%= (value.note || '').replace(/"/g, '&quot;') %>"
+             > 
+              View
+            </button>
+           <% } %>
+            </div>
+              </td>
+
+
+                <td>
+                  <select
+                    class="status-select reservation-status"
+                    id="<%= value._id %>"
+                    data-current="<%= st %>"
+                  >
+                    <option value="PENDING" <%= st === "PENDING" ? "selected" : "" %>>PENDING</option>
+                    <option value="CONFIRMED" <%= st === "CONFIRMED" ? "selected" : "" %>>CONFIRMED</option>
+                    <option value="CANCELLED" <%= st === "CANCELLED" ? "selected" : "" %>>CANCELLED</option>
+                  </select>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</div>
+<div class="note-modal" id="noteModal">
+  <div class="note-modal-backdrop" id="noteBackdrop"></div>
+  <div class="note-modal-card">
+    <div class="note-modal-head">
+      <h3>Note</h3>
+      <button type="button" class="note-modal-close" id="noteClose">&times;</button>
+    </div>
+    <div class="note-modal-body" id="noteBody"></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="/js/reservations.js"></script>
+<%- include('includes/footer') %>

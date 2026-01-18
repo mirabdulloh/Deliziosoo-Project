@@ -8,6 +8,7 @@
   </div>
 
   <!-- ALWAYS SHOW -->
+   
   <a href="/admin"
   class="nav-item <%= currentPath === '/admin' ? 'active' : '' %>">
   <i class="fas fa-chart-pie"></i>
@@ -21,10 +22,17 @@
 </a>
 
 <a href="/admin/product/all"
-  class="nav-item <%= currentPath.includes('/admin/product') ? 'active' : '' %>">
+  class="nav-item <%= currentPath.includes('/admin/product') && !currentPath.includes('/admin/product/create') ? 'active' : '' %>">
   <i class="fas fa-shopping-bag"></i>
   <span>Products</span>
 </a>
+
+<a href="/admin/product/create"
+  class="nav-item <%= currentPath.includes('/admin/product/create') ? 'active' : '' %>">
+  <i class="fas fa-plus-circle"></i>
+  <span>New Product</span>
+</a>
+
 
 <a href="/admin/order/all"
   class="nav-item <%= currentPath.includes('/admin/order') ? 'active' : '' %>">

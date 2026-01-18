@@ -1,0 +1,166 @@
+<%- include('includes/header') %>
+
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+/>
+<link rel="stylesheet" href="/css/main.css" />
+<link rel="stylesheet" href="/css/users.css" />
+<link rel="stylesheet" href="/css/new-products.css" />
+
+</head>
+<body>
+<div class="dashboard-container">
+  <%- include('includes/navbar') %>
+
+  <main class="main-content">
+    <header class="top-header">
+      <div class="search-bar">
+        <i class="fas fa-search"></i>
+        <input type="text" placeholder="Search" />
+      </div>
+      <div class="header-actions">
+        <i class="fas fa-bell"></i>
+        <img
+          src="https://i.pravatar.cc/150?u=admin"
+          alt="Admin"
+          class="admin-avatar"
+        />
+      </div>
+    </header>
+
+    <section class="product-create-page">
+      <div class="product-create-hero">
+        <h1>NEW PRODUCT DETAIL</h1>
+        <div class="hero-badge">Admin • Create</div>
+      </div>
+
+      <form
+        class="product-create-card"
+        action="/admin/product/new-products"
+        method="POST"
+        enctype="multipart/form-data"
+      >
+        <!-- Inner form padding -->
+        <div class="product-create-inner">
+          <div class="product-create-grid">
+            <!-- Product Name -->
+            <div class="field field-full">
+              <label class="field-label">Product Name</label>
+              <input
+                class="field-input"
+                name="productName"
+                type="text"
+                placeholder="Name"
+                required
+              />
+            </div>
+
+            <!-- Product Price -->
+            <div class="field">
+              <label class="field-label">Product Price</label>
+              <input
+                class="field-input"
+                name="productPrice"
+                type="number"
+                min="0"
+                placeholder="Price"
+                required
+              />
+            </div>
+
+            <!-- Product Left Count -->
+            <div class="field">
+              <label class="field-label">Product Left Counts</label>
+              <input
+                class="field-input"
+                name="productLeftCount"
+                type="number"
+                min="0"
+                placeholder="Counts"
+                required
+              />
+            </div>
+
+            <!-- Product Type -->
+            <div class="field">
+              <label class="field-label">Product Type</label>
+              <select class="field-select" name="productCollection" required>
+                <option value="DISH">Dish</option>
+                <option value="DRINK">Drink</option>
+              </select>
+            </div>
+
+            <!-- Dish Volume -->
+            <div class="field">
+              <label class="field-label">Dish Volume</label>
+              <select class="field-select" name="productVolume">
+                <option value="SMALL">Small</option>
+                <option value="NORMAL" selected>Normal</option>
+                <option value="LARGE">Large</option>
+              </select>
+            </div>
+
+            <!-- Description -->
+            <div class="field field-full">
+              <label class="field-label">Product Description</label>
+              <textarea
+                class="field-textarea"
+                name="productDesc"
+                placeholder="Write product description..."
+                required
+              ></textarea>
+            </div>
+          </div>
+
+          <div class="section-divider"></div>
+        </div>
+
+        <!-- Images -->
+        <div class="product-upload">
+          <div class="upload-head">
+            <span class="field-label">Product Images</span>
+            <span class="upload-hint">Up to 5 images</span>
+          </div>
+
+          <input
+            id="productImages"
+            name="productImages"
+            type="file"
+            accept="image/*"
+            multiple
+            hidden
+          />
+
+          <div class="upload-grid" id="uploadGrid">
+            <% for(let i=0; i<5; i++){ %>
+              <button type="button" class="upload-tile" data-slot="<%= i %>">
+                <span class="upload-icon"><i class="fa-solid fa-plus"></i></span>
+                <span class="upload-sub">Add</span>
+                <img class="upload-preview" alt="preview" />
+              </button>
+            <% } %>
+          </div>
+        </div>
+
+        <!-- Sticky Actions -->
+        <div class="product-create-actions">
+          <div class="left">
+            <a class="btn btn-ghost" href="/admin/product/all">
+              <i class="fa-solid fa-arrow-left"></i> Cancel
+            </a>
+          </div>
+
+          <div class="right">
+            <button class="btn btn-primary" type="submit">
+              <i class="fa-solid fa-floppy-disk"></i> Save Product
+            </button>
+          </div>
+        </div>
+      </form>
+    </section>
+  </main>
+</div>
+
+
+<%- include('includes/footer') %>
