@@ -9,18 +9,22 @@ import { OrderUpdateInput } from "../libs/types/order";
 const orderController: T = {};
 const orderService = new OrderService();
 
-orderController.getFinishedToday = async (req, res) => {
-  try {
-    const finishedTodayCount = await orderService.getFinishedToday();
+/! SSR */;
 
-    return res.render("orders", {
-      finishedTodayCount,
-    });
+orderController.getAdminStatsPage = async (
+  req: ExtendedRequest,
+  res: Response
+) => {
+  try {
+    const stats = await orderService.getAdminOrderStats();
+
+    res.render("orders", stats);
   } catch (err) {
-    console.log("ERROR getFinishedToday:", err);
+    console.log("ERROR getAdminStatsPage:", err);
     return res.redirect("/admin");
   }
 };
+
 
 /! SPA */;
 

@@ -43,3 +43,20 @@ export interface OrderUpdateInput {
   orderId: string;
   orderStatus: OrderStatus;
 }
+
+export interface OrderStatsResponse {
+  statusCounts: {
+    PENDING: number;
+    PROCESS: number;
+    FINISH: number;
+    DELETE: number;
+  };
+  pendingTodayCount: number;
+  finishedTodayCount: number;
+  todayTotalCount: number;
+  revenueToday: number;
+  revenueMonth: number;
+  topProductsToday: any[];
+  orders: any[];
+}
+

@@ -5,6 +5,7 @@ import {
   OrderInquiry,
   OrderItem,
   OrderItemInput,
+  OrderStatsResponse,
   OrderUpdateInput,
 } from "../libs/types/order";
 import { Order } from "../libs/types/order";
@@ -24,19 +25,188 @@ class OrderService {
     this.orderItemModel = OrderItemModel;
     this.memberService = new MemberService();
   }
+  //! ORders SSR ADMIN
 
-  public async getFinishedToday(): Promise<number> {
+  public async getAdminOrderStats(): Promise<OrderStatsResponse> {
     const start = new Date();
     start.setHours(0, 0, 0, 0);
-
+  
     const end = new Date();
     end.setHours(23, 59, 59, 999);
-
-    return await this.orderModel.countDocuments({
-      orderStatus: OrderStatus.FINISH,
-      createdAt: { $gte: start, $lte: end },
+  
+    const monthStart = new Date(start);
+    monthStart.setDate(1);
+    monthStart.setHours(0, 0, 0, 0);
+  
+    const monthEnd = new Date(end);
+  
+    const agg = await this.orderModel
+      .aggregate([
+        {
+          $lookup: {
+            from: "orderItems", // ✅ must match Mongo collection name
+            localField: "_id",
+            foreignField: "orderId",
+            as: "items",
+          },
+        },
+        {
+          $lookup: {
+            from: "members", // ✅ to show USER in table
+            localField: "memberId",
+            foreignField: "_id",
+            as: "member",
+          },
+        },
+        {
+          $unwind: { path: "$member", preserveNullAndEmptyArrays: true },
+        },
+  
+        {
+          $facet: {
+            // 1) counts by status (all time)
+            statusCounts: [{ $group: { _id: "$orderStatus", count: { $sum: 1 } } }],
+  
+            // 2) pending today
+            pendingToday: [
+              {
+                $match: {
+                  orderStatus: OrderStatus.PENDING,
+                  updatedAt: { $gte: start, $lte: end },
+                },
+              },
+              { $count: "count" },
+            ],
+  
+            // 3) finished today
+            finishedToday: [
+              {
+                $match: {
+                  orderStatus: OrderStatus.FINISH,
+                  updatedAt: { $gte: start, $lte: end },
+                },
+              },
+              { $count: "count" },
+            ],
+  
+            // 4) today total (all except DELETE)
+            todayTotal: [
+              {
+                $match: {
+                  orderStatus: { $ne: OrderStatus.DELETE },
+                  updatedAt: { $gte: start, $lte: end },
+                },
+              },
+              { $count: "count" },
+            ],
+  
+            // 5) revenue today (finished only)
+            revenueToday: [
+              {
+                $match: {
+                  orderStatus: OrderStatus.FINISH,
+                  updatedAt: { $gte: start, $lte: end },
+                },
+              },
+              { $group: { _id: null, total: { $sum: "$orderTotal" } } },
+            ],
+  
+            // 6) revenue this month (finished only)
+            revenueMonth: [
+              {
+                $match: {
+                  orderStatus: OrderStatus.FINISH,
+                  updatedAt: { $gte: monthStart, $lte: monthEnd },
+                },
+              },
+              { $group: { _id: null, total: { $sum: "$orderTotal" } } },
+            ],
+  
+            // 7) top products today
+            topProductsToday: [
+              {
+                $match: {
+                  orderStatus: OrderStatus.FINISH,
+                  updatedAt: { $gte: start, $lte: end },
+                },
+              },
+              { $unwind: "$items" },
+              {
+                $group: {
+                  _id: "$items.productId",
+                  qty: { $sum: "$items.itemQuantity" },
+                  revenue: {
+                    $sum: { $multiply: ["$items.itemQuantity", "$items.itemPrice"] },
+                  },
+                },
+              },
+              { $sort: { qty: -1 } },
+              { $limit: 5 },
+              {
+                $lookup: {
+                  from: "products",
+                  localField: "_id",
+                  foreignField: "_id",
+                  as: "product",
+                },
+              },
+              { $unwind: { path: "$product", preserveNullAndEmptyArrays: true } },
+              {
+                $project: {
+                  productId: { $toString: "$_id" },
+                  productName: "$product.productName",
+                  qty: 1,
+                  revenue: 1,
+                },
+              },
+            ],
+  
+            // 8) recent orders list for table (last 15)
+            orders: [
+              { $sort: { createdAt: -1 } },
+              { $limit: 15 },
+              {
+                $project: {
+                  _id: 1,
+                  orderTotal: 1,
+                  orderStatus: 1,
+                  createdAt: 1,
+                  memberNick: "$member.memberNick",
+                },
+              },
+            ],
+          },
+        },
+      ])
+      .exec();
+  
+    const row = agg[0] || {};
+  
+    const statusCounts: OrderStatsResponse["statusCounts"] = {
+      PENDING: 0,
+      PROCESS: 0,
+      FINISH: 0,
+      DELETE: 0,
+    };
+  
+    (row.statusCounts || []).forEach((s: { _id: string; count: number }) => {
+      if (s && s._id && s._id in statusCounts) {
+        statusCounts[s._id as keyof typeof statusCounts] = s.count;
+      }
     });
+  
+    return {
+      statusCounts,
+      pendingTodayCount: row.pendingToday?.[0]?.count || 0,
+      finishedTodayCount: row.finishedToday?.[0]?.count || 0,
+      todayTotalCount: row.todayTotal?.[0]?.count || 0,
+      revenueToday: row.revenueToday?.[0]?.total || 0,
+      revenueMonth: row.revenueMonth?.[0]?.total || 0,
+      topProductsToday: row.topProductsToday || [],
+      orders: row.orders || [],
+    };
   }
+  
 
   //! ORders SPA
 

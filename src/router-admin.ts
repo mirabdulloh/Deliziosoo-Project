@@ -79,10 +79,11 @@ routerAdmin.post(
 
 // ! For Admin Controlling Orders
 
+
 routerAdmin.get(
-  "/order/all",
+  "/orders/stats",
   restaurantController.verifyRestaurant,
-  orderController.getFinishedToday
+  orderController.getAdminStatsPage
 );
 
 export default routerAdmin;
