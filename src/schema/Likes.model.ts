@@ -10,8 +10,12 @@ const likesSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "Product",
     },
+    likeRefId: {
+      type: Schema.Types.ObjectId,
+      required: true,
+    },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
-export default mongoose.model('likes',likesSchema);
+export default mongoose.model("likes", likesSchema);

@@ -117,7 +117,7 @@ class ProductService {
     let result = await this.productModel
       .findOne({
         _id: productId,
-        productStatus: ProductStatus.ACTIVE,
+        productStatus: { $in: [ ProductStatus.PROMOTION] },
       })
       .exec();
 
