@@ -16,7 +16,7 @@ router.post("/member/login", memberController.login);
 router.post(
   "/member/create/reservation",
   memberController.verifyAuth,
-  reservationController.createReservation
+  reservationController.createReservation,
 );
 
 //! ORders SPA
@@ -24,25 +24,29 @@ router.post(
 router.post(
   "/order/create",
   memberController.verifyAuth,
-  orderController.createOrder
+  orderController.createOrder,
 );
 
 router.get(
   "/order/all",
   memberController.verifyAuth,
-  orderController.getMyOrders
+  orderController.getMyOrders,
 );
 
 router.post(
   "/order/update",
   memberController.verifyAuth,
-  orderController.updateOrder
+  orderController.updateOrder,
 );
 
 // ! Products SPA
 router.get("/product/all", productController.getProducts);
 
-
+router.get(
+  "/product/:id",
+  memberController.retrieveAuth,
+  productController.getProduct,
+);
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -74,7 +78,6 @@ router.post("/ai/chat", async (req, res) => {
   }
 });
 
-
 const provider = process.env.AI_PROVIDER || "groq";
 
 const baseURL =
@@ -83,9 +86,7 @@ const baseURL =
     : "https://api.openai.com/v1";
 
 const apiKey =
-  provider === "groq"
-    ? process.env.GROQ_API_KEY
-    : process.env.OPENAI_API_KEY;
+  provider === "groq" ? process.env.GROQ_API_KEY : process.env.OPENAI_API_KEY;
 
 const ai = new OpenAI({ apiKey, baseURL });
 
@@ -110,6 +111,5 @@ router.post("/ai/chat", async (req, res) => {
     res.status(500).json({ error: e?.message || "AI failed" });
   }
 });
-
 
 export default router;

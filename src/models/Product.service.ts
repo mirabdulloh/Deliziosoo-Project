@@ -9,8 +9,8 @@ import {
 } from "../libs/types/product";
 import ProductModel from "../schema/Product.model";
 import { T } from "../libs/types/common";
-import { ObjectId } from "mongoose";
-// import ViewService from "./View.service";
+import { ObjectId, Types } from "mongoose";
+import ViewService from "./View.service";
 import { ViewInput } from "../libs/types/view";
 import { ViewGroup } from "../libs/enum/view.enum";
 
@@ -19,7 +19,7 @@ class ProductService {
   public viewService;
   constructor() {
     this.productModel = ProductModel;
-    // this.viewService = new ViewService();
+    this.viewService = new ViewService();
   }
 
   // ! For SPA */
@@ -46,11 +46,52 @@ class ProductService {
       ])
       .exec();
 
-    if (!result || result.length === 0) throw new Errors(HttpCode.NOT_FOUND, Message.NO_DATA_FOUND);
+    if (!result || result.length === 0)
+      throw new Errors(HttpCode.NOT_FOUND, Message.NO_DATA_FOUND);
     return result;
   }
 
+  public async getProduct(
+    memberId: Types.ObjectId | null,
+    id: string,
+  ): Promise<Product> {
+    const productId = shapeIntoMongooseObjectId(id);
+    let result = await this.productModel
+      .findOne({
+        _id: productId,
+        productStatus: ProductStatus.ACTIVE,
+      })
+      .exec();
 
+    if (!result) throw new Errors(HttpCode.NOT_FOUND, Message.NO_DATA_FOUND);
+
+    // if authenticated user => first => view log
+    const input: ViewInput = {
+      memberId: memberId,
+      viewRefId: productId,
+      viewGroup: ViewGroup.PRODUCT,
+    };
+    if (memberId) {
+      // check existence
+      const existView = await this.viewService.checkViewExistence(input);
+      console.log("exist!:", !!existView);
+
+      if (!existView) {
+        // insert new view
+        console.log("planning to insert new view");
+        await this.viewService.insertMemberView(input);
+        result = await this.productModel
+          .findByIdAndUpdate(
+            productId,
+            { $inc: { productViews: 1 } },
+            { new: true },
+          )
+          .exec();
+      }
+      // increase  view
+    }
+    return result;
+  }
 
   /** SSR */
   public async getAllProduct(): Promise<Product[]> {
@@ -74,10 +115,13 @@ class ProductService {
 
   public async updateChosenProduct(
     id: String,
-    input: ProductUpdateInput
+    input: ProductUpdateInput,
   ): Promise<Product> {
     // Only include productVolume for DRINK collection
-    if (input.productCollection && input.productCollection !== ProductCollection.DRINK) {
+    if (
+      input.productCollection &&
+      input.productCollection !== ProductCollection.DRINK
+    ) {
       delete input.productVolume;
     }
     id = shapeIntoMongooseObjectId(id);

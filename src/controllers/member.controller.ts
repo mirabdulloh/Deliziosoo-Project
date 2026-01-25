@@ -2,7 +2,12 @@ import { NextFunction, Request, Response } from "express";
 import Errors, { HttpCode, Message } from "../libs/Errors";
 import MemberService from "../models/Member.service";
 import { T } from "../libs/types/common";
-import { ExtendedRequest, LoginInput, Member, MemberInput } from "../libs/types/member";
+import {
+  ExtendedRequest,
+  LoginInput,
+  Member,
+  MemberInput,
+} from "../libs/types/member";
 import AuthService from "../models/Auth.service";
 import { AUTH_TIME } from "../libs/config";
 import MemberModel from "../schema/Member.model";
@@ -27,16 +32,13 @@ memberController.signUp = async (req: Request, res: Response) => {
       httpOnly: false,
     });
 
-
-    res.status(HttpCode.CREATED).json({ member: result});
+    res.status(HttpCode.CREATED).json({ member: result });
   } catch (err) {
     console.log("ERROR, signUp:", err);
     if (err instanceof Errors) res.status(err.code).json(err);
     else res.status(Errors.standard.code).json(Errors.standard);
   }
 };
-
-
 
 memberController.login = async (req: Request, res: Response) => {
   // service model
@@ -63,7 +65,7 @@ memberController.login = async (req: Request, res: Response) => {
 memberController.verifyAuth = async (
   req: ExtendedRequest,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     console.log("verifyAuth:");
@@ -81,7 +83,7 @@ memberController.verifyAuth = async (
             { lastActiveAt: { $lte: new Date(Date.now() - 60_000) } },
           ],
         },
-        { $set: { lastActiveAt: new Date() } }
+        { $set: { lastActiveAt: new Date() } },
       );
     }
     // ========================================
@@ -97,6 +99,20 @@ memberController.verifyAuth = async (
   }
 };
 
-
+memberController.retrieveAuth = async (
+  req: ExtendedRequest,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    console.log("retrieveAuth:");
+    const token = req.cookies["accessToken"];
+    if (token) req.member = await authService.checkAuth(token);
+    next();
+  } catch (err) {
+    console.log("ERROR, retrieveAuth:", err);
+    next();
+  }
+};
 
 export default memberController;
