@@ -3,6 +3,7 @@ import {
   ProductSize,
   ProductStatus,
 } from "../enum/product.enum";
+import { PromotionEnum } from "../enum/promotion.enum";
 import { ObjectId } from "mongoose";
 export interface ProductInput {
   productStatus?: ProductStatus;
@@ -16,7 +17,7 @@ export interface ProductInput {
   productDesc?: string;
   productImages?: string[];
   productViews?: number;
-  productPromotion?: number;
+  productPromotion?: PromotionEnum;
 }
 
 export interface ProductInquiry {
@@ -40,7 +41,7 @@ export interface Product {
   productDesc?: string;
   productImages: string[];
   productViews: number;
-  productPromotion: number;
+  productPromotion: PromotionEnum;
   discountedPrice?: number;
   createdAt: Date;
   updatedAt: Date;
@@ -59,6 +60,6 @@ export interface ProductUpdateInput {
   productDesc?: string;
   productImages?: string[];
   productViews?: number;
-  productPromotion?: number;
+  productPromotion?: PromotionEnum;
 }
 }

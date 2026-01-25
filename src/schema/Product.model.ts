@@ -1,5 +1,6 @@
 import mongoose, { Schema } from "mongoose";
 import { ProductCollection, ProductSize, ProductStatus, ProductVolume } from "../libs/enum/product.enum";
+import { PromotionEnum } from "../libs/enum/promotion.enum";
 
 
 const ProductSchema = new Schema(
@@ -60,8 +61,8 @@ const ProductSchema = new Schema(
     },
     productPromotion: {
       type: Number,
-      default: 0,
-      enum: [0, 30, 45],
+      default: PromotionEnum.NONE,
+      enum: Object.values(PromotionEnum).filter(v => typeof v === 'number'),
     },
   },
   { timestamps: true }
