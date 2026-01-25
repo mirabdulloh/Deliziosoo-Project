@@ -8,6 +8,7 @@ import {
   ProductUpdateInput,
 } from "../libs/types/product";
 import ProductModel from "../schema/Product.model";
+import LikesModel from "../schema/Likes.model";
 import { StatisticModifier, T } from "../libs/types/common";
 import { ObjectId, Types } from "mongoose";
 import ViewService from "./View.service";
@@ -28,8 +29,8 @@ class ProductService {
 
   // ! For SPA */
   public async getProducts(inquiry: ProductInquiry): Promise<Product[]> {
-    const match: T = { 
-      productStatus: { $in: [ProductStatus.ACTIVE] }
+    const match: T = {
+      productStatus: { $in: [ProductStatus.ACTIVE] },
     };
 
     if (inquiry.productCollection) {
@@ -57,14 +58,19 @@ class ProductService {
                 then: {
                   $subtract: [
                     "$productPrice",
-                    { $multiply: ["$productPrice", { $divide: ["$productPromotion", 100] }] }
-                  ]
+                    {
+                      $multiply: [
+                        "$productPrice",
+                        { $divide: ["$productPromotion", 100] },
+                      ],
+                    },
+                  ],
                 },
-                else: "$productPrice"
-              }
-            }
-          }
-        }
+                else: "$productPrice",
+              },
+            },
+          },
+        },
       ])
       .exec();
 
@@ -74,8 +80,8 @@ class ProductService {
   }
 
   public async getPromotions(inquiry: ProductInquiry): Promise<Product[]> {
-    const match: T = { 
-      productStatus: ProductStatus.PROMOTION
+    const match: T = {
+      productStatus: ProductStatus.PROMOTION,
     };
 
     if (inquiry.productCollection) {
@@ -100,13 +106,85 @@ class ProductService {
             discountedPrice: {
               $subtract: [
                 "$productPrice",
-                { $multiply: ["$productPrice", { $divide: ["$productPromotion", 100] }] }
-              ]
-            }
-          }
-        }
+                {
+                  $multiply: [
+                    "$productPrice",
+                    { $divide: ["$productPromotion", 100] },
+                  ],
+                },
+              ],
+            },
+          },
+        },
       ])
       .exec();
+
+    if (!result || result.length === 0)
+      throw new Errors(HttpCode.NOT_FOUND, Message.NO_DATA_FOUND);
+    return result;
+  }
+
+  public async getFavoriteProducts(
+    memberId: Types.ObjectId,
+    inquiry: ProductInquiry,
+    likeRefId?: Types.ObjectId,
+  ): Promise<Product[]> {
+    const safeMemberId =
+      typeof memberId === "string" ? new Types.ObjectId(memberId) : memberId;
+
+    const match: T = { memberId: safeMemberId, likeGroup: LikeGroup.PRODUCT };
+    if (likeRefId) match.likeRefId = likeRefId;
+    const sort: T = inquiry.order
+      ? inquiry.order === "productPrice"
+        ? { [inquiry.order]: 1 }
+        : { [inquiry.order]: -1 }
+      : { favoriteAt: -1 };
+
+    const result = await LikesModel.aggregate([
+      { $match: match },
+      {
+        $lookup: {
+          from: "products",
+          localField: "likeRefId",
+          foreignField: "_id",
+          as: "product",
+        },
+      },
+      { $unwind: "$product" },
+      {
+        $match: {
+          "product.productStatus": {
+            $in: [ProductStatus.ACTIVE, ProductStatus.PROMOTION],
+          },
+        },
+      },
+      {
+        $addFields: {
+          "product.favoriteAt": "$createdAt",
+          "product.discountedPrice": {
+            $cond: {
+              if: { $gt: ["$product.productPromotion", 0] },
+              then: {
+                $subtract: [
+                  "$product.productPrice",
+                  {
+                    $multiply: [
+                      "$product.productPrice",
+                      { $divide: ["$product.productPromotion", 100] },
+                    ],
+                  },
+                ],
+              },
+              else: "$product.productPrice",
+            },
+          },
+        },
+      },
+      { $replaceRoot: { newRoot: "$product" } },
+      { $sort: sort },
+      { $skip: (inquiry.page * 1 - 1) * inquiry.limit },
+      { $limit: inquiry.limit * 1 },
+    ]).exec();
 
     if (!result || result.length === 0)
       throw new Errors(HttpCode.NOT_FOUND, Message.NO_DATA_FOUND);
@@ -121,7 +199,7 @@ class ProductService {
     let result = await this.productModel
       .findOne({
         _id: productId,
-        productStatus: { $in: [ ProductStatus.ACTIVE] },
+        productStatus: { $in: [ProductStatus.ACTIVE] },
       })
       .exec();
 
@@ -196,24 +274,25 @@ class ProductService {
 
   public async updateProductPromotion(
     id: String,
-    promotion: number
+    promotion: number,
   ): Promise<Product> {
     id = shapeIntoMongooseObjectId(id);
-    
+
     // First get the product to get its current price
     const product = await this.productModel.findById(id).exec();
     if (!product) throw new Errors(HttpCode.NOT_FOUND, Message.NO_DATA_FOUND);
-    
+
     // Calculate discounted price if promotion is set
     let updateData: any = { productPromotion: promotion };
-    
+
     if (promotion > 0) {
-      const discountedPrice = product.productPrice - (product.productPrice * promotion / 100);
+      const discountedPrice =
+        product.productPrice - (product.productPrice * promotion) / 100;
       updateData.productPriceDiscount = Math.round(discountedPrice * 100) / 100; // Round to 2 decimals
     } else {
       updateData.productPriceDiscount = null; // Remove discount if no promotion
     }
-    
+
     const result = await this.productModel
       .findOneAndUpdate({ _id: id }, updateData, { new: true })
       .exec();
@@ -224,7 +303,11 @@ class ProductService {
   public async productStatsEditor(input: StatisticModifier): Promise<Product> {
     const { _id, targetKey, modifier } = input;
     const result = await this.productModel
-      .findByIdAndUpdate(_id, { $inc: { [targetKey]: modifier } }, { new: true })
+      .findByIdAndUpdate(
+        _id,
+        { $inc: { [targetKey]: modifier } },
+        { new: true },
+      )
       .exec();
     if (!result) throw new Errors(HttpCode.NOT_MODIFIED, Message.UPDATE_FAILED);
     return result;
@@ -237,7 +320,7 @@ class ProductService {
     const target: Product = await this.productModel
       .findOne({
         _id: likeRefId,
-        productStatus: { $in: [ProductStatus.ACTIVE, ProductStatus.PROMOTION] }
+        productStatus: { $in: [ProductStatus.ACTIVE, ProductStatus.PROMOTION] },
       })
       .exec();
     if (!target) throw new Errors(HttpCode.NOT_FOUND, Message.NO_DATA_FOUND);

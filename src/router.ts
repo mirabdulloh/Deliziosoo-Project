@@ -45,15 +45,20 @@ router.get("/product/all", productController.getProducts);
 router.get("/product/promotions", productController.getPromotions);
 
 router.get(
-  "/product/:id",
-  memberController.retrieveAuth,
-  productController.getProduct,
+  "/product/favorites",
+  memberController.verifyAuth,
+  productController.getFavoriteProducts,
 );
 
 router.post(
   "/product/like/:productId",
   memberController.verifyAuth,
   productController.likeTargetProduct,
+);
+router.get(
+  "/product/:id",
+  memberController.retrieveAuth,
+  productController.getProduct,
 );
 
 const openai = new OpenAI({

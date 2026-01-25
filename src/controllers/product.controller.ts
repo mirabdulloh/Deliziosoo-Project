@@ -1,10 +1,12 @@
 import ProductService from "../models/Product.service";
 import Errors, { HttpCode, Message } from "../libs/Errors";
+import { shapeIntoMongooseObjectId } from "../libs/config";
 import { T } from "../libs/types/common";
 import { json, Request, Response } from "express";
 import { ProductInput, ProductInquiry } from "../libs/types/product";
 import { AdminRequest, ExtendedRequest } from "../libs/types/member";
 import { ProductCollection } from "../libs/enum/product.enum";
+import { Types } from "mongoose";
 
 const productService = new ProductService();
 
@@ -171,8 +173,6 @@ productController.updateProductPromotion = async (
 };
 
 // ! Like Product
-import { Types } from "mongoose";
-
 productController.likeTargetProduct = async (
   req: ExtendedRequest,
   res: Response
@@ -192,6 +192,34 @@ productController.likeTargetProduct = async (
     res.status(HttpCode.OK).json(result);
   } catch (err) {
     console.log("ERROR, likeTargetProduct:", err);
+    if (err instanceof Errors) res.status(err.code).json(err);
+    else res.status(Errors.standard.code).json(Errors.standard);
+  }
+};
+
+// ! Favorite Products
+productController.getFavoriteProducts = async (
+  req: ExtendedRequest,
+  res: Response,
+) => {
+  try {
+    console.log("getFavoriteProducts:");
+    const { page, limit, order, likeRefId } = req.query;
+
+    const inquiry: ProductInquiry = {
+      order: String(order),
+      page: Number(page),
+      limit: Number(limit),
+    };
+
+    const memberId = req.member._id as Types.ObjectId;
+    const likeRefObjId = shapeIntoMongooseObjectId(likeRefId);
+
+    const result = await productService.getFavoriteProducts(memberId, inquiry, likeRefObjId);
+
+    res.status(HttpCode.OK).json(result);
+  } catch (err) {
+    console.log("ERROR, getFavoriteProducts:", err);
     if (err instanceof Errors) res.status(err.code).json(err);
     else res.status(Errors.standard.code).json(Errors.standard);
   }
