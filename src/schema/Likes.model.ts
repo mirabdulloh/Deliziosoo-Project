@@ -1,21 +1,26 @@
 import mongoose, { Schema } from "mongoose";
+import { LikeGroup } from "../libs/enum/view.enum";
 
 const likesSchema = new Schema(
   {
     memberId: {
       type: Schema.Types.ObjectId,
       ref: "Member",
-    },
-    productId: {
-      type: Schema.Types.ObjectId,
-      ref: "Product",
+      required: true,
     },
     likeRefId: {
       type: Schema.Types.ObjectId,
+      required: true,
+    },
+    likeGroup: {
+      type: String,
+      enum: Object.values(LikeGroup),
       required: true,
     },
   },
   { timestamps: true },
 );
 
-export default mongoose.model("likes", likesSchema);
+likesSchema.index({ memberId: 1, likeRefId: 1 }, { unique: true });
+
+export default mongoose.model("Likes", likesSchema);

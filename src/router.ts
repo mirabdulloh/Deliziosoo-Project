@@ -50,6 +50,12 @@ router.get(
   productController.getProduct,
 );
 
+router.post(
+  "/product/like/:productId",
+  memberController.verifyAuth,
+  productController.likeTargetProduct,
+);
+
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });

@@ -1,10 +1,13 @@
+import { Types } from "mongoose";
 import {
   ProductCollection,
   ProductSize,
   ProductStatus,
 } from "../enum/product.enum";
 import { PromotionEnum } from "../enum/promotion.enum";
-import { ObjectId } from "mongoose";
+
+/* ================= INPUTS ================= */
+
 export interface ProductInput {
   productStatus?: ProductStatus;
   productCollection: ProductCollection;
@@ -28,8 +31,10 @@ export interface ProductInquiry {
   search?: string;
 }
 
+/* ================= ENTITY ================= */
+
 export interface Product {
-  _id: ObjectId;
+  _id: Types.ObjectId; // ✅ FIXED
   productStatus: ProductStatus;
   productCollection: ProductCollection;
   productName: string;
@@ -47,8 +52,10 @@ export interface Product {
   updatedAt: Date;
 }
 
+/* ================= UPDATE ================= */
+
 export interface ProductUpdateInput {
-  _id: ObjectId;
+  _id: Types.ObjectId; // ✅ FIXED
   productStatus?: ProductStatus;
   productCollection?: ProductCollection;
   productName?: string;
@@ -60,6 +67,6 @@ export interface ProductUpdateInput {
   productDesc?: string;
   productImages?: string[];
   productViews?: number;
+  productLikes?: number;
   productPromotion?: PromotionEnum;
-}
 }

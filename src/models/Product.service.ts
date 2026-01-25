@@ -8,18 +8,22 @@ import {
   ProductUpdateInput,
 } from "../libs/types/product";
 import ProductModel from "../schema/Product.model";
-import { T } from "../libs/types/common";
+import { StatisticModifier, T } from "../libs/types/common";
 import { ObjectId, Types } from "mongoose";
 import ViewService from "./View.service";
+import LikeService from "./Like.service";
 import { ViewInput } from "../libs/types/view";
-import { ViewGroup } from "../libs/enum/view.enum";
+import { LikeInput } from "../libs/types/like";
+import { ViewGroup, LikeGroup } from "../libs/enum/view.enum";
 
 class ProductService {
   private readonly productModel;
   public viewService;
+  public likeService;
   constructor() {
     this.productModel = ProductModel;
     this.viewService = new ViewService();
+    this.likeService = new LikeService();
   }
 
   // ! For SPA */
@@ -117,7 +121,7 @@ class ProductService {
     let result = await this.productModel
       .findOne({
         _id: productId,
-        productStatus: { $in: [ ProductStatus.PROMOTION] },
+        productStatus: { $in: [ ProductStatus.ACTIVE] },
       })
       .exec();
 
@@ -214,6 +218,41 @@ class ProductService {
       .findOneAndUpdate({ _id: id }, updateData, { new: true })
       .exec();
     if (!result) throw new Errors(HttpCode.NOT_MODIFIED, Message.UPDATE_FAILED);
+    return result;
+  }
+
+  public async productStatsEditor(input: StatisticModifier): Promise<Product> {
+    const { _id, targetKey, modifier } = input;
+    const result = await this.productModel
+      .findByIdAndUpdate(_id, { $inc: { [targetKey]: modifier } }, { new: true })
+      .exec();
+    if (!result) throw new Errors(HttpCode.NOT_MODIFIED, Message.UPDATE_FAILED);
+    return result;
+  }
+
+  public async likeTargetProduct(
+    memberId: Types.ObjectId,
+    likeRefId: Types.ObjectId,
+  ): Promise<Product> {
+    const target: Product = await this.productModel
+      .findOne({
+        _id: likeRefId,
+        productStatus: { $in: [ProductStatus.ACTIVE, ProductStatus.PROMOTION] }
+      })
+      .exec();
+    if (!target) throw new Errors(HttpCode.NOT_FOUND, Message.NO_DATA_FOUND);
+
+    const input: LikeInput = {
+      memberId: memberId,
+      likeRefId: likeRefId,
+      likeGroup: LikeGroup.PRODUCT,
+    };
+    const modifier: number = await this.likeService.toggleLike(input);
+    const result = await this.productStatsEditor({
+      _id: likeRefId,
+      targetKey: "productLikes",
+      modifier: modifier,
+    });
     return result;
   }
 }
