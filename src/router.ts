@@ -5,6 +5,7 @@ import reservationController from "./controllers/reservation.controller";
 import restaurantController from "./controllers/restaurant.controller";
 import orderController from "./controllers/order.controller";
 import OpenAI from "openai";
+import productController from "./controllers/product.controller";
 
 const router = express.Router();
 
@@ -37,6 +38,9 @@ router.post(
   memberController.verifyAuth,
   orderController.updateOrder
 );
+
+// ! Products SPA
+router.get("/product/all", productController.getProducts);
 
 
 

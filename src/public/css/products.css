@@ -28,13 +28,13 @@ td {
 }
 /* Products Status Colors */
 
-.product-status.is-process {
+.product-status.is-active {
   border-color: #16a34a;
   color: #16a34a;
   background: #ecfdf5;
 }
 
-.product-status.is-pause {
+.product-status.is-paused {
   border-color: #f59e0b;
   color: #f59e0b;
   background: #fffbeb;
@@ -100,14 +100,14 @@ td {
   box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.18);
 }
 
-/* ===== product status colors (PAUSE/PROCESS/DELETE) ===== */
-.product-status.is-process {
+/* ===== product status colors (ACTIVE/PAUSED/DELETE) ===== */
+.product-status.is-active {
   color: #1f9d55;
   background: #eafaf1;
   border-color: #bdebd0;
 }
 
-.product-status.is-pause {
+.product-status.is-paused {
   color: #d64545;
   background: #fdecec;
   border-color: #f5b7b7;

@@ -10,6 +10,31 @@ const productService = new ProductService();
 
 const productController: T = {};
 
+// ! For SPA */
+
+productController.getProducts = async (req: Request, res: Response) => {
+  try {
+    console.log("getProducts:");
+    const { page, limit, order, productCollection, search } = req.query;
+    const inquiry: ProductInquiry = {
+      order: String(order),
+      page: Number(page),
+      limit: Number(limit),
+    };
+    if (productCollection) {
+      inquiry.productCollection = productCollection as ProductCollection;
+    }
+    if (search) inquiry.search = String(search);
+
+    const result = await productService.getProducts(inquiry);
+    res.status(HttpCode.OK).json(result);
+  } catch (err) {
+    console.log("ERROR, getProducts:", err);
+    if (err instanceof Errors) res.status(err.code).json(err);
+    else res.status(Errors.standard.code).json(Errors.standard);
+  }
+};
+
 /! SSR */;
 
 productController.getAllProduct = async (req: Request, res: Response) => {
@@ -36,7 +61,7 @@ productController.getNewProductPage = async (req: Request, res: Response) => {
 // ! For Creation Products
 productController.createNewProduct = async (
   req: AdminRequest,
-  res: Response
+  res: Response,
 ) => {
   try {
     console.log("createNewProduct:");
@@ -51,14 +76,14 @@ productController.createNewProduct = async (
 
     await productService.createNewProduct(data);
     res.send(
-      `<script> alert("Successful creation!"); window.location.replace("/admin/product/all")</script> `
+      `<script> alert("Successful creation!"); window.location.replace("/admin/product/all")</script> `,
     );
   } catch (err) {
     console.log("ERROR, createNewProduct:", err);
     const message =
       err instanceof Errors ? err.message : Message.SOMETHING_WENT_WRONG;
     res.send(
-      `<script> alert("${message}"); window.location.replace("/admin/product/all")</script> `
+      `<script> alert("${message}"); window.location.replace("/admin/product/all")</script> `,
     );
   }
 };

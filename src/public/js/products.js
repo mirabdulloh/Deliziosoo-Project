@@ -107,13 +107,12 @@ function applyStatusStyle(selectEl) {
     const $el = $(selectEl);
     const v = $el.val();
   
-    $el.removeClass("is-active is-block is-delete is-process is-pause");
+    $el.removeClass("is-active is-block is-delete is-paused");
   
     if (v === "ACTIVE") $el.addClass("is-active");
     else if (v === "BLOCK") $el.addClass("is-block");
     else if (v === "DELETE") $el.addClass("is-delete");
-    else if (v === "PROCESS") $el.addClass("is-process");
-    else if (v === "PAUSE") $el.addClass("is-pause");
+    else if (v === "PAUSED") $el.addClass("is-paused");
   }
   
   $(function () {

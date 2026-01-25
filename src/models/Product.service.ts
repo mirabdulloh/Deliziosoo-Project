@@ -1,4 +1,4 @@
-import { ProductStatus } from "../libs/enum/product.enum";
+import { ProductCollection, ProductStatus } from "../libs/enum/product.enum";
 import { shapeIntoMongooseObjectId } from "../libs/config";
 import Errors, { HttpCode, Message } from "../libs/Errors";
 import {
@@ -22,6 +22,34 @@ class ProductService {
     // this.viewService = new ViewService();
   }
 
+  // ! For SPA */
+  public async getProducts(inquiry: ProductInquiry): Promise<Product[]> {
+    const match: T = { productStatus: ProductStatus.ACTIVE };
+
+    if (inquiry.productCollection) {
+      match.productCollection = inquiry.productCollection;
+    }
+    if (inquiry.search) {
+      match.productName = { $regex: new RegExp(inquiry.search, "i") };
+    }
+
+    const sort: T =
+      inquiry.order === "productPrice"
+        ? { [inquiry.order]: 1 }
+        : { [inquiry.order]: -1 };
+    const result = await this.productModel
+      .aggregate([
+        { $match: match },
+        { $sort: sort },
+        { $skip: (inquiry.page * 1 - 1) * inquiry.limit },
+        { $limit: inquiry.limit * 1 },
+      ])
+      .exec();
+
+    if (!result || result.length === 0) throw new Errors(HttpCode.NOT_FOUND, Message.NO_DATA_FOUND);
+    return result;
+  }
+
 
 
   /** SSR */
@@ -33,6 +61,10 @@ class ProductService {
 
   public async createNewProduct(input: ProductInput): Promise<Product> {
     try {
+      // Only include productVolume for DRINK collection
+      if (input.productCollection !== ProductCollection.DRINK) {
+        delete input.productVolume;
+      }
       return await this.productModel.create(input);
     } catch (err) {
       console.error("error on createNewProduct Module", err);
@@ -44,6 +76,10 @@ class ProductService {
     id: String,
     input: ProductUpdateInput
   ): Promise<Product> {
+    // Only include productVolume for DRINK collection
+    if (input.productCollection && input.productCollection !== ProductCollection.DRINK) {
+      delete input.productVolume;
+    }
     id = shapeIntoMongooseObjectId(id);
     const result = await this.productModel
       .findOneAndUpdate({ _id: id }, input, { new: true })

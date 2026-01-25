@@ -72,8 +72,8 @@
       
                   <td style="width: 13%">
                     <select class="spec-select product-status new-product-status" id="<%= product._id %>">
-                      <option value="PAUSE" <%= product.productStatus === "PAUSE" ? "selected" : "" %>>PAUSE</option>
-                      <option value="PROCESS" <%= product.productStatus === "PROCESS" ? "selected" : "" %>>PROCESS</option>
+                      <option value="ACTIVE" <%= product.productStatus === "ACTIVE" ? "selected" : "" %>>ACTIVE</option>
+                      <option value="PAUSED" <%= product.productStatus === "PAUSED" ? "selected" : "" %>>PAUSED</option>
                       <option value="DELETE" <%= product.productStatus === "DELETE" ? "selected" : "" %>>DELETE</option>
                     </select>
                   </td>
@@ -93,11 +93,11 @@
       
           <div class="footer-info">
             <%
-              const processCount = products.filter(p => p.productStatus === "PROCESS").length;
-              const pauseCount = products.filter(p => p.productStatus === "PAUSE").length;
+              const activeCount = products.filter(p => p.productStatus === "ACTIVE").length;
+              const pausedCount = products.filter(p => p.productStatus === "PAUSED").length;
             %>
             <i class="fas fa-box"></i>
-            PROCESS: <b><%= processCount %></b> | PAUSE: <b><%= pauseCount %></b>
+            ACTIVE: <b><%= activeCount %></b> | PAUSED: <b><%= pausedCount %></b>
           </div>
         </div>
       </section>

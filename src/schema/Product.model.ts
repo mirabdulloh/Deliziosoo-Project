@@ -7,7 +7,7 @@ const ProductSchema = new Schema(
     productStatus: {
       type: String,
       enum: ProductStatus,
-      default: ProductStatus.PAUSE,
+      default: ProductStatus.ACTIVE,
     },
 
     productCollection: {
@@ -37,7 +37,6 @@ const ProductSchema = new Schema(
     productVolume: {
       type: String,
       enum: ProductVolume,
-      default: ProductVolume.ONE,
     },
     productDesc: {
       type: String,
@@ -50,12 +49,16 @@ const ProductSchema = new Schema(
       type: Number,
       default: 0,
     },
+    productLikes: {
+      type: Number,
+      default: 0,
+    },
   },
   { timestamps: true }
 ); // createdAT, updatedAT ni beradi
 
 ProductSchema.index(
   { productName: 1, productSize: 1, productVolume: 1 },
-  { unique: true }
+  { unique: true, sparse: true }
 );
 export default mongoose.model("Product", ProductSchema);
