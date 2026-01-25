@@ -77,6 +77,13 @@ routerAdmin.post(
   productController.updateChosenProduct
 );
 
+// ! For Updating Product Promotion
+routerAdmin.post(
+  "/product/promotion/:id",
+  restaurantController.verifyRestaurant,
+  productController.updateProductPromotion
+);
+
 // ! For Admin Controlling Orders
 
 

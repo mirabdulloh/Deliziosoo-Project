@@ -34,8 +34,10 @@
                 <th>PRODUCT NAME</th>
                 <th>PRODUCT TYPE</th>
                 <th>PRODUCT VOLUME</th>
-                <th>PRODUCT PRICE</th>
+                <th>ORIGINAL PRICE</th>
+                <th>DISCOUNT PRICE</th>
                 <th>PRODUCT LEFT</th>
+                <th>PROMOTION</th>
                 <th>PRODUCT STATUS</th>
               </tr>
             </thead>
@@ -68,11 +70,28 @@
       
                   <td><%= product.productPrice %></td>
       
+                  <td>
+                    <% if (product.productPriceDiscount) { %>
+                      <span style="color: #dc2626; font-weight: bold;"><%= product.productPriceDiscount %></span>
+                    <% } else { %>
+                      <span style="color: #9ca3af;">-</span>
+                    <% } %>
+                  </td>
+      
                   <td><%= product.productLeftCount %></td>
+      
+                  <td style="width: 11%">
+                    <select class="spec-select product-promotion new-product-promotion" id="<%= product._id %>">
+                      <option value="0" <%= product.productPromotion === 0 ? "selected" : "" %>>No Promotion</option>
+                      <option value="30" <%= product.productPromotion === 30 ? "selected" : "" %>>30% OFF</option>
+                      <option value="45" <%= product.productPromotion === 45 ? "selected" : "" %>>45% OFF</option>
+                    </select>
+                  </td>
       
                   <td style="width: 13%">
                     <select class="spec-select product-status new-product-status" id="<%= product._id %>">
                       <option value="ACTIVE" <%= product.productStatus === "ACTIVE" ? "selected" : "" %>>ACTIVE</option>
+                      <option value="PROMOTION" <%= product.productStatus === "PROMOTION" ? "selected" : "" %>>PROMOTION</option>
                       <option value="PAUSED" <%= product.productStatus === "PAUSED" ? "selected" : "" %>>PAUSED</option>
                       <option value="DELETE" <%= product.productStatus === "DELETE" ? "selected" : "" %>>DELETE</option>
                     </select>
@@ -94,10 +113,11 @@
           <div class="footer-info">
             <%
               const activeCount = products.filter(p => p.productStatus === "ACTIVE").length;
+              const promotionCount = products.filter(p => p.productStatus === "PROMOTION").length;
               const pausedCount = products.filter(p => p.productStatus === "PAUSED").length;
             %>
             <i class="fas fa-box"></i>
-            ACTIVE: <b><%= activeCount %></b> | PAUSED: <b><%= pausedCount %></b>
+            ACTIVE: <b><%= activeCount %></b> | PROMOTION: <b><%= promotionCount %></b> | PAUSED: <b><%= pausedCount %></b>
           </div>
         </div>
       </section>

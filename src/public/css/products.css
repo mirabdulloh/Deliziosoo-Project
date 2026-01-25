@@ -34,6 +34,12 @@ td {
   background: #ecfdf5;
 }
 
+.product-status.is-promotion {
+  border-color: #8b5cf6;
+  color: #8b5cf6;
+  background: #f5f3ff;
+}
+
 .product-status.is-paused {
   border-color: #f59e0b;
   color: #f59e0b;
@@ -63,7 +69,8 @@ td {
 }
 
 /* ===== PRODUCTS: same size/style as users ===== */
-.spec-select.product-status {
+.spec-select.product-status,
+.spec-select.product-promotion {
   width: 130px;
   padding: 10px 38px 10px 14px;
   border-radius: 14px;
@@ -89,22 +96,30 @@ td {
   background-size: 16px;
 }
 
-.spec-select.product-status:hover {
+.spec-select.product-status:hover,
+.spec-select.product-promotion:hover {
   background-color: #ffffff;
   border-color: #cfd6e6;
 }
 
-.spec-select.product-status:focus {
+.spec-select.product-status:focus,
+.spec-select.product-promotion:focus {
   background-color: #ffffff;
   border-color: #6c63ff;
   box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.18);
 }
 
-/* ===== product status colors (ACTIVE/PAUSED/DELETE) ===== */
+/* ===== product status colors (ACTIVE/PROMOTION/PAUSED/DELETE) ===== */
 .product-status.is-active {
   color: #1f9d55;
   background: #eafaf1;
   border-color: #bdebd0;
+}
+
+.product-status.is-promotion {
+  color: #8b5cf6;
+  background: #f5f3ff;
+  border-color: #d8b4fe;
 }
 
 .product-status.is-paused {
@@ -117,6 +132,25 @@ td {
   color: #6b7280;
   background: #f3f4f6;
   border-color: #e5e7eb;
+}
+
+/* ===== product promotion colors ===== */
+.product-promotion.is-no-promo {
+  color: #6b7280;
+  background: #f3f4f6;
+  border-color: #e5e7eb;
+}
+
+.product-promotion.is-promo-30 {
+  color: #2563eb;
+  background: #eff6ff;
+  border-color: #bfdbfe;
+}
+
+.product-promotion.is-promo-45 {
+  color: #dc2626;
+  background: #fef2f2;
+  border-color: #fecaca;
 }
 
   /*product img  */

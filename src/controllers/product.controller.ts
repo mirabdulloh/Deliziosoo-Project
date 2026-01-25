@@ -35,6 +35,29 @@ productController.getProducts = async (req: Request, res: Response) => {
   }
 };
 
+productController.getPromotions = async (req: Request, res: Response) => {
+  try {
+    console.log("getPromotions:");
+    const { page, limit, order, productCollection, search } = req.query;
+    const inquiry: ProductInquiry = {
+      order: String(order),
+      page: Number(page),
+      limit: Number(limit),
+    };
+    if (productCollection) {
+      inquiry.productCollection = productCollection as ProductCollection;
+    }
+    if (search) inquiry.search = String(search);
+
+    const result = await productService.getPromotions(inquiry);
+    res.status(HttpCode.OK).json(result);
+  } catch (err) {
+    console.log("ERROR, getPromotions:", err);
+    if (err instanceof Errors) res.status(err.code).json(err);
+    else res.status(Errors.standard.code).json(Errors.standard);
+  }
+};
+
 productController.getProduct = async (req: ExtendedRequest, res: Response) => {
   try {
     console.log("getProduct:");
@@ -116,6 +139,31 @@ productController.updateChosenProduct = async (req: Request, res: Response) => {
     res.status(HttpCode.OK).json({ data: result });
   } catch (err) {
     console.log("ERROR, updateChosenProduct:", err);
+
+    if (err instanceof Errors) res.status(err.code).json(err);
+    else res.status(Errors.standard.code).json(Errors.standard);
+  }
+};
+
+// ! For Updating Product Promotion
+productController.updateProductPromotion = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    console.log("updateProductPromotion:");
+    const id = req.params.id;
+    const { productPromotion } = req.body;
+
+    if (productPromotion === undefined) {
+      throw new Errors(HttpCode.BAD_REQUEST, Message.SOMETHING_WENT_WRONG);
+    }
+
+    const result = await productService.updateProductPromotion(id, productPromotion);
+
+    res.status(HttpCode.OK).json({ data: result });
+  } catch (err) {
+    console.log("ERROR, updateProductPromotion:", err);
 
     if (err instanceof Errors) res.status(err.code).json(err);
     else res.status(Errors.standard.code).json(Errors.standard);

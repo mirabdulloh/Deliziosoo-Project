@@ -16,6 +16,7 @@ export enum ProductVolume{
 export enum ProductStatus{
     ACTIVE = 'ACTIVE',
     PAUSED = 'PAUSED',
+    PROMOTION = 'PROMOTION',
     DELETE = 'DELETE'
 }
 

@@ -24,7 +24,9 @@ class ProductService {
 
   // ! For SPA */
   public async getProducts(inquiry: ProductInquiry): Promise<Product[]> {
-    const match: T = { productStatus: ProductStatus.ACTIVE };
+    const match: T = { 
+      productStatus: { $in: [ProductStatus.ACTIVE] }
+    };
 
     if (inquiry.productCollection) {
       match.productCollection = inquiry.productCollection;
@@ -43,6 +45,62 @@ class ProductService {
         { $sort: sort },
         { $skip: (inquiry.page * 1 - 1) * inquiry.limit },
         { $limit: inquiry.limit * 1 },
+        {
+          $addFields: {
+            discountedPrice: {
+              $cond: {
+                if: { $gt: ["$productPromotion", 0] },
+                then: {
+                  $subtract: [
+                    "$productPrice",
+                    { $multiply: ["$productPrice", { $divide: ["$productPromotion", 100] }] }
+                  ]
+                },
+                else: "$productPrice"
+              }
+            }
+          }
+        }
+      ])
+      .exec();
+
+    if (!result || result.length === 0)
+      throw new Errors(HttpCode.NOT_FOUND, Message.NO_DATA_FOUND);
+    return result;
+  }
+
+  public async getPromotions(inquiry: ProductInquiry): Promise<Product[]> {
+    const match: T = { 
+      productStatus: ProductStatus.PROMOTION
+    };
+
+    if (inquiry.productCollection) {
+      match.productCollection = inquiry.productCollection;
+    }
+    if (inquiry.search) {
+      match.productName = { $regex: new RegExp(inquiry.search, "i") };
+    }
+
+    const sort: T =
+      inquiry.order === "productPrice"
+        ? { [inquiry.order]: 1 }
+        : { [inquiry.order]: -1 };
+    const result = await this.productModel
+      .aggregate([
+        { $match: match },
+        { $sort: sort },
+        { $skip: (inquiry.page * 1 - 1) * inquiry.limit },
+        { $limit: inquiry.limit * 1 },
+        {
+          $addFields: {
+            discountedPrice: {
+              $subtract: [
+                "$productPrice",
+                { $multiply: ["$productPrice", { $divide: ["$productPromotion", 100] }] }
+              ]
+            }
+          }
+        }
       ])
       .exec();
 
@@ -127,6 +185,33 @@ class ProductService {
     id = shapeIntoMongooseObjectId(id);
     const result = await this.productModel
       .findOneAndUpdate({ _id: id }, input, { new: true })
+      .exec();
+    if (!result) throw new Errors(HttpCode.NOT_MODIFIED, Message.UPDATE_FAILED);
+    return result;
+  }
+
+  public async updateProductPromotion(
+    id: String,
+    promotion: number
+  ): Promise<Product> {
+    id = shapeIntoMongooseObjectId(id);
+    
+    // First get the product to get its current price
+    const product = await this.productModel.findById(id).exec();
+    if (!product) throw new Errors(HttpCode.NOT_FOUND, Message.NO_DATA_FOUND);
+    
+    // Calculate discounted price if promotion is set
+    let updateData: any = { productPromotion: promotion };
+    
+    if (promotion > 0) {
+      const discountedPrice = product.productPrice - (product.productPrice * promotion / 100);
+      updateData.productPriceDiscount = Math.round(discountedPrice * 100) / 100; // Round to 2 decimals
+    } else {
+      updateData.productPriceDiscount = null; // Remove discount if no promotion
+    }
+    
+    const result = await this.productModel
+      .findOneAndUpdate({ _id: id }, updateData, { new: true })
       .exec();
     if (!result) throw new Errors(HttpCode.NOT_MODIFIED, Message.UPDATE_FAILED);
     return result;

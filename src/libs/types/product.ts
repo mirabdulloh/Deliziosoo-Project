@@ -8,13 +8,15 @@ export interface ProductInput {
   productStatus?: ProductStatus;
   productCollection: ProductCollection;
   productName: string;
-  productPrize: number;
+  productPrice: number;
+  productPriceDiscount?: number;
   productLeftCount: number;
   productSize?: ProductSize;
   productVolume?: number;
   productDesc?: string;
   productImages?: string[];
   productViews?: number;
+  productPromotion?: number;
 }
 
 export interface ProductInquiry {
@@ -30,13 +32,16 @@ export interface Product {
   productStatus: ProductStatus;
   productCollection: ProductCollection;
   productName: string;
-  productPrize: number;
+  productPrice: number;
+  productPriceDiscount?: number;
   productLeftCount: number;
   productSize: ProductSize;
   productVolume: number;
   productDesc?: string;
   productImages: string[];
   productViews: number;
+  productPromotion: number;
+  discountedPrice?: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -46,11 +51,14 @@ export interface ProductUpdateInput {
   productStatus?: ProductStatus;
   productCollection?: ProductCollection;
   productName?: string;
-  productPrize?: number;
+  productPrice?: number;
+  productPriceDiscount?: number;
   productLeftCount?: number;
   productSize?: ProductSize;
   productVolume?: number;
   productDesc?: string;
   productImages?: string[];
   productViews?: number;
+  productPromotion?: number;
+}
 }

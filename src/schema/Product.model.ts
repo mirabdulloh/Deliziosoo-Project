@@ -25,6 +25,11 @@ const ProductSchema = new Schema(
       required: true,
     },
 
+    productPriceDiscount: {
+      type: Number,
+      default: null,
+    },
+
     productLeftCount: {
       type: Number,
       required: true,
@@ -52,6 +57,11 @@ const ProductSchema = new Schema(
     productLikes: {
       type: Number,
       default: 0,
+    },
+    productPromotion: {
+      type: Number,
+      default: 0,
+      enum: [0, 30, 45],
     },
   },
   { timestamps: true }

@@ -42,6 +42,8 @@ router.post(
 // ! Products SPA
 router.get("/product/all", productController.getProducts);
 
+router.get("/product/promotions", productController.getPromotions);
+
 router.get(
   "/product/:id",
   memberController.retrieveAuth,

@@ -42,6 +42,57 @@ $(function () {
       alert("Product Update Failed!");
     }
   });
+
+  $(".new-product-promotion").on("change", async function (e) {
+    const id = e.target.id,
+      productPromotion = $(`#${id}.new-product-promotion`).val();
+    console.log("product Id:", id);
+    console.log("product Promotion:", productPromotion);
+
+    try {
+      // First update the promotion
+      const promoResponse = await axios.post(`/admin/product/promotion/${id}`, {
+        productPromotion: parseInt(productPromotion),
+      });
+      console.log("promo response", promoResponse);
+
+      if (promoResponse.data.data) {
+        console.log("product Promotion Updated:");
+        
+        // If promotion is set (30% or 45%), automatically change status to PROMOTION
+        if (parseInt(productPromotion) > 0) {
+          const statusResponse = await axios.post(`/admin/product/${id}`, {
+            productStatus: "PROMOTION",
+          });
+          
+          if (statusResponse.data.data) {
+            // Update the status dropdown UI
+            $(`#${id}.new-product-status`).val("PROMOTION");
+            applyStatusStyle($(`#${id}.new-product-status`)[0]);
+            console.log("Status automatically changed to PROMOTION");
+          }
+        }
+        // If promotion is removed (0), change status back to ACTIVE
+        else {
+          const statusResponse = await axios.post(`/admin/product/${id}`, {
+            productStatus: "ACTIVE",
+          });
+          
+          if (statusResponse.data.data) {
+            // Update the status dropdown UI
+            $(`#${id}.new-product-status`).val("ACTIVE");
+            applyStatusStyle($(`#${id}.new-product-status`)[0]);
+            console.log("Status automatically changed to ACTIVE");
+          }
+        }
+        
+        $(".new-product-promotion").blur();
+      } else alert("Promotion Update Failed!");
+    } catch (err) {
+      console.log(err);
+      alert("Promotion Update Failed!");
+    }
+  });
 });
 
 function validateForm() {
@@ -107,12 +158,23 @@ function applyStatusStyle(selectEl) {
     const $el = $(selectEl);
     const v = $el.val();
   
-    $el.removeClass("is-active is-block is-delete is-paused");
-  
-    if (v === "ACTIVE") $el.addClass("is-active");
-    else if (v === "BLOCK") $el.addClass("is-block");
-    else if (v === "DELETE") $el.addClass("is-delete");
-    else if (v === "PAUSED") $el.addClass("is-paused");
+    // Status styles
+    if ($el.hasClass("product-status")) {
+      $el.removeClass("is-active is-block is-delete is-paused is-promotion");
+      if (v === "ACTIVE") $el.addClass("is-active");
+      else if (v === "BLOCK") $el.addClass("is-block");
+      else if (v === "DELETE") $el.addClass("is-delete");
+      else if (v === "PAUSED") $el.addClass("is-paused");
+      else if (v === "PROMOTION") $el.addClass("is-promotion");
+    }
+    
+    // Promotion styles
+    if ($el.hasClass("product-promotion")) {
+      $el.removeClass("is-no-promo is-promo-30 is-promo-45");
+      if (v === "0") $el.addClass("is-no-promo");
+      else if (v === "30") $el.addClass("is-promo-30");
+      else if (v === "45") $el.addClass("is-promo-45");
+    }
   }
   
   $(function () {
