@@ -67,6 +67,13 @@ const ProductSchema = new Schema(
       type: Number,
       default: 0,
     },
+    productReviewCount: {
+      type: Number,
+      default: 0,
+    },
+    productReview: {
+      type: String,
+    },
     productPromotion: {
       type: Number,
       default: PromotionEnum.NONE,
