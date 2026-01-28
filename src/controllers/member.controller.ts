@@ -62,6 +62,18 @@ memberController.login = async (req: Request, res: Response) => {
     console.log("ERROR, login:", err);
   }
 };
+
+memberController.logout = async (req: ExtendedRequest, res: Response) => {
+  try {
+    console.log("logout:");
+    res.cookie("accessToken", null, { maxAge: 0, httpOnly: true });
+    res.status(HttpCode.OK).json({ logout: true });
+  } catch (err) {
+    if (err instanceof Errors) res.status(err.code).json(err);
+    else res.status(Errors.standard.code).json(Errors.standard);
+    console.log("ERROR, logout:", err);
+  }
+};
 memberController.verifyAuth = async (
   req: ExtendedRequest,
   res: Response,

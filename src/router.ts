@@ -9,6 +9,7 @@ import productController from "./controllers/product.controller";
 
 const router = express.Router();
 
+// ! Members SPA
 router.post("/member/signup", memberController.signUp);
 
 router.post("/member/login", memberController.login);
@@ -17,6 +18,12 @@ router.post(
   "/member/create/reservation",
   memberController.verifyAuth,
   reservationController.createReservation,
+);
+
+router.post(
+  "/member/logout",
+  memberController.verifyAuth,
+  memberController.logout,
 );
 
 //! ORders SPA

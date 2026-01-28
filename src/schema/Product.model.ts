@@ -1,7 +1,11 @@
 import mongoose, { Schema } from "mongoose";
-import { ProductCollection, ProductSize, ProductStatus, ProductVolume } from "../libs/enum/product.enum";
+import {
+  ProductCollection,
+  ProductSize,
+  ProductStatus,
+  ProductVolume,
+} from "../libs/enum/product.enum";
 import { PromotionEnum } from "../libs/enum/promotion.enum";
-
 
 const ProductSchema = new Schema(
   {
@@ -59,17 +63,21 @@ const ProductSchema = new Schema(
       type: Number,
       default: 0,
     },
+    productRank: {
+      type: Number,
+      default: 0,
+    },
     productPromotion: {
       type: Number,
       default: PromotionEnum.NONE,
-      enum: Object.values(PromotionEnum).filter(v => typeof v === 'number'),
+      enum: Object.values(PromotionEnum).filter((v) => typeof v === "number"),
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 ); // createdAT, updatedAT ni beradi
 
 ProductSchema.index(
   { productName: 1, productSize: 1, productVolume: 1 },
-  { unique: true, sparse: true }
+  { unique: true, sparse: true },
 );
 export default mongoose.model("Product", ProductSchema);
