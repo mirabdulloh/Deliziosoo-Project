@@ -29,7 +29,14 @@ router.post(
 router.get(
   "/member/detail",
   memberController.verifyAuth,
-  memberController.getMemberDetail
+  memberController.getMemberDetail,
+);
+
+router.post(
+  "/member/update",
+  memberController.verifyAuth,
+  makeUploader("members").single("memberImg"),
+  memberController.updateMember,
 );
 
 //! ORders SPA

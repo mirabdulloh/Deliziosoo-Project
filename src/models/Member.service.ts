@@ -172,6 +172,20 @@ class MemberService {
       .exec();
   }
 
+  public async updateMember(
+    member: Member,
+    input: memberUpdateInput,
+  ): Promise<Member> {
+    const memberId = shapeIntoMongooseObjectId(member._id);
+    const result = await this.memberModel.findOneAndUpdate(
+      { _id: memberId },
+      input,
+      { new: true },
+    );
+    if (!result) throw new Errors(HttpCode.NOT_MODIFIED, Message.UPDATE_FAILED);
+    return result;
+  }
+
   public async getMemberDetail(member: Member): Promise<Member> {
     const memberId = shapeIntoMongooseObjectId(member._id);
     const result = await this.memberModel
