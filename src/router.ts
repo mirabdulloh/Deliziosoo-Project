@@ -26,6 +26,12 @@ router.post(
   memberController.logout,
 );
 
+router.get(
+  "/member/detail",
+  memberController.verifyAuth,
+  memberController.getMemberDetail
+);
+
 //! ORders SPA
 
 router.post(

@@ -44,7 +44,7 @@ class MemberService {
     const member = await this.memberModel
       .findOne(
         { memberNick: input.memberNick },
-        { memberNick: 1, memberPassword: 1 }
+        { memberNick: 1, memberPassword: 1 },
       )
       .exec();
     console.log("member:", member);
@@ -53,7 +53,7 @@ class MemberService {
 
     const isMatch: boolean = await bcrypt.compare(
       input.memberPassword,
-      member.memberPassword
+      member.memberPassword,
     );
     console.log("isMatch:", isMatch);
     if (!isMatch)
@@ -81,26 +81,28 @@ class MemberService {
     return result;
   }
 
-  public async updateAdminSettings(member: Member, input: MemberInput): Promise<Member> {
+  public async updateAdminSettings(
+    member: Member,
+    input: MemberInput,
+  ): Promise<Member> {
     const memberId = shapeIntoMongooseObjectId(member._id);
-  
+
     const updateData: T = {};
-  
+
     // only allow these fields
     if (input.memberNick) updateData.memberNick = input.memberNick;
     if (input.memberImage) updateData.memberImage = input.memberImage;
-  
+
     const result = await this.memberModel.findOneAndUpdate(
-      { _id: memberId, memberType: MemberType.RESTAURANT},
+      { _id: memberId, memberType: MemberType.RESTAURANT },
       updateData,
-      { new: true }
+      { new: true },
     );
-  
+
     if (!result) throw new Errors(HttpCode.NOT_MODIFIED, Message.UPDATE_FAILED);
-  
+
     return result;
   }
-  
 
   // ! SPA REACT
 
@@ -126,7 +128,7 @@ class MemberService {
           memberNick: input.memberNick,
           memberStatus: { $ne: MemberStatus.DELETE },
         }, // Filter
-        { memberNick: 1, memberPassword: 1, memberStatus: 1 }
+        { memberNick: 1, memberPassword: 1, memberStatus: 1 },
       )
       .exec(); // Projection
     console.log("member:", member);
@@ -138,7 +140,7 @@ class MemberService {
 
     const isMatch: boolean = await bcrypt.compare(
       input.memberPassword, // max2020
-      member.memberPassword // dedefefwfw4fwfwfw4fwf
+      member.memberPassword, // dedefefwfw4fwfwfw4fwf
     );
     console.log("isMatch:", isMatch);
     if (!isMatch)
@@ -147,12 +149,13 @@ class MemberService {
     // =========== ADD HERE ===========
     await this.memberModel.updateOne(
       { _id: member._id },
-      { $set: { lastLoginAt: new Date(), lastActiveAt: new Date() } }
+      { $set: { lastLoginAt: new Date(), lastActiveAt: new Date() } },
     );
     // =================================
 
     return await this.memberModel.findById(member._id).lean().exec();
   }
+
   public async addUserPoint(member: Member, point: number): Promise<Member> {
     const memberId = shapeIntoMongooseObjectId(member._id);
 
@@ -164,9 +167,18 @@ class MemberService {
           memberStatus: MemberStatus.ACTIVE,
         },
         { $inc: { memberPoints: point } },
-        { new: true }
+        { new: true },
       )
       .exec();
+  }
+
+  public async getMemberDetail(member: Member): Promise<Member> {
+    const memberId = shapeIntoMongooseObjectId(member._id);
+    const result = await this.memberModel
+      .findOne({ _id: memberId, memberStatus: MemberStatus.ACTIVE })
+      .exec();
+    if (!result) throw new Errors(HttpCode.NOT_FOUND, Message.NO_DATA_FOUND);
+    return result;
   }
 }
 
