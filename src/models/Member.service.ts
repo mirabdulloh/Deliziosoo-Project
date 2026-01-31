@@ -266,12 +266,20 @@ class MemberService {
     return result;
   }
 
-  public async markCouponAsUsed(member: Member): Promise<void> {
+  public async markCouponAsUsed(
+    member: Member,
+    couponCode?: string,
+  ): Promise<boolean> {
     const memberId = shapeIntoMongooseObjectId(member._id);
-    await this.memberModel.updateOne(
-      { _id: memberId },
+    const filter: T = { _id: memberId };
+    if (couponCode) filter["memberCoupon.code"] = couponCode;
+
+    const result = await this.memberModel.updateOne(
+      filter,
       { $set: { "memberCoupon.isUsed": true } }
     );
+
+    return result.modifiedCount > 0;
   }
 
   public async generateLoyaltyCoupon(member: Member): Promise<boolean> {

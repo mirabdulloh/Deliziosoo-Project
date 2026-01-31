@@ -43,6 +43,7 @@ export interface OrderInquiry {
 export interface OrderUpdateInput {
   orderId: string;
   orderStatus: OrderStatus;
+  couponCode?: string;
 }
 
 export interface OrderStatsResponse {

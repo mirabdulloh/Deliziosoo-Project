@@ -229,7 +229,7 @@ class OrderService {
       if (validation.valid) {
         discount = validation.discount;
         // Mark coupon as used
-        await this.memberService.markCouponAsUsed(member);
+        await this.memberService.markCouponAsUsed(member, couponCode);
       }
     }
 
@@ -323,8 +323,21 @@ class OrderService {
       .exec();
     if (!result) throw new Errors(HttpCode.NOT_MODIFIED, Message.UPDATE_FAILED);
 
-    if (orderStatus === OrderStatus.FINISH) {
+    if (orderStatus === OrderStatus.PROCESS) {
       await this.memberService.addUserPoint(member, 1);
+    }
+
+    if (
+      input.couponCode &&
+      (orderStatus === OrderStatus.PROCESS || orderStatus === OrderStatus.FINISH)
+    ) {
+      const validation = await this.memberService.validateCoupon(
+        member,
+        input.couponCode
+      );
+      if (validation.valid) {
+        await this.memberService.markCouponAsUsed(member, input.couponCode);
+      }
     }
 
     // Check if order is finished and award loyalty coupon
