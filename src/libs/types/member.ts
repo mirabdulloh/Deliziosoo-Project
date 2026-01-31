@@ -3,6 +3,13 @@ import { MemberStatus, MemberType } from "../enum/member.enum";
 import { Types } from "mongoose";
 import { Request } from "express";
 
+export interface Coupon {
+  code: string | null;
+  discount: number;
+  isUsed: boolean;
+  expiresAt: Date | null;
+}
+
 export interface Member {
   _id: Types.ObjectId;
   memberType: MemberType;
@@ -14,6 +21,7 @@ export interface Member {
   memberDesc?: string;
   memberImg?: string;
   memberPoints: number;
+  memberCoupon?: Coupon;
   createdAt: Date;
   updatedAt: Date;
   lastActiveAt?: Date | null;

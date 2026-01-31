@@ -39,6 +39,12 @@ router.post(
   memberController.updateMember,
 );
 
+router.post(
+  "/member/validate-coupon",
+  memberController.verifyAuth,
+  memberController.validateCoupon,
+);
+
 //! ORders SPA
 
 router.post(
@@ -81,6 +87,8 @@ router.get(
   productController.getProduct,
 );
 
+
+// ! AI CHAT SETUP
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });

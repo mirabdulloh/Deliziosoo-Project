@@ -31,6 +31,7 @@ export interface OrderItemInput {
   itemPrice: number;
   productId: ObjectId;
   orderId?: ObjectId;
+  couponCode?: string;
 }
 
 export interface OrderInquiry {

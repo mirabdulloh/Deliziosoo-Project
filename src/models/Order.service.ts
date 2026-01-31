@@ -219,11 +219,23 @@ class OrderService {
       return accumulator + item.itemPrice * item.itemQuantity;
     }, 0);
 
-    const delivery = amount < 100 ? 5 : 0;
+    let delivery = amount < 100 ? 5 : 0;
+    let discount = 0;
+
+    // Check if coupon is being used
+    const couponCode = input[0]?.couponCode;
+    if (couponCode) {
+      const validation = await this.memberService.validateCoupon(member, couponCode);
+      if (validation.valid) {
+        discount = validation.discount;
+        // Mark coupon as used
+        await this.memberService.markCouponAsUsed(member);
+      }
+    }
 
     try {
       const newOrder: Order = await this.orderModel.create({
-        orderTotal: amount + delivery,
+        orderTotal: amount + delivery - discount,
         orderDelivery: delivery,
         memberId: memberId,
       });
@@ -315,7 +327,26 @@ class OrderService {
       await this.memberService.addUserPoint(member, 1);
     }
 
+    // Check if order is finished and award loyalty coupon
+    if (orderStatus === OrderStatus.FINISH) {
+      const finishedOrdersCount = await this.getFinishedOrdersCount(memberId);
+      
+      // Give loyalty coupon every 5 finished orders
+      if (finishedOrdersCount % 5 === 0) {
+        await this.memberService.generateLoyaltyCoupon(member);
+      }
+    }
+
     return result;
+  }
+
+  private async getFinishedOrdersCount(memberId: ObjectId): Promise<number> {
+    return await this.orderModel
+      .countDocuments({
+        memberId: memberId,
+        orderStatus: OrderStatus.FINISH,
+      })
+      .exec();
   }
 }
 

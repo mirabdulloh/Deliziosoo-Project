@@ -110,14 +110,68 @@ class MemberService {
     const salt = await bcrypt.genSalt();
     input.memberPassword = await bcrypt.hash(input.memberPassword, salt);
 
+    // Generate welcome coupon
+    const couponCode = this.generateCouponCode();
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + 30); // 30 days expiry
+
     try {
-      const result = await this.memberModel.create(input);
+      const result = await this.memberModel.create({
+        ...input,
+        memberCoupon: {
+          code: couponCode,
+          discount: 5,
+          isUsed: false,
+          expiresAt: expiresAt,
+        },
+      });
       result.memberPassword = "";
       return result.toJSON();
     } catch (err) {
       console.error("ERROR: model: signUp", err);
       throw new Errors(HttpCode.BAD_REQUEST, Message.USED_NICK_PHONE);
     }
+  }
+
+  private generateCouponCode(): string {
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    let code = "WELCOME";
+    for (let i = 0; i < 8; i++) {
+      code += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return code;
+  }
+
+  public async validateCoupon(
+    member: Member,
+    couponCode: string
+  ): Promise<{ valid: boolean; discount: number; message: string }> {
+    const memberId = shapeIntoMongooseObjectId(member._id);
+    const memberData = await this.memberModel.findById(memberId).exec();
+
+    if (!memberData || !memberData.memberCoupon || !memberData.memberCoupon.code) {
+      return { valid: false, discount: 0, message: "No coupon available" };
+    }
+
+    const coupon = memberData.memberCoupon;
+
+    if (coupon.code !== couponCode) {
+      return { valid: false, discount: 0, message: "Invalid coupon code" };
+    }
+
+    if (coupon.isUsed) {
+      return { valid: false, discount: 0, message: "Coupon already used" };
+    }
+
+    if (coupon.expiresAt && new Date() > coupon.expiresAt) {
+      return { valid: false, discount: 0, message: "Coupon has expired" };
+    }
+
+    return {
+      valid: true,
+      discount: coupon.discount,
+      message: "Coupon is valid",
+    };
   }
 
   public async login(input: LoginInput): Promise<Member> {
@@ -193,6 +247,53 @@ class MemberService {
       .exec();
     if (!result) throw new Errors(HttpCode.NOT_FOUND, Message.NO_DATA_FOUND);
     return result;
+  }
+
+  public async markCouponAsUsed(member: Member): Promise<void> {
+    const memberId = shapeIntoMongooseObjectId(member._id);
+    await this.memberModel.updateOne(
+      { _id: memberId },
+      { $set: { "memberCoupon.isUsed": true } }
+    );
+  }
+
+  public async generateLoyaltyCoupon(member: Member): Promise<void> {
+    const memberId = shapeIntoMongooseObjectId(member._id);
+    const memberData = await this.memberModel.findById(memberId).exec();
+
+    // Only generate if current coupon is used or expired
+    if (memberData && memberData.memberCoupon) {
+      const coupon = memberData.memberCoupon;
+      const isExpired = coupon.expiresAt && new Date() > coupon.expiresAt;
+      
+      if (coupon.isUsed || isExpired || !coupon.code) {
+        const couponCode = this.generateLoyaltyCouponCode();
+        const expiresAt = new Date();
+        expiresAt.setDate(expiresAt.getDate() + 30); // 30 days expiry
+
+        await this.memberModel.updateOne(
+          { _id: memberId },
+          {
+            $set: {
+              "memberCoupon.code": couponCode,
+              "memberCoupon.discount": 5,
+              "memberCoupon.isUsed": false,
+              "memberCoupon.expiresAt": expiresAt,
+            },
+          }
+        );
+        console.log(`🎉 Loyalty coupon ${couponCode} generated for member ${memberId}`);
+      }
+    }
+  }
+
+  private generateLoyaltyCouponCode(): string {
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    let code = "LOYAL5";
+    for (let i = 0; i < 9; i++) {
+      code += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return code;
   }
 }
 
