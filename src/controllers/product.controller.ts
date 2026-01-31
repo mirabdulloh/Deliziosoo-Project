@@ -14,9 +14,13 @@ const productController: T = {};
 
 // ! For SPA */
 
-productController.getProducts = async (req: Request, res: Response) => {
+productController.getProducts = async (req: ExtendedRequest, res: Response) => {
   try {
     console.log("getProducts:");
+    console.log("🔑 req.member exists?", !!req.member);
+    console.log("🔑 req.member._id:", req.member?._id);
+    console.log("🔑 req.cookies:", Object.keys(req.cookies));
+    
     const { page, limit, order, productCollection, search } = req.query;
     const inquiry: ProductInquiry = {
       order: String(order),
@@ -28,7 +32,9 @@ productController.getProducts = async (req: Request, res: Response) => {
     }
     if (search) inquiry.search = String(search);
 
-    const result = await productService.getProducts(inquiry);
+    const memberId = req.member?._id ?? null;
+    console.log("📤 Passing memberId to service:", memberId);
+    const result = await productService.getProducts(inquiry, memberId);
     res.status(HttpCode.OK).json(result);
   } catch (err) {
     console.log("ERROR, getProducts:", err);
@@ -37,9 +43,12 @@ productController.getProducts = async (req: Request, res: Response) => {
   }
 };
 
-productController.getPromotions = async (req: Request, res: Response) => {
+productController.getPromotions = async (req: ExtendedRequest, res: Response) => {
   try {
     console.log("getPromotions:");
+    console.log("🔑 req.member exists?", !!req.member);
+    console.log("🔑 req.member._id:", req.member?._id);
+    
     const { page, limit, order, productCollection, search } = req.query;
     const inquiry: ProductInquiry = {
       order: String(order),
@@ -51,7 +60,9 @@ productController.getPromotions = async (req: Request, res: Response) => {
     }
     if (search) inquiry.search = String(search);
 
-    const result = await productService.getPromotions(inquiry);
+    const memberId = req.member?._id ?? null;
+    console.log("📤 Passing memberId to service:", memberId);
+    const result = await productService.getPromotions(inquiry, memberId);
     res.status(HttpCode.OK).json(result);
   } catch (err) {
     console.log("ERROR, getPromotions:", err);

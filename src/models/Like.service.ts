@@ -36,6 +36,28 @@ class LikeService {
     const result = await this.likeModel.findOne({ memberId, likeRefId }).exec();
     return !!result;
   }
+
+  // Bulk check for multiple products - useful for list views
+  public async checkMultipleLikes(
+    memberId: any,
+    likeRefIds: any[],
+    likeGroup: string,
+  ): Promise<Map<string, boolean>> {
+    const likes = await this.likeModel
+      .find({
+        memberId,
+        likeRefId: { $in: likeRefIds },
+        likeGroup,
+      })
+      .exec();
+
+    const likeMap = new Map<string, boolean>();
+    likes.forEach((like: any) => {
+      likeMap.set(like.likeRefId.toString(), true);
+    });
+
+    return likeMap;
+  }
 }
 
 export default LikeService;

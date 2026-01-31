@@ -66,9 +66,17 @@ router.post(
 );
 
 // ! Products SPA
-router.get("/product/all", productController.getProducts);
+router.get(
+  "/product/all",
+  memberController.retrieveAuth,
+  productController.getProducts
+);
 
-router.get("/product/promotions", productController.getPromotions);
+router.get(
+  "/product/promotions",
+  memberController.retrieveAuth,
+  productController.getPromotions
+);
 
 router.get(
   "/product/favorites",

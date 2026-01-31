@@ -16,6 +16,11 @@ import LikeService from "./Like.service";
 import { ViewInput } from "../libs/types/view";
 import { LikeInput } from "../libs/types/like";
 import { ViewGroup, LikeGroup } from "../libs/enum/view.enum";
+import {
+  lookupAuthMemberLiked,
+  addMemberLikedField,
+  removeTemporaryLikeFields,
+} from "../libs/utils/aggregation";
 
 class ProductService {
   private readonly productModel;
@@ -28,7 +33,12 @@ class ProductService {
   }
 
   // ! For SPA */
-  public async getProducts(inquiry: ProductInquiry): Promise<Product[]> {
+  public async getProducts(
+    inquiry: ProductInquiry,
+    memberId?: Types.ObjectId | null,
+  ): Promise<Product[]> {
+    console.log("🔍 getProducts called with memberId:", memberId);
+    
     const match: T = {
       productStatus: { $in: [ProductStatus.ACTIVE] },
     };
@@ -44,42 +54,67 @@ class ProductService {
       inquiry.order === "productPrice"
         ? { [inquiry.order]: 1 }
         : { [inquiry.order]: -1 };
-    const result = await this.productModel
-      .aggregate([
-        { $match: match },
-        { $sort: sort },
-        { $skip: (inquiry.page * 1 - 1) * inquiry.limit },
-        { $limit: inquiry.limit * 1 },
-        {
-          $addFields: {
-            discountedPrice: {
-              $cond: {
-                if: { $gt: ["$productPromotion", 0] },
-                then: {
-                  $subtract: [
+
+    const pipeline: any[] = [
+      { $match: match },
+      { $sort: sort },
+      { $skip: (inquiry.page * 1 - 1) * inquiry.limit },
+      { $limit: inquiry.limit * 1 },
+    ];
+
+    // Add lookup for authenticated members
+    if (memberId) {
+      console.log("✅ Adding lookup for memberId:", memberId);
+      const lookup = lookupAuthMemberLiked(memberId, "_id");
+      console.log("📊 Lookup stage:", JSON.stringify(lookup, null, 2));
+      if (lookup) pipeline.push(lookup);
+    }
+
+    // Add discountedPrice and memberLiked fields
+    pipeline.push({
+      $addFields: {
+        discountedPrice: {
+          $cond: {
+            if: { $gt: ["$productPromotion", 0] },
+            then: {
+              $subtract: [
+                "$productPrice",
+                {
+                  $multiply: [
                     "$productPrice",
-                    {
-                      $multiply: [
-                        "$productPrice",
-                        { $divide: ["$productPromotion", 100] },
-                      ],
-                    },
+                    { $divide: ["$productPromotion", 100] },
                   ],
                 },
-                else: "$productPrice",
-              },
+              ],
             },
+            else: "$productPrice",
           },
         },
-      ])
-      .exec();
+        ...(memberId ? { memberLiked: { $gt: [{ $size: "$meLiked" }, 0] } } : {}),
+      },
+    });
+
+    // Remove temporary fields
+    if (memberId) {
+      pipeline.push(removeTemporaryLikeFields());
+    }
+
+    console.log("📋 Full getProducts pipeline stages:", pipeline.length);
+    const result = await this.productModel.aggregate(pipeline).exec();
+    console.log("📤 getProducts returned products count:", result.length);
+    if (result.length > 0) {
+      console.log("👀 First product memberLiked:", result[0].memberLiked);
+    }
 
     if (!result || result.length === 0)
       throw new Errors(HttpCode.NOT_FOUND, Message.NO_DATA_FOUND);
     return result;
   }
 
-  public async getPromotions(inquiry: ProductInquiry): Promise<Product[]> {
+  public async getPromotions(
+    inquiry: ProductInquiry,
+    memberId?: Types.ObjectId | null,
+  ): Promise<Product[]> {
     const match: T = {
       productStatus: ProductStatus.PROMOTION,
     };
@@ -95,29 +130,44 @@ class ProductService {
       inquiry.order === "productPrice"
         ? { [inquiry.order]: 1 }
         : { [inquiry.order]: -1 };
-    const result = await this.productModel
-      .aggregate([
-        { $match: match },
-        { $sort: sort },
-        { $skip: (inquiry.page * 1 - 1) * inquiry.limit },
-        { $limit: inquiry.limit * 1 },
-        {
-          $addFields: {
-            discountedPrice: {
-              $subtract: [
+
+    const pipeline: any[] = [
+      { $match: match },
+      { $sort: sort },
+      { $skip: (inquiry.page * 1 - 1) * inquiry.limit },
+      { $limit: inquiry.limit * 1 },
+    ];
+
+    // Add lookup for authenticated members
+    if (memberId) {
+      const lookup = lookupAuthMemberLiked(memberId, "_id");
+      if (lookup) pipeline.push(lookup);
+    }
+
+    // Add discountedPrice and memberLiked fields
+    pipeline.push({
+      $addFields: {
+        discountedPrice: {
+          $subtract: [
+            "$productPrice",
+            {
+              $multiply: [
                 "$productPrice",
-                {
-                  $multiply: [
-                    "$productPrice",
-                    { $divide: ["$productPromotion", 100] },
-                  ],
-                },
+                { $divide: ["$productPromotion", 100] },
               ],
             },
-          },
+          ],
         },
-      ])
-      .exec();
+        ...(memberId ? { memberLiked: { $gt: [{ $size: "$meLiked" }, 0] } } : {}),
+      },
+    });
+
+    // Remove temporary fields
+    if (memberId) {
+      pipeline.push(removeTemporaryLikeFields());
+    }
+
+    const result = await this.productModel.aggregate(pipeline).exec();
 
     if (!result || result.length === 0)
       throw new Errors(HttpCode.NOT_FOUND, Message.NO_DATA_FOUND);
@@ -161,6 +211,7 @@ class ProductService {
       {
         $addFields: {
           "product.favoriteAt": "$createdAt",
+          "product.memberLiked": true,
           "product.discountedPrice": {
             $cond: {
               if: { $gt: ["$product.productPromotion", 0] },
@@ -196,14 +247,40 @@ class ProductService {
     id: string,
   ): Promise<Product> {
     const productId = shapeIntoMongooseObjectId(id);
-    let result = await this.productModel
-      .findOne({
-        _id: productId,
-        productStatus: { $in: [ProductStatus.ACTIVE] },
-      })
-      .exec();
 
-    if (!result) throw new Errors(HttpCode.NOT_FOUND, Message.NO_DATA_FOUND);
+    const pipeline: any[] = [
+      {
+        $match: {
+          _id: productId,
+          productStatus: { $in: [ProductStatus.ACTIVE, ProductStatus.PROMOTION] },
+        },
+      },
+    ];
+
+    // Add lookup for authenticated members
+    if (memberId) {
+      const lookup = lookupAuthMemberLiked(memberId, "_id");
+      if (lookup) pipeline.push(lookup);
+    }
+
+    // Add memberLiked field
+    pipeline.push({
+      $addFields: {
+        ...(memberId ? { memberLiked: { $gt: [{ $size: "$meLiked" }, 0] } } : {}),
+      },
+    });
+
+    // Remove temporary fields
+    if (memberId) {
+      pipeline.push(removeTemporaryLikeFields());
+    }
+
+    const products = await this.productModel.aggregate(pipeline).exec();
+
+    if (!products || products.length === 0)
+      throw new Errors(HttpCode.NOT_FOUND, Message.NO_DATA_FOUND);
+
+    let result = products[0];
 
     // if authenticated user => first => view log
     const input: ViewInput = {
@@ -220,15 +297,15 @@ class ProductService {
         // insert new view
         console.log("planning to insert new view");
         await this.viewService.insertMemberView(input);
-        result = await this.productModel
+        await this.productModel
           .findByIdAndUpdate(
             productId,
             { $inc: { productViews: 1 } },
-            { new: true },
           )
           .exec();
+        // Update result with incremented view count
+        result.productViews = (result.productViews || 0) + 1;
       }
-      // increase  view
     }
     return result;
   }
@@ -316,7 +393,7 @@ class ProductService {
   public async likeTargetProduct(
     memberId: Types.ObjectId,
     likeRefId: Types.ObjectId,
-  ): Promise<Product> {
+  ): Promise<any> {
     const target: Product = await this.productModel
       .findOne({
         _id: likeRefId,
@@ -336,7 +413,20 @@ class ProductService {
       targetKey: "productLikes",
       modifier: modifier,
     });
-    return result;
+    
+    // Check if the current user has liked this product after toggle
+    const memberLiked = await this.likeService.checkLikeExistence({
+      memberId: memberId,
+      likeRefId: likeRefId,
+      likeGroup: LikeGroup.PRODUCT,
+    });
+
+    return {
+      _id: result._id,
+      productName: result.productName,
+      productLikes: result.productLikes,
+      memberLiked: memberLiked,
+    };
   }
 }
 

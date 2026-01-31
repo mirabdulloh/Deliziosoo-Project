@@ -46,8 +46,10 @@ export interface Product {
   productDesc?: string;
   productImages: string[];
   productViews: number;
+  productLikes: number;
   productPromotion: PromotionEnum;
   discountedPrice?: number;
+  memberLiked?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
