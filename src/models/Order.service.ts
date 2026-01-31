@@ -226,11 +226,10 @@ class OrderService {
     const couponCode = input[0]?.couponCode;
     if (couponCode) {
       const validation = await this.memberService.validateCoupon(member, couponCode);
-      if (validation.valid) {
-        discount = validation.discount;
-        // Mark coupon as used
-        await this.memberService.markCouponAsUsed(member, couponCode);
+      if (!validation.valid) {
+        throw new Errors(HttpCode.BAD_REQUEST, validation.message || Message.CREATE_FAILED);
       }
+      discount = validation.discount;
     }
 
     try {
@@ -242,6 +241,12 @@ class OrderService {
       const orderId = newOrder._id;
       console.log("orderId", orderId);
       await this.recordOrderItems(orderId, input);
+      
+      // Mark coupon as used AFTER successful order creation
+      if (couponCode) {
+        await this.memberService.markCouponAsUsed(member, couponCode);
+      }
+      
       return newOrder;
     } catch (err) {
       console.log("Error Model:createOrder");
