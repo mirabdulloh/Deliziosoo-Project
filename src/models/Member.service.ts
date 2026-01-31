@@ -213,7 +213,7 @@ class MemberService {
   public async addUserPoint(member: Member, point: number): Promise<Member> {
     const memberId = shapeIntoMongooseObjectId(member._id);
 
-    return await this.memberModel
+    const updatedMember = await this.memberModel
       .findOneAndUpdate(
         {
           _id: memberId,
@@ -224,7 +224,24 @@ class MemberService {
         { new: true },
       )
       .exec();
+
+    if (!updatedMember) return updatedMember as any;
+
+    if (updatedMember.memberPoints >= 5) {
+      const issued = await this.generateLoyaltyCoupon(member);
+      if (issued) {
+        const newPoints = updatedMember.memberPoints - 5;
+        await this.memberModel.updateOne(
+          { _id: memberId },
+          { $set: { memberPoints: newPoints } },
+        );
+        return await this.memberModel.findById(memberId).exec();
+      }
+    }
+
+    return updatedMember;
   }
+
 
   public async updateMember(
     member: Member,
@@ -257,7 +274,7 @@ class MemberService {
     );
   }
 
-  public async generateLoyaltyCoupon(member: Member): Promise<void> {
+  public async generateLoyaltyCoupon(member: Member): Promise<boolean> {
     const memberId = shapeIntoMongooseObjectId(member._id);
     const memberData = await this.memberModel.findById(memberId).exec();
 
@@ -283,8 +300,11 @@ class MemberService {
           }
         );
         console.log(`🎉 Loyalty coupon ${couponCode} generated for member ${memberId}`);
+        return true;
       }
     }
+
+    return false;
   }
 
   private generateLoyaltyCouponCode(): string {
