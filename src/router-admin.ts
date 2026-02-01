@@ -4,6 +4,7 @@ import restaurantController from "./controllers/restaurant.controller";
 import makeUploader from "./libs/utils/uploader";
 import productController from "./controllers/product.controller";
 import orderController from "./controllers/order.controller";
+import reviewController from "./controllers/review.controller";
 const routerAdmin = express.Router();
 
 /** For Restaurant Login SignUp, Logout */
@@ -28,13 +29,13 @@ routerAdmin.get("/logout", restaurantController.logout);
 routerAdmin.get(
   "/user/all",
   restaurantController.verifyRestaurant,
-  restaurantController.getUsers
+  restaurantController.getUsers,
 );
 
 routerAdmin.post(
   "/user/edit",
   restaurantController.verifyRestaurant,
-  restaurantController.updateChosenUser
+  restaurantController.updateChosenUser,
 );
 
 // ! For Admin Controlling Reservation Table Panel
@@ -42,25 +43,25 @@ routerAdmin.post(
 routerAdmin.get(
   "/getAll/reservations",
   restaurantController.verifyRestaurant,
-  restaurantController.getAllReservations
+  restaurantController.getAllReservations,
 );
 routerAdmin.post(
   "/reservation/update",
   restaurantController.verifyRestaurant,
-  restaurantController.updateReservation
+  restaurantController.updateReservation,
 );
 
 // ! For Admin Controlling Products
 routerAdmin.get(
   "/product/all",
   restaurantController.verifyRestaurant,
-  productController.getAllProduct
+  productController.getAllProduct,
 );
 
 routerAdmin.get(
   "/product/create",
   restaurantController.verifyRestaurant,
-  productController.getNewProductPage
+  productController.getNewProductPage,
 );
 
 // ! For Creation Products
@@ -68,44 +69,55 @@ routerAdmin.post(
   "/product/create",
   restaurantController.verifyRestaurant,
   makeUploader("products").array("productImages", 5),
-  productController.createNewProduct
+  productController.createNewProduct,
 );
 // ! For Updating Products
 routerAdmin.post(
   "/product/:id",
   restaurantController.verifyRestaurant,
-  productController.updateChosenProduct
+  productController.updateChosenProduct,
 );
 
 // ! For Updating Product Promotion
 routerAdmin.post(
   "/product/promotion/:id",
   restaurantController.verifyRestaurant,
-  productController.updateProductPromotion
+  productController.updateProductPromotion,
 );
 
 // ! For Admin Controlling Orders
 
-
 routerAdmin.get(
   "/orders/stats",
   restaurantController.verifyRestaurant,
-  orderController.getAdminStatsPage
+  orderController.getAdminStatsPage,
 );
-
 
 // ! SEttings
 routerAdmin.get(
   "/settings",
   restaurantController.verifyRestaurant,
-  restaurantController.getAdminSettingsPage
+  restaurantController.getAdminSettingsPage,
 );
 
 routerAdmin.post(
   "/settings/update",
   restaurantController.verifyRestaurant,
   makeUploader("members").single("memberImage"),
-  restaurantController.updateAdminSettings
+  restaurantController.updateAdminSettings,
+);
+
+// ! REviews Panel ADMIN
+routerAdmin.get(
+  "/list/reviews",
+  restaurantController.verifyRestaurant, 
+  reviewController.listReviews,
+);
+
+routerAdmin.post(
+  "/reply/review",
+  restaurantController.verifyRestaurant,
+  reviewController.replyToReview
 );
 
 export default routerAdmin;

@@ -6,6 +6,7 @@ import restaurantController from "./controllers/restaurant.controller";
 import orderController from "./controllers/order.controller";
 import OpenAI from "openai";
 import productController from "./controllers/product.controller";
+import reviewController from "./controllers/review.controller";
 
 const router = express.Router();
 
@@ -69,13 +70,13 @@ router.post(
 router.get(
   "/product/all",
   memberController.retrieveAuth,
-  productController.getProducts
+  productController.getProducts,
 );
 
 router.get(
   "/product/promotions",
   memberController.retrieveAuth,
-  productController.getPromotions
+  productController.getPromotions,
 );
 
 router.get(
@@ -95,6 +96,37 @@ router.get(
   productController.getProduct,
 );
 
+// ! Review SPA
+
+router.post(
+  "/member/create/review",
+  memberController.verifyAuth,
+  reviewController.createReview,
+);
+
+router.post(
+  "/member/update/review",
+  memberController.verifyAuth,
+  reviewController.updateReview,
+);
+
+router.get(
+  "/member/review/messages/:reviewId",
+  memberController.verifyAuth,
+  reviewController.getReviewMessages,
+);
+
+router.get(
+  "/member/my/reviews",
+  memberController.verifyAuth,
+  reviewController.getMyReviews,
+);
+
+router.get(
+  "/public/product/review/:productId",
+  reviewController.getProductReviews,
+);
+router.get("/public/top/reviews", reviewController.getTopReviews);
 
 // ! AI CHAT SETUP
 const openai = new OpenAI({
