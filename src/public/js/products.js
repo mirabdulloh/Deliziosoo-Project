@@ -182,4 +182,55 @@ function applyStatusStyle(selectEl) {
     $(".spec-select").on("change", function () { applyStatusStyle(this); });
   });
   
+// Edit Product Modal Functions
+function openEditModal(id, name, collection, price, leftCount, size, volume, desc) {
+  $("#editProductId").val(id);
+  $("#editProductName").val(name);
+  $("#editProductCollection").val(collection);
+  $("#editProductPrice").val(price);
+  $("#editProductLeftCount").val(leftCount);
+  $("#editProductSize").val(size);
+  $("#editProductVolume").val(volume);
+  $("#editProductDesc").val(desc);
+  $("#editProductModal").fadeIn(200);
+}
+
+function closeEditModal() {
+  $("#editProductModal").fadeOut(200);
+}
+
+async function submitEditProduct() {
+  const id = $("#editProductId").val();
+  const productData = {
+    productName: $("#editProductName").val(),
+    productCollection: $("#editProductCollection").val(),
+    productPrice: parseFloat($("#editProductPrice").val()),
+    productLeftCount: parseInt($("#editProductLeftCount").val()),
+    productSize: $("#editProductSize").val(),
+    productVolume: $("#editProductVolume").val(),
+    productDesc: $("#editProductDesc").val()
+  };
+
+  try {
+    const response = await axios.post(`/admin/product/${id}`, productData);
+    
+    if (response.data.data) {
+      alert("Product updated successfully!");
+      closeEditModal();
+      location.reload();
+    } else {
+      alert("Product update failed!");
+    }
+  } catch (err) {
+    console.error(err);
+    alert("Error updating product!");
+  }
+}
+
+// Close modal when clicking outside
+$(document).on("click", function(e) {
+  if ($(e.target).is("#editProductModal")) {
+    closeEditModal();
+  }
+});
   

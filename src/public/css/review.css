@@ -229,7 +229,92 @@
   color: #721c24;
 }
 
-/* Action Buttons */
+/* Action Buttons - Modern Design */
+.action-buttons-modern {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+}
+
+.btn-action {
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  font-size: 14px;
+  position: relative;
+}
+
+.btn-action i {
+  color: white;
+}
+
+.btn-action:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn-action.btn-reply {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.btn-action.btn-reply:hover {
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.btn-action.btn-hide {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.btn-action.btn-hide:hover {
+  box-shadow: 0 4px 12px rgba(245, 87, 108, 0.4);
+}
+
+.btn-action.btn-show {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.btn-action.btn-show:hover {
+  box-shadow: 0 4px 12px rgba(79, 172, 254, 0.4);
+}
+
+.btn-action.btn-edit {
+  background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+}
+
+.btn-action.btn-edit:hover {
+  box-shadow: 0 4px 12px rgba(250, 112, 154, 0.4);
+}
+
+/* Tooltip on hover */
+.btn-action::after {
+  content: attr(title);
+  position: absolute;
+  bottom: -35px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.btn-action:hover::after {
+  opacity: 1;
+}
+
+/* Legacy styles for backward compatibility */
 .action-buttons {
   display: flex;
   flex-direction: column;

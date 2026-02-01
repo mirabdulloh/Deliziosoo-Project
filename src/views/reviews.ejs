@@ -109,21 +109,21 @@
                                         </span>
                                     </td>
                                     <td>
-                                        <div class="action-buttons">
-                                            <button class="btn-reply" data-review-id="<%= review._id %>" data-customer-name="<%= review.memberId ? review.memberId.memberNick : 'Customer' %>" onclick="openReplyModal(this)">
-                                                💬 Reply
+                                        <div class="action-buttons-modern">
+                                            <button class="btn-action btn-reply" data-review-id="<%= review._id %>" data-customer-name="<%= review.memberId ? review.memberId.memberNick : 'Customer' %>" onclick="openReplyModal(this)" title="Reply to review">
+                                                <i class="fas fa-reply"></i>
                                             </button>
                                             <% if (review.status === 'PUBLISHED') { %>
-                                                <button class="btn-hide" onclick="hideReview('<%= review._id %>')">
-                                                    👁️ Hide
+                                                <button class="btn-action btn-hide" onclick="hideReview('<%= review._id %>')" title="Hide review">
+                                                    <i class="fas fa-eye-slash"></i>
                                                 </button>
                                             <% } else { %>
-                                                <button class="btn-show" onclick="showReview('<%= review._id %>')">
-                                                    👁️ Show
+                                                <button class="btn-action btn-show" onclick="showReview('<%= review._id %>')" title="Show review">
+                                                    <i class="fas fa-eye"></i>
                                                 </button>
                                             <% } %>
-                                            <button class="btn-request-update" onclick="requestUpdate('<%= review._id %>')">
-                                                ✏️ Request Update
+                                            <button class="btn-action btn-edit" onclick="requestUpdate('<%= review._id %>')" title="Request update">
+                                                <i class="fas fa-edit"></i>
                                             </button>
                                         </div>
                                     </td>

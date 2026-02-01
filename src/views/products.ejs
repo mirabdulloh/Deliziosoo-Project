@@ -39,6 +39,7 @@
                 <th>PRODUCT LEFT</th>
                 <th>PROMOTION</th>
                 <th>PRODUCT STATUS</th>
+                <th>ACTIONS</th>
               </tr>
             </thead>
       
@@ -97,6 +98,11 @@
                     </select>
                   </td>
                   
+                  <td>
+                    <button class="btn-edit-product" onclick="openEditModal('<%= product._id %>', '<%= product.productName %>', '<%= product.productCollection %>', <%= product.productPrice %>, <%= product.productLeftCount %>, '<%= product.productSize %>', '<%= product.productVolume %>', '<%= product.productDesc || '' %>')">
+                      <i class="fas fa-edit"></i> Edit
+                    </button>
+                  </td>
                 </tr>
               <% }) %>
             </tbody>
@@ -124,5 +130,79 @@
       
   </main>
 </div>
+
+<!-- Edit Product Modal -->
+<div id="editProductModal" class="modal" style="display: none;">
+  <div class="modal-content" style="max-width: 600px;">
+    <div class="modal-header">
+      <h2>Edit Product</h2>
+      <span class="close" onclick="closeEditModal()">&times;</span>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="editProductId" />
+      
+      <div class="form-group">
+        <label>Product Name</label>
+        <input type="text" id="editProductName" class="form-input" />
+      </div>
+      
+      <div class="form-group">
+        <label>Collection</label>
+        <select id="editProductCollection" class="form-input">
+          <option value="BREAKFAST">BREAKFAST</option>
+          <option value="LUNCH">LUNCH</option>
+          <option value="DINNER">DINNER</option>
+          <option value="DRINK">DRINK</option>
+          <option value="OTHER">OTHER</option>
+        </select>
+      </div>
+      
+      <div class="form-row">
+        <div class="form-group">
+          <label>Price</label>
+          <input type="number" id="editProductPrice" class="form-input" />
+        </div>
+        
+        <div class="form-group">
+          <label>Left Count</label>
+          <input type="number" id="editProductLeftCount" class="form-input" />
+        </div>
+      </div>
+      
+      <div class="form-row">
+        <div class="form-group">
+          <label>Size</label>
+          <select id="editProductSize" class="form-input">
+            <option value="SMALL">SMALL</option>
+            <option value="NORMAL">NORMAL</option>
+            <option value="LARGE">LARGE</option>
+            <option value="SET">SET</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label>Volume</label>
+          <select id="editProductVolume" class="form-input">
+            <option value="0.5 liter">0.5 liter</option>
+            <option value="1 liter">1 liter</option>
+            <option value="1.2 liter">1.2 liter</option>
+            <option value="1.5 liter">1.5 liter</option>
+            <option value="2l">2l</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label>Description</label>
+        <textarea id="editProductDesc" class="form-input" rows="3"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeEditModal()">Cancel</button>
+      <button class="btn-submit" onclick="submitEditProduct()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
 <script src="/js/products.js"></script>
 <%- include('includes/footer') %>
