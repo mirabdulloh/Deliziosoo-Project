@@ -116,7 +116,8 @@ class ProductService {
     memberId?: Types.ObjectId | null,
   ): Promise<Product[]> {
     const match: T = {
-      productStatus: ProductStatus.PROMOTION,
+      productStatus: { $in: [ProductStatus.PROMOTION, ProductStatus.ACTIVE] },
+      productPromotion: { $gt: 0 },
     };
 
     if (inquiry.productCollection) {
@@ -144,10 +145,21 @@ class ProductService {
       if (lookup) pipeline.push(lookup);
     }
 
-    // Add discountedPrice and memberLiked fields
+    // Add discountedPrice, productPriceDiscount and memberLiked fields
     pipeline.push({
       $addFields: {
         discountedPrice: {
+          $subtract: [
+            "$productPrice",
+            {
+              $multiply: [
+                "$productPrice",
+                { $divide: ["$productPromotion", 100] },
+              ],
+            },
+          ],
+        },
+        productPriceDiscount: {
           $subtract: [
             "$productPrice",
             {
