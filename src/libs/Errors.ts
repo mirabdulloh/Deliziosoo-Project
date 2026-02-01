@@ -18,6 +18,7 @@ export enum Message {
   REVIEW_NOT_FOUND = "Review not found",
   UNAUTHORIZED = "Unauthorized",
   EDIT_TIME_EXPIRED = "Edit time expired",
+  MISSING_REQUIRED_FIELDS = "Missing required fields",
   FORBIDDEN = "Forbidden",
   REVIEW_ALREADY_EXISTS = "Review already exists",
   PRODUCT_NOT_FOUND = "Product not found in your orders",

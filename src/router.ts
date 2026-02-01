@@ -7,6 +7,7 @@ import orderController from "./controllers/order.controller";
 import OpenAI from "openai";
 import productController from "./controllers/product.controller";
 import reviewController from "./controllers/review.controller";
+import notificationController from "./controllers/notification.controller";
 
 const router = express.Router();
 
@@ -192,5 +193,36 @@ router.post("/ai/chat", async (req, res) => {
     res.status(500).json({ error: e?.message || "AI failed" });
   }
 });
+
+// ! Notifications
+router.get(
+  "/notification/unread",
+  memberController.verifyAuth,
+  notificationController.getUnreadNotifications,
+);
+
+router.get(
+  "/notification/all",
+  memberController.verifyAuth,
+  notificationController.getAllNotifications,
+);
+
+router.patch(
+  "/notification/:notificationId/read",
+  memberController.verifyAuth,
+  notificationController.markAsRead,
+);
+
+router.patch(
+  "/notification/read-all",
+  memberController.verifyAuth,
+  notificationController.markAllAsRead,
+);
+
+router.delete(
+  "/notification/:notificationId",
+  memberController.verifyAuth,
+  notificationController.deleteNotification,
+);
 
 export default router;
