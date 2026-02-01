@@ -40,6 +40,7 @@ export interface TopReviewQuery {
 
 export type AdminReviewActionType =
   | "HIDE"
+  | "SHOW"
   | "REQUEST_UPDATE"
   | "REPLY";
 

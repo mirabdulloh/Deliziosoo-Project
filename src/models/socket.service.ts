@@ -1,0 +1,122 @@
+import { Server as SocketIOServer } from "socket.io";
+import { Server as HTTPServer } from "http";
+import ReviewMessageModel from "../schema/ReviewMessage";
+
+interface SocketUser {
+  memberId: string;
+  socketId: string;
+  memberType: "MEMBER" | "ADMIN";
+}
+
+class SocketService {
+  private io: SocketIOServer;
+  private connectedUsers: Map<string, SocketUser> = new Map();
+
+  constructor(server: HTTPServer) {
+    this.io = new SocketIOServer(server, {
+      cors: {
+        origin: process.env.CLIENT_URL || "http://localhost:3000",
+        credentials: true,
+      },
+    });
+
+    this.initialize();
+  }
+
+  private initialize() {
+    this.io.on("connection", (socket) => {
+      console.log(`✅ Socket connected: ${socket.id}`);
+
+      // User joins with their member ID
+      socket.on("user:join", (data: { memberId: string; memberType: "MEMBER" | "ADMIN" }) => {
+        this.connectedUsers.set(data.memberId, {
+          memberId: data.memberId,
+          socketId: socket.id,
+          memberType: data.memberType,
+        });
+        
+        // Join room for this user
+        socket.join(`user:${data.memberId}`);
+        console.log(`👤 User joined: ${data.memberId} (${data.memberType})`);
+      });
+
+      // Handle disconnection
+      socket.on("disconnect", () => {
+        // Find and remove user from connected users
+        for (const [memberId, user] of this.connectedUsers.entries()) {
+          if (user.socketId === socket.id) {
+            this.connectedUsers.delete(memberId);
+            console.log(`👋 User disconnected: ${memberId}`);
+            break;
+          }
+        }
+      });
+    });
+  }
+
+  // Notify user about admin reply to their review
+  public notifyAdminReply(memberId: string, reviewId: string, message: string) {
+    const room = `user:${memberId}`;
+    this.io.to(room).emit("review:admin-reply", {
+      reviewId,
+      message,
+      timestamp: new Date(),
+    });
+    console.log(`📧 Admin reply notification sent to user: ${memberId}`);
+  }
+
+  // Notify admin about low rating review
+  public notifyAdminLowRating(reviewData: {
+    reviewId: string;
+    memberId: string;
+    memberNick: string;
+    productName: string;
+    rating: number;
+    comment?: string;
+  }) {
+    // Send to all connected admins
+    for (const [memberId, user] of this.connectedUsers.entries()) {
+      if (user.memberType === "ADMIN") {
+        this.io.to(user.socketId).emit("review:low-rating", {
+          ...reviewData,
+          timestamp: new Date(),
+        });
+      }
+    }
+    console.log(`⚠️ Low rating notification sent to admins: ${reviewData.rating} stars`);
+  }
+
+  // Notify user when admin requests review update
+  public notifyReviewUpdateRequest(memberId: string, reviewId: string) {
+    const room = `user:${memberId}`;
+    this.io.to(room).emit("review:update-requested", {
+      reviewId,
+      message: "An admin has requested you to update your review",
+      timestamp: new Date(),
+    });
+    console.log(`✏️ Update request notification sent to user: ${memberId}`);
+  }
+
+  // Get Socket.IO instance for external use
+  public getIO() {
+    return this.io;
+  }
+}
+
+let socketServiceInstance: SocketService | null = null;
+
+export const initializeSocketService = (server: HTTPServer): SocketService => {
+  if (!socketServiceInstance) {
+    socketServiceInstance = new SocketService(server);
+  }
+  return socketServiceInstance;
+};
+
+export const getSocketService = (): SocketService => {
+  if (!socketServiceInstance) {
+    throw new Error("Socket service not initialized. Call initializeSocketService first.");
+  }
+  return socketServiceInstance;
+};
+
+export default SocketService;

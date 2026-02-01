@@ -109,8 +109,8 @@ routerAdmin.post(
 
 // ! REviews Panel ADMIN
 routerAdmin.get(
-  "/list/reviews",
-  restaurantController.verifyRestaurant, 
+  "/reviews",
+  restaurantController.verifyRestaurant,
   reviewController.listReviews,
 );
 

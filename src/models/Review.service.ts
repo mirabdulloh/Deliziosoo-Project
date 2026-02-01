@@ -5,6 +5,9 @@ import ReviewModel from "../schema/Review.model";
 import OrderModel from "../schema/Order.model";
 import OrderItemModel from "../schema/OrderItem.model";
 import ReviewMessageModel from "../schema/ReviewMessage";
+import ProductModel from "../schema/Product.model";
+import MemberModel from "../schema/Member.model";
+import { getSocketService } from "./socket.service";
 
 import {
   CreateReviewInput,
@@ -77,6 +80,24 @@ class ReviewService {
         status: "PUBLISHED",
         editableUntil,
       });
+
+      // Send socket notification if low rating
+      if (rating <= 2) {
+        try {
+          const socketService = getSocketService();
+          const product = await ProductModel.findById(productId).lean();
+          socketService.notifyAdminLowRating({
+            reviewId: doc._id.toString(),
+            memberId: member._id.toString(),
+            memberNick: member.memberNick || "Unknown",
+            productName: product?.productName || "Unknown Product",
+            rating,
+            comment,
+          });
+        } catch (socketErr) {
+          console.log("Socket notification error (non-critical):", socketErr);
+        }
+      }
 
       return doc;
     } catch (err: any) {
@@ -226,10 +247,14 @@ class ReviewService {
       throw new Errors(HttpCode.UNAUTHORIZED, Message.UNAUTHORIZED);
 
     const { reviewId, action, message } = input;
-    if (!reviewId)
+    const rid =
+      typeof reviewId === "string" ? reviewId : String(reviewId || "");
+    if (!Types.ObjectId.isValid(rid)) {
       throw new Errors(HttpCode.BAD_REQUEST, Message.REVIEW_ID_REQUIRED);
+    }
 
-    const review = await this.reviewModel.findById(reviewId);
+    const review = await this.reviewModel.findById(rid);
+
     if (!review) throw new Errors(HttpCode.NOT_FOUND, Message.REVIEW_NOT_FOUND);
 
     if (action === "HIDE") {
@@ -238,10 +263,28 @@ class ReviewService {
       return review;
     }
 
+    if (action === "SHOW") {
+      review.status = "PUBLISHED";
+      await review.save();
+      return review;
+    }
+
     if (action === "REQUEST_UPDATE") {
       review.adminRequestedUpdate = true;
       review.editableUntil = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
       await review.save();
+
+      // Send socket notification
+      try {
+        const socketService = getSocketService();
+        socketService.notifyReviewUpdateRequest(
+          review.memberId.toString(),
+          reviewId.toString(),
+        );
+      } catch (socketErr) {
+        console.log("Socket notification error (non-critical):", socketErr);
+      }
+
       return review;
     }
 
@@ -259,7 +302,18 @@ class ReviewService {
         isReadByMember: false,
       });
 
-      // TODO later: notify user (socket/email/notification table)
+      // Send socket notification to user
+      try {
+        const socketService = getSocketService();
+        socketService.notifyAdminReply(
+          review.memberId.toString(),
+          reviewId.toString(),
+          message,
+        );
+      } catch (socketErr) {
+        console.log("Socket notification error (non-critical):", socketErr);
+      }
+
       return msg;
     }
 
