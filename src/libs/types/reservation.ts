@@ -7,6 +7,8 @@ export interface ReservationInput {
   dateTime: Date;
   peopleCount: number;
   email: string;
+  name: string;
+  phoneNumber: string;
   note?: string;
 }
 
@@ -17,6 +19,9 @@ export interface Reservation {
   peopleCount: number;
   reservationStatus: ReservationStatus;
   note?: string;
+  name: string;
+  phoneNumber: string;
+  email: string;
   createdAt: Date;
   updatedAt: Date;
 }

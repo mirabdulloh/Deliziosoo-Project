@@ -19,7 +19,8 @@ export interface Member {
   memberPassword: string;
   memberAddress?: string;
   memberDesc?: string;
-  memberImg?: string;
+  memberImage?: string;
+  memberEmail?: string;
   memberPoints: number;
   memberCoupon?: Coupon;
   createdAt: Date;
@@ -36,8 +37,9 @@ export interface MemberInput {
   memberPassword: string;
   memberAddress?: string;
   memberDesc?: string;
-  memberImage?: string;
+  memberEmail?: string;
   memberPoints?: number;
+  memberImage?: string;
 }
 
 export interface memberUpdateInput {
@@ -45,10 +47,11 @@ export interface memberUpdateInput {
   memberStatus?: MemberStatus;
   memberNick?: string;
   memberPhone?: string;
+  memberEmail?: string;
   memberPassword?: string;
   memberAddress?: string;
   memberDesc?: string;
-  memberImg?: string;
+  memberImage?: string;
 }
 
 export interface LoginInput {

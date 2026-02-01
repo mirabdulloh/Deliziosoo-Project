@@ -51,6 +51,8 @@ class ReservationService {
       peopleCount: input.peopleCount,
       note: input.note,
       email: input.email,
+      name: input.name,
+      phoneNumber: input.phoneNumber,
     })) as Reservation;
   }
 

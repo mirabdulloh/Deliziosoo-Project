@@ -25,14 +25,22 @@ const reservationSchema = new Schema(
     note: {
       type: String,
     },
+    name: {
+      type: String,
+      required: true,
+    },
     email: {
+      type: String,
+      required: true,
+    },
+    phoneNumber: {
       type: String,
       required: true,
     },
     cancelReason: { type: String },
     cancelledAt: { type: Date },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 export default mongoose.model("reservation", reservationSchema);

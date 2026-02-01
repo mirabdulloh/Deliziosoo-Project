@@ -35,6 +35,9 @@ const memberSchema = new Schema(
     memberDesc: {
       type: String,
     },
+    memberEmail: {
+      type: String,
+    },
     memberImage: {
       type: String,
     },
@@ -51,7 +54,7 @@ const memberSchema = new Schema(
     lastActiveAt: { type: Date, default: null },
     lastLoginAt: { type: Date, default: null },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 export default mongoose.model("Member", memberSchema);
