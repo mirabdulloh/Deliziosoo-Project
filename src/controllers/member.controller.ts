@@ -107,9 +107,15 @@ memberController.validateCoupon = async (req: ExtendedRequest, res: Response) =>
 memberController.updateMember = async (req: ExtendedRequest, res: Response) => {
   try {
     console.log("updateMember:");
+    console.log("req.file:", req.file);
+    console.log("req.body:", req.body);
     const input: memberUpdateInput = req.body;
-    if (req.file) input.memberImage = req.file.path.replace(/\\/g, "/");
+    if (req.file) {
+      input.memberImage = req.file.path.replace(/\\/g, "/");
+      console.log("Updated memberImage path:", input.memberImage);
+    }
     const result = await memberService.updateMember(req.member, input);
+    console.log("Update result:", result.memberImage);
     res.status(HttpCode.OK).json(result);
   } catch (err) {
     if (err instanceof Errors) res.status(err.code).json(err);
