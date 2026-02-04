@@ -1,144 +1,171 @@
 <%
-  const profile =
-    (typeof user !== "undefined" && user) ||
-    (typeof admin !== "undefined" && admin) ||
-    (typeof member !== "undefined" && member) ||
-    (locals && locals.member) ||
-    {};
-
-  const rawImg = profile?.memberImage;
-
-  const profileImg = rawImg
-    ? (rawImg.startsWith("/") ? rawImg : "/uploads/members/" + rawImg)
-    : "/img/default_img.jpg";
+  const serverApi = process.env.SERVER_API || "http://localhost:3009";
 %>
 
 <%- include('includes/header') %>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
-    />
-    <link rel="stylesheet" href="/css/main.css" />
-    <link rel="stylesheet" href="/css/users.css" />
-    
-  </head>
-  <body>
-    <div class="dashboard-container">
-      <!-- Sidebar -->
-      <%- include('includes/navbar') %>
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+/>
+<link rel="stylesheet" href="/css/main.css" />
+<link rel="stylesheet" href="/css/users.css" />
+</head>
 
-      <!-- Main Content -->
-      <main class="main-content">
-        <!-- Top Header -->
-       
-        <%- include('includes/top-header') %>
-        <!-- Table Section -->
-        <section class="table-section">
-          <div class="table-header">
-            <div class="table-search">
-              <input
-                id="userSearch"
-                type="text"
-                placeholder="Search for users"
-              />
-            </div>
+<body>
+  <div class="dashboard-container">
+    <!-- Sidebar -->
+    <%- include('includes/navbar') %>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Top Header -->
+      <%- include('includes/top-header') %>
+
+      <!-- Table Section -->
+      <section class="table-section">
+        <div class="table-header">
+          <div class="table-search">
+            <input
+              id="userSearch"
+              type="text"
+              placeholder="Search for users"
+            />
           </div>
+        </div>
 
-          <div class="table-container">
-            <table id="usersTable">
-              <thead>
+        <div class="table-container">
+          <table id="usersTable">
+            <thead>
+              <tr>
+                <th>NAME/NUMBER</th>
+                <th>TYPE</th>
+                <th>ONLINE/OFFLINE</th>
+                <th>CREATED AT</th>
+                <th>EDIT</th>
+                <th></th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <% users.filter(user => user.memberType === 'USER').forEach((user) => { %>
+                <%
+                  const rowUserImg = user.memberImage
+                    ? `${serverApi}/${user.memberImage}`
+                    : `${serverApi}/img/default_img.jpg`;
+                  const now = new Date();
+                  const lastActive = user.lastActiveAt
+                    ? new Date(user.lastActiveAt)
+                    : null;
+
+                  let onlineStatus = "OFFLINE";
+                  let statusClass = "offline";
+
+                  if (
+                    lastActive &&
+                    now.getTime() - lastActive.getTime() < 5 * 60 * 1000
+                  ) {
+                    onlineStatus = "ONLINE";
+                    statusClass = "active";
+                  }
+                %>
+
                 <tr>
-                  <th>NAME/NUMBER</th>
-                  <th>TYPE</th>
-                  <th>ONLINE/OFFLINE</th>
-                  <th>CREATED AT</th>
-                  <th>EDIT</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody>
-                <% users.forEach((user) => { %>
-                  <%
-                    const rawImg = user?.memberImage;
-                    const userImg = rawImg
-                      ? (rawImg.startsWith("/") ? rawImg : "/uploads/members/" + rawImg)
-                      : "/img/default_img.jpg";
-              
-                    const now = new Date();
-                    const lastActive = user.lastActiveAt ? new Date(user.lastActiveAt) : null;
-              
-                    let onlineStatus = "OFFLINE";
-                    let statusClass = "offline";
-              
-                    if (lastActive && (now.getTime() - lastActive.getTime()) < 5 * 60 * 1000) {
-                      onlineStatus = "ONLINE";
-                      statusClass = "active";
-                    }
-                  %>
-              
-                  <tr>
-                    <td>
-                      <div class="user-info">
-                        <img class="user-default-img" src="<%= userImg %>" alt="user" />
-                        <div>
-                          <div class="user-name"><%= user.memberNick || "" %></div>
-                          <div class="user-email"><%= user.memberPhone || "" %></div>
+                  <td>
+                    <div class="user-info">
+                      <img
+                        class="user-default-img"
+                        src="<%= rowUserImg %>"
+                        alt="user"
+                      />
+                      <div>
+                        <div class="user-name">
+                          <%= user.memberNick || "" %>
+                        </div>
+                        <div class="user-email">
+                          <%= user.memberPhone || "" %>
                         </div>
                       </div>
-                    </td>
-              
-                    <td><%= user.memberType %></td>
-              
-                    <td>
-                      <span class="status-dot <%= statusClass %>"></span>
-                      <%= onlineStatus %>
-                    </td>
-              
-                    <td><%= new Date(user.createdAt).toLocaleDateString() %></td>
-              
-                    <td style="width: 13%">
-                      <select class="spec-select member-status" id="<%= user._id %>">
-                        <option value="ACTIVE" <%= user.memberStatus === "ACTIVE" ? "selected" : "" %>>ACTIVE</option>
-                        <option value="BLOCK"  <%= user.memberStatus === "BLOCK"  ? "selected" : "" %>>BLOCK</option>
-                        <option value="DELETE" <%= user.memberStatus === "DELETE" ? "selected" : "" %>>DELETE</option>
-                      </select>
-                    </td>
-                  </tr>
-                <% }) %>
-              </tbody>
-              
-            </table>
+                    </div>
+                  </td>
+
+                  <td><%= user.memberType %></td>
+
+                  <td>
+                    <span class="status-dot <%= statusClass %>"></span>
+                    <%= onlineStatus %>
+                  </td>
+
+                  <td>
+                    <%= new Date(user.createdAt).toLocaleDateString() %>
+                  </td>
+
+                  <td style="width: 13%">
+                    <select
+                      class="spec-select member-status"
+                      id="<%= user._id %>"
+                    >
+                      <option
+                        value="ACTIVE"
+                        <%= user.memberStatus === "ACTIVE" ? "selected" : "" %>
+                      >
+                        ACTIVE
+                      </option>
+                      <option
+                        value="BLOCK"
+                        <%= user.memberStatus === "BLOCK" ? "selected" : "" %>
+                      >
+                        BLOCK
+                      </option>
+                      <option
+                        value="DELETE"
+                        <%= user.memberStatus === "DELETE" ? "selected" : "" %>
+                      >
+                        DELETE
+                      </option>
+                    </select>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="table-footer">
+          <div class="pagination">
+            <button class="page-nav">
+              <i class="fas fa-chevron-left"></i>
+            </button>
+            <button class="page-nav">
+              <i class="fas fa-chevron-right"></i>
+            </button>
+            <span>Show 1-15 of 987</span>
           </div>
 
-          <div class="table-footer">
-            <div class="pagination">
-              <button class="page-nav">
-                <i class="fas fa-chevron-left"></i>
-              </button>
-              <button class="page-nav">
-                <i class="fas fa-chevron-right"></i>
-              </button>
-              <span>Show 1-15 of 987</span>
-            </div>
-            <div class="footer-info">
-                <%
-                  const now = Date.now();
-              
-                  const onlineUsers = users.filter(u => {
-                    if (!u.lastActiveAt) return false;
-                    return (now - new Date(u.lastActiveAt).getTime()) < 5 * 60 * 1000;
-                  }).length;
-              
-                  const totalUsers = users.length;
-                %>
-              
-                <i class="fas fa-eye"></i>
-                Currently online: <b><%= onlineUsers %></b> of <b><%= totalUsers %></b> users
-              </div>
-              
+          <div class="footer-info">
+            <%
+              const nowTs = Date.now();
+
+              const onlineUsers = users.filter(u => {
+                if (!u.lastActiveAt) return false;
+                return (
+                  nowTs - new Date(u.lastActiveAt).getTime() <
+                  5 * 60 * 1000
+                );
+              }).length;
+
+              const totalUsers = users.length;
+            %>
+
+            <i class="fas fa-eye"></i>
+            Currently online:
+            <b><%= onlineUsers %></b> of
+            <b><%= totalUsers %></b> users
           </div>
-        </section>
-      </main>
-    </div>
-    <script src="/js/users.js"></script>
-<%- include('includes/footer') %>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="/js/users.js"></script>
+  <%- include('includes/footer') %>
+</body>

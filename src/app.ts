@@ -29,10 +29,11 @@ app.use(
   cors({
     origin: true,
     credentials: true,
-  })
+  }),
 );
 app.use(cookieParser());
-app.use("/uploads", express.static("./uploads"));
+app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
+
 app.use(morgan(MORGAN_FORMAT));
 
 /** Sessions   */
@@ -46,7 +47,7 @@ app.use(
     store: store,
     resave: true,
     saveUninitialized: true,
-  })
+  }),
 );
 
 app.use(async (req, res, next) => {
@@ -61,14 +62,13 @@ app.use(async (req, res, next) => {
 
       await MemberModel.updateOne(
         { _id: s.member._id },
-        { $set: { lastActiveAt: new Date() } }
+        { $set: { lastActiveAt: new Date() } },
       );
     }
   }
 
   next();
 });
-
 
 app.use(function (req, res, next) {
   const sessionInstance = req.session as T;
