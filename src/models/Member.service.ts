@@ -1,4 +1,4 @@
-import { T } from "../libs/types/common";
+import { StatisticModifier, T } from "../libs/types/common";
 import { shapeIntoMongooseObjectId } from "../libs/config";
 import { MemberStatus, MemberType } from "../libs/enum/member.enum";
 import Errors, { HttpCode, Message } from "../libs/Errors";
@@ -323,6 +323,11 @@ class MemberService {
     }
     return code;
   }
+  public async memberStatsEdits(input: StatisticModifier): Promise<Member> {
+		console.log('Executed');
+		const { _id, targetKey, modifier } = input;
+		return await this.memberModel.findByIdAndUpdate(_id, { $inc: { [targetKey]: modifier } }, { new: true }).exec();
+	}
 }
 
 export default MemberService;

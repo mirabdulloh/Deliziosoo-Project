@@ -30,16 +30,16 @@ class OrderService {
   public async getAdminOrderStats(): Promise<OrderStatsResponse> {
     const start = new Date();
     start.setHours(0, 0, 0, 0);
-  
+
     const end = new Date();
     end.setHours(23, 59, 59, 999);
-  
+
     const monthStart = new Date(start);
     monthStart.setDate(1);
     monthStart.setHours(0, 0, 0, 0);
-  
+
     const monthEnd = new Date(end);
-  
+
     const agg = await this.orderModel
       .aggregate([
         {
@@ -61,12 +61,14 @@ class OrderService {
         {
           $unwind: { path: "$member", preserveNullAndEmptyArrays: true },
         },
-  
+
         {
           $facet: {
             // 1) counts by status (all time)
-            statusCounts: [{ $group: { _id: "$orderStatus", count: { $sum: 1 } } }],
-  
+            statusCounts: [
+              { $group: { _id: "$orderStatus", count: { $sum: 1 } } },
+            ],
+
             // 2) pending today
             pendingToday: [
               {
@@ -77,7 +79,7 @@ class OrderService {
               },
               { $count: "count" },
             ],
-  
+
             // 3) finished today
             finishedToday: [
               {
@@ -88,7 +90,7 @@ class OrderService {
               },
               { $count: "count" },
             ],
-  
+
             // 4) today total (all except DELETE)
             todayTotal: [
               {
@@ -99,7 +101,7 @@ class OrderService {
               },
               { $count: "count" },
             ],
-  
+
             // 5) revenue today (finished only)
             revenueToday: [
               {
@@ -110,7 +112,7 @@ class OrderService {
               },
               { $group: { _id: null, total: { $sum: "$orderTotal" } } },
             ],
-  
+
             // 6) revenue this month (finished only)
             revenueMonth: [
               {
@@ -121,7 +123,7 @@ class OrderService {
               },
               { $group: { _id: null, total: { $sum: "$orderTotal" } } },
             ],
-  
+
             // 7) top products today
             topProductsToday: [
               {
@@ -136,7 +138,9 @@ class OrderService {
                   _id: "$items.productId",
                   qty: { $sum: "$items.itemQuantity" },
                   revenue: {
-                    $sum: { $multiply: ["$items.itemQuantity", "$items.itemPrice"] },
+                    $sum: {
+                      $multiply: ["$items.itemQuantity", "$items.itemPrice"],
+                    },
                   },
                 },
               },
@@ -150,7 +154,9 @@ class OrderService {
                   as: "product",
                 },
               },
-              { $unwind: { path: "$product", preserveNullAndEmptyArrays: true } },
+              {
+                $unwind: { path: "$product", preserveNullAndEmptyArrays: true },
+              },
               {
                 $project: {
                   productId: { $toString: "$_id" },
@@ -160,7 +166,7 @@ class OrderService {
                 },
               },
             ],
-  
+
             // 8) recent orders list for table (last 15)
             orders: [
               { $sort: { createdAt: -1 } },
@@ -179,22 +185,22 @@ class OrderService {
         },
       ])
       .exec();
-  
+
     const row = agg[0] || {};
-  
+
     const statusCounts: OrderStatsResponse["statusCounts"] = {
       PENDING: 0,
       PROCESS: 0,
       FINISH: 0,
       DELETE: 0,
     };
-  
+
     (row.statusCounts || []).forEach((s: { _id: string; count: number }) => {
       if (s && s._id && s._id in statusCounts) {
         statusCounts[s._id as keyof typeof statusCounts] = s.count;
       }
     });
-  
+
     return {
       statusCounts,
       pendingTodayCount: row.pendingToday?.[0]?.count || 0,
@@ -206,13 +212,12 @@ class OrderService {
       orders: row.orders || [],
     };
   }
-  
 
   //! ORders SPA
 
   public async createOrder(
     member: Member,
-    input: OrderItemInput[]
+    input: OrderItemInput[],
   ): Promise<Order> {
     const memberId = shapeIntoMongooseObjectId(member._id);
     const amount = input.reduce((accumulator: number, item: OrderItemInput) => {
@@ -225,9 +230,15 @@ class OrderService {
     // Check if coupon is being used
     const couponCode = input[0]?.couponCode;
     if (couponCode) {
-      const validation = await this.memberService.validateCoupon(member, couponCode);
+      const validation = await this.memberService.validateCoupon(
+        member,
+        couponCode,
+      );
       if (!validation.valid) {
-        throw new Errors(HttpCode.BAD_REQUEST, validation.message || Message.CREATE_FAILED);
+        throw new Errors(
+          HttpCode.BAD_REQUEST,
+          validation.message || Message.CREATE_FAILED,
+        );
       }
       discount = validation.discount;
     }
@@ -241,12 +252,12 @@ class OrderService {
       const orderId = newOrder._id;
       console.log("orderId", orderId);
       await this.recordOrderItems(orderId, input);
-      
+
       // Mark coupon as used AFTER successful order creation
       if (couponCode) {
         await this.memberService.markCouponAsUsed(member, couponCode);
       }
-      
+
       return newOrder;
     } catch (err) {
       console.log("Error Model:createOrder");
@@ -256,7 +267,7 @@ class OrderService {
 
   private async recordOrderItems(
     orderId: ObjectId,
-    input: OrderItemInput[]
+    input: OrderItemInput[],
   ): Promise<void> {
     const promisedList = input.map(async (item: OrderItemInput) => {
       item.orderId = orderId;
@@ -272,7 +283,7 @@ class OrderService {
 
   public async getMyOrders(
     member: Member,
-    inquiry: OrderInquiry
+    inquiry: OrderInquiry,
   ): Promise<Order[]> {
     const memberId = shapeIntoMongooseObjectId(member._id);
     const matches: T = { memberId };
@@ -311,11 +322,16 @@ class OrderService {
 
   public async updateOrder(
     member: Member,
-    input: OrderUpdateInput
+    input: OrderUpdateInput,
   ): Promise<Order> {
     const memberId = shapeIntoMongooseObjectId(member._id),
       orderId = shapeIntoMongooseObjectId(input.orderId),
       orderStatus = input.orderStatus;
+    const currentOrder = await this.orderModel
+      .findOne({ memberId: memberId, _id: orderId })
+      .exec();
+    if (!currentOrder) throw new Errors(HttpCode.NOT_FOUND, Message.NO_DATA_FOUND);
+    const wasFinished = currentOrder.orderStatus === OrderStatus.FINISH;
     const result = await this.orderModel
       .findOneAndUpdate(
         {
@@ -323,7 +339,7 @@ class OrderService {
           _id: orderId,
         },
         { orderStatus: orderStatus },
-        { new: true }
+        { new: true },
       )
       .exec();
     if (!result) throw new Errors(HttpCode.NOT_MODIFIED, Message.UPDATE_FAILED);
@@ -334,11 +350,12 @@ class OrderService {
 
     if (
       input.couponCode &&
-      (orderStatus === OrderStatus.PROCESS || orderStatus === OrderStatus.FINISH)
+      (orderStatus === OrderStatus.PROCESS ||
+        orderStatus === OrderStatus.FINISH)
     ) {
       const validation = await this.memberService.validateCoupon(
         member,
-        input.couponCode
+        input.couponCode,
       );
       if (validation.valid) {
         await this.memberService.markCouponAsUsed(member, input.couponCode);
@@ -346,9 +363,16 @@ class OrderService {
     }
 
     // Check if order is finished and award loyalty coupon
-    if (orderStatus === OrderStatus.FINISH) {
+    if (orderStatus === OrderStatus.FINISH && !wasFinished) {
       const finishedOrdersCount = await this.getFinishedOrdersCount(memberId);
-      
+
+      // Increment totalOrders using memberStatsEdits
+      await this.memberService.memberStatsEdits({
+        _id: memberId,
+        targetKey: "memberPoints",
+        modifier: 1,
+      });
+
       // Give loyalty coupon every 5 finished orders
       if (finishedOrdersCount % 5 === 0) {
         await this.memberService.generateLoyaltyCoupon(member);

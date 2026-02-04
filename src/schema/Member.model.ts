@@ -45,6 +45,10 @@ const memberSchema = new Schema(
       type: Number,
       default: 0,
     },
+    totalOrders: {
+      type: Number,
+      default: 0,
+    },
     memberCoupon: {
       code: { type: String, default: null },
       discount: { type: Number, default: 5 },

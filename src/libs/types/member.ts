@@ -22,6 +22,7 @@ export interface Member {
   memberImage?: string;
   memberEmail?: string;
   memberPoints: number;
+  totalOrders?: number;
   memberCoupon?: Coupon;
   createdAt: Date;
   updatedAt: Date;
