@@ -37,8 +37,6 @@ class ProductService {
     inquiry: ProductInquiry,
     memberId?: Types.ObjectId | null,
   ): Promise<Product[]> {
-    console.log("🔍 getProducts called with memberId:", memberId);
-    
     const match: T = {
       productStatus: { $in: [ProductStatus.ACTIVE] },
     };
@@ -46,6 +44,7 @@ class ProductService {
     if (inquiry.productCollection) {
       match.productCollection = inquiry.productCollection;
     }
+
     if (inquiry.search) {
       match.productName = { $regex: new RegExp(inquiry.search, "i") };
     }
@@ -58,19 +57,17 @@ class ProductService {
     const pipeline: any[] = [
       { $match: match },
       { $sort: sort },
-      { $skip: (inquiry.page * 1 - 1) * inquiry.limit },
-      { $limit: inquiry.limit * 1 },
+      { $skip: (inquiry.page - 1) * inquiry.limit },
+      { $limit: inquiry.limit },
     ];
 
-    // Add lookup for authenticated members
+    // Lookup for authenticated member likes
     if (memberId) {
-      console.log("✅ Adding lookup for memberId:", memberId);
       const lookup = lookupAuthMemberLiked(memberId, "_id");
-      console.log("📊 Lookup stage:", JSON.stringify(lookup, null, 2));
       if (lookup) pipeline.push(lookup);
     }
 
-    // Add discountedPrice and memberLiked fields
+    // Add calculated fields
     pipeline.push({
       $addFields: {
         discountedPrice: {
@@ -90,24 +87,39 @@ class ProductService {
             else: "$productPrice",
           },
         },
-        ...(memberId ? { memberLiked: { $gt: [{ $size: "$meLiked" }, 0] } } : {}),
+        ...(memberId
+          ? { memberLiked: { $gt: [{ $size: "$meLiked" }, 0] } }
+          : {}),
       },
     });
 
-    // Remove temporary fields
+    // Remove temp fields from lookup
     if (memberId) {
       pipeline.push(removeTemporaryLikeFields());
     }
 
-    console.log("📋 Full getProducts pipeline stages:", pipeline.length);
+    // 🔥 FINAL PROJECTION (CRITICAL)
+    pipeline.push({
+      $project: {
+        productName: 1,
+        productPrice: 1,
+        productImages: 1,
+        productDesc: 1,
+        productViews: 1,
+        productRank: 1, // ✅ REQUIRED
+        productReviewCount: 1, // ✅ REQUIRED
+        productPromotion: 1,
+        discountedPrice: 1,
+        memberLiked: 1,
+      },
+    });
+
     const result = await this.productModel.aggregate(pipeline).exec();
-    console.log("📤 getProducts returned products count:", result.length);
-    if (result.length > 0) {
-      console.log("👀 First product memberLiked:", result[0].memberLiked);
+
+    if (!result || result.length === 0) {
+      throw new Errors(HttpCode.NOT_FOUND, Message.NO_DATA_FOUND);
     }
 
-    if (!result || result.length === 0)
-      throw new Errors(HttpCode.NOT_FOUND, Message.NO_DATA_FOUND);
     return result;
   }
 
@@ -170,7 +182,9 @@ class ProductService {
             },
           ],
         },
-        ...(memberId ? { memberLiked: { $gt: [{ $size: "$meLiked" }, 0] } } : {}),
+        ...(memberId
+          ? { memberLiked: { $gt: [{ $size: "$meLiked" }, 0] } }
+          : {}),
       },
     });
 
@@ -264,7 +278,9 @@ class ProductService {
       {
         $match: {
           _id: productId,
-          productStatus: { $in: [ProductStatus.ACTIVE, ProductStatus.PROMOTION] },
+          productStatus: {
+            $in: [ProductStatus.ACTIVE, ProductStatus.PROMOTION],
+          },
         },
       },
     ];
@@ -278,7 +294,9 @@ class ProductService {
     // Add memberLiked field
     pipeline.push({
       $addFields: {
-        ...(memberId ? { memberLiked: { $gt: [{ $size: "$meLiked" }, 0] } } : {}),
+        ...(memberId
+          ? { memberLiked: { $gt: [{ $size: "$meLiked" }, 0] } }
+          : {}),
       },
     });
 
@@ -310,10 +328,7 @@ class ProductService {
         console.log("planning to insert new view");
         await this.viewService.insertMemberView(input);
         await this.productModel
-          .findByIdAndUpdate(
-            productId,
-            { $inc: { productViews: 1 } },
-          )
+          .findByIdAndUpdate(productId, { $inc: { productViews: 1 } })
           .exec();
         // Update result with incremented view count
         result.productViews = (result.productViews || 0) + 1;
@@ -425,7 +440,7 @@ class ProductService {
       targetKey: "productLikes",
       modifier: modifier,
     });
-    
+
     // Check if the current user has liked this product after toggle
     const memberLiked = await this.likeService.checkLikeExistence({
       memberId: memberId,

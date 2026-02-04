@@ -81,6 +81,34 @@ class ReviewService {
         editableUntil,
       });
 
+      // ✅ Update product review count and calculate average rating
+      try {
+        // Get all PUBLISHED reviews for this product
+        const allReviews = await this.reviewModel
+          .find({ productId, status: "PUBLISHED" })
+          .lean();
+
+        // Calculate average rating from all reviews
+        const averageRating =
+          allReviews.length > 0
+            ? allReviews.reduce((sum, rev) => sum + rev.rating, 0) / allReviews.length
+            : 0;
+
+        // Update product with new review count and average rating
+        await ProductModel.findByIdAndUpdate(
+          productId,
+          {
+            productReviewCount: allReviews.length,
+            productRank: Math.round(averageRating * 10) / 10, // Round to 1 decimal place
+          },
+          { new: true },
+        );
+
+        console.log(`✅ Product updated - Reviews: ${allReviews.length}, Average Rating: ${Math.round(averageRating * 10) / 10}`);
+      } catch (updateErr) {
+        console.error("❌ Error updating product review stats:", updateErr);
+      }
+
       // Send socket notification if low rating
       if (rating <= 2) {
         try {
@@ -149,6 +177,31 @@ class ReviewService {
     review.adminRequestedUpdate = false;
 
     await review.save();
+
+    // ✅ Recalculate product average rating after review update
+    try {
+      const allReviews = await this.reviewModel
+        .find({ productId: review.productId, status: "PUBLISHED" })
+        .lean();
+
+      const averageRating =
+        allReviews.length > 0
+          ? allReviews.reduce((sum, rev) => sum + rev.rating, 0) / allReviews.length
+          : 0;
+
+      await ProductModel.findByIdAndUpdate(
+        review.productId,
+        {
+          productRank: Math.round(averageRating * 10) / 10,
+        },
+        { new: true },
+      );
+
+      console.log(`✅ Product rating recalculated after review update - New Average: ${Math.round(averageRating * 10) / 10}`);
+    } catch (updateErr) {
+      console.error("❌ Error recalculating product rating:", updateErr);
+    }
+
     return review;
   }
 
@@ -260,12 +313,64 @@ class ReviewService {
     if (action === "HIDE") {
       review.status = "HIDDEN";
       await review.save();
+
+      // ✅ Recalculate product rating after hiding review
+      try {
+        const allReviews = await this.reviewModel
+          .find({ productId: review.productId, status: "PUBLISHED" })
+          .lean();
+
+        const averageRating =
+          allReviews.length > 0
+            ? allReviews.reduce((sum, rev) => sum + rev.rating, 0) / allReviews.length
+            : 0;
+
+        await ProductModel.findByIdAndUpdate(
+          review.productId,
+          {
+            productReviewCount: allReviews.length,
+            productRank: Math.round(averageRating * 10) / 10,
+          },
+          { new: true },
+        );
+
+        console.log(`✅ Product rating recalculated after review HIDE - Reviews: ${allReviews.length}, Average: ${Math.round(averageRating * 10) / 10}`);
+      } catch (updateErr) {
+        console.error("❌ Error recalculating product rating:", updateErr);
+      }
+
       return review;
     }
 
     if (action === "SHOW") {
       review.status = "PUBLISHED";
       await review.save();
+
+      // ✅ Recalculate product rating after showing review
+      try {
+        const allReviews = await this.reviewModel
+          .find({ productId: review.productId, status: "PUBLISHED" })
+          .lean();
+
+        const averageRating =
+          allReviews.length > 0
+            ? allReviews.reduce((sum, rev) => sum + rev.rating, 0) / allReviews.length
+            : 0;
+
+        await ProductModel.findByIdAndUpdate(
+          review.productId,
+          {
+            productReviewCount: allReviews.length,
+            productRank: Math.round(averageRating * 10) / 10,
+          },
+          { new: true },
+        );
+
+        console.log(`✅ Product rating recalculated after review SHOW - Reviews: ${allReviews.length}, Average: ${Math.round(averageRating * 10) / 10}`);
+      } catch (updateErr) {
+        console.error("❌ Error recalculating product rating:", updateErr);
+      }
+
       return review;
     }
 

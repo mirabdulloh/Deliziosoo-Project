@@ -314,8 +314,36 @@ class OrderService {
             as: "productData",
           },
         },
+        {
+          // ✅ Ensure all fields are preserved including productImages
+          $project: {
+            _id: 1,
+            memberId: 1,
+            orderItems: 1,
+            productData: 1,
+            orderStatus: 1,
+            orderTotal: 1,
+            orderDelivery: 1,
+            createdAt: 1,
+            updatedAt: 1,
+          },
+        },
       ])
       .exec();
+    
+    // 🔥 Debug logging
+    if (result && result.length > 0) {
+      console.log("✅ getMyOrders result:", {
+        orderCount: result.length,
+        firstOrder: {
+          id: result[0]._id,
+          orderItems: result[0].orderItems?.length || 0,
+          productData: result[0].productData?.length || 0,
+          productImages: result[0].productData?.[0]?.productImages ? "✓" : "✗",
+        }
+      });
+    }
+    
     if (!result) throw new Errors(HttpCode.NOT_FOUND, Message.NO_DATA_FOUND);
     return result;
   }
