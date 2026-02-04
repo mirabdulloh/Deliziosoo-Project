@@ -289,7 +289,7 @@ class ReviewService {
     return this.reviewModel
       .find()
       .sort({ createdAt: -1 })
-      .populate("memberId", "memberNick memberEmail memberPhone")
+      .populate("memberId", "memberNick memberEmail memberPhone memberImage")
       .populate("productId", "productName productImages")
       .populate("orderId", "orderStatus createdAt")
       .lean();

@@ -1,3 +1,7 @@
+<%
+  const serverApi = process.env.SERVER_API || "http://localhost:3009";
+%>
+
 <%- include('includes/header') %>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
@@ -55,9 +59,9 @@
                                     <td>
                                         <div class="customer-info">
                                             <% if (review.memberId && review.memberId.memberImage) { %>
-                                                <img src="/<%= review.memberId.memberImage %>" alt="<%= review.memberId.memberNick %>" class="customer-avatar">
+                                                <img src="<%= serverApi %>/<%= review.memberId.memberImage %>" alt="<%= review.memberId.memberNick %>" class="customer-avatar">
                                             <% } else { %>
-                                                <img src="/img/default_img.jpg" alt="Customer" class="customer-avatar">
+                                                <img src="<%= serverApi %>/img/default_img.jpg" alt="Customer" class="customer-avatar">
                                             <% } %>
                                             <div>
                                                 <div class="customer-name"><%= review.memberId ? review.memberId.memberNick : 'Unknown' %></div>
@@ -68,7 +72,7 @@
                                     <td>
                                         <div class="product-info">
                                             <% if (review.productId && review.productId.productImages && review.productId.productImages[0]) { %>
-                                                <img src="/<%= review.productId.productImages[0] %>" alt="<%= review.productId.productName %>" class="product-image">
+                                                <img src="<%= serverApi %>/<%= review.productId.productImages[0] %>" alt="<%= review.productId.productName %>" class="product-image">
                                             <% } %>
                                             <span class="product-name"><%= review.productId ? review.productId.productName : 'N/A' %></span>
                                         </div>
