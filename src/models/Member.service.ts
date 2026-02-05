@@ -284,35 +284,23 @@ class MemberService {
 
   public async generateLoyaltyCoupon(member: Member): Promise<boolean> {
     const memberId = shapeIntoMongooseObjectId(member._id);
-    const memberData = await this.memberModel.findById(memberId).exec();
+    const couponCode = this.generateLoyaltyCouponCode();
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + 30); // 30 days expiry
 
-    // Only generate if current coupon is used or expired
-    if (memberData && memberData.memberCoupon) {
-      const coupon = memberData.memberCoupon;
-      const isExpired = coupon.expiresAt && new Date() > coupon.expiresAt;
-      
-      if (coupon.isUsed || isExpired || !coupon.code) {
-        const couponCode = this.generateLoyaltyCouponCode();
-        const expiresAt = new Date();
-        expiresAt.setDate(expiresAt.getDate() + 30); // 30 days expiry
-
-        await this.memberModel.updateOne(
-          { _id: memberId },
-          {
-            $set: {
-              "memberCoupon.code": couponCode,
-              "memberCoupon.discount": 5,
-              "memberCoupon.isUsed": false,
-              "memberCoupon.expiresAt": expiresAt,
-            },
-          }
-        );
-        console.log(`🎉 Loyalty coupon ${couponCode} generated for member ${memberId}`);
-        return true;
+    await this.memberModel.updateOne(
+      { _id: memberId },
+      {
+        $set: {
+          "memberCoupon.code": couponCode,
+          "memberCoupon.discount": 5,
+          "memberCoupon.isUsed": false,
+          "memberCoupon.expiresAt": expiresAt,
+        },
       }
-    }
-
-    return false;
+    );
+    console.log(`🎉 Loyalty coupon ${couponCode} generated for member ${memberId} (finished 5 more orders)`);
+    return true;
   }
 
   private generateLoyaltyCouponCode(): string {

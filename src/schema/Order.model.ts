@@ -11,6 +11,17 @@ const orderSchema = new Schema(
       type: Number,
       required: true,
     },
+    deliveryFee: {
+      type: Number,
+      default: 5, // set to 0 if coupon applied, otherwise 5
+    },
+    couponDiscount: {
+      type: Number,
+      default: 0, // discount amount from coupon
+    },
+    totalAmount: {
+      type: Number, // final amount after coupon (if applied)
+    },
     orderStatus: {
       type: String,
       enum: OrderStatus,

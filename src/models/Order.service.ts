@@ -315,7 +315,7 @@ class OrderService {
           },
         },
         {
-          // ✅ Ensure all fields are preserved including productImages
+          // ✅ Ensure all fields are preserved including financial fields
           $project: {
             _id: 1,
             memberId: 1,
@@ -324,6 +324,9 @@ class OrderService {
             orderStatus: 1,
             orderTotal: 1,
             orderDelivery: 1,
+            deliveryFee: 1,
+            couponDiscount: 1,
+            totalAmount: 1,
             createdAt: 1,
             updatedAt: 1,
           },
@@ -360,13 +363,22 @@ class OrderService {
       .exec();
     if (!currentOrder) throw new Errors(HttpCode.NOT_FOUND, Message.NO_DATA_FOUND);
     const wasFinished = currentOrder.orderStatus === OrderStatus.FINISH;
+    
+    // Build update object with financial fields when moving to PROCESS (payment)
+    const updateData: any = { orderStatus: orderStatus };
+    if (orderStatus === OrderStatus.PROCESS) {
+      if (input.deliveryFee !== undefined) updateData.deliveryFee = input.deliveryFee;
+      if (input.couponDiscount !== undefined) updateData.couponDiscount = input.couponDiscount;
+      if (input.totalAmount !== undefined) updateData.totalAmount = input.totalAmount;
+    }
+    
     const result = await this.orderModel
       .findOneAndUpdate(
         {
           memberId: memberId,
           _id: orderId,
         },
-        { orderStatus: orderStatus },
+        updateData,
         { new: true },
       )
       .exec();
@@ -392,6 +404,7 @@ class OrderService {
 
     // Check if order is finished and award loyalty coupon
     if (orderStatus === OrderStatus.FINISH && !wasFinished) {
+      // Get current count of finished orders
       const finishedOrdersCount = await this.getFinishedOrdersCount(memberId);
 
       // Increment totalOrders using memberStatsEdits
@@ -402,6 +415,8 @@ class OrderService {
       });
 
       // Give loyalty coupon every 5 finished orders
+      // finishedOrdersCount includes the current order that just moved to FINISH
+      // So we check if it's divisible by 5 (5, 10, 15, etc.)
       if (finishedOrdersCount % 5 === 0) {
         await this.memberService.generateLoyaltyCoupon(member);
       }
