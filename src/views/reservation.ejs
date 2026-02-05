@@ -58,15 +58,21 @@
                 <td><%= value.email %></td>
                 <td><%= value.phoneNumber || '-' %></td>
                 <td>
-                  <%= new Date(value.dateTime).toLocaleString("en-GB", {
-                    timeZone: "Asia/Seoul",
-                    year: "numeric",
-                    month: "short",
-                    day: "2-digit",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                    hour12: false,
-                  }) %>
+                  <% 
+                    try {
+                      const date = new Date(value.dateTime);
+                      // Format without timezone conversion - show as entered
+                      const year = date.getUTCFullYear();
+                      const month = date.toLocaleString("en-US", { month: "short", timeZone: "UTC" });
+                      const day = String(date.getUTCDate()).padStart(2, '0');
+                      const hour = String(date.getUTCHours()).padStart(2, '0');
+                      const minute = String(date.getUTCMinutes()).padStart(2, '0');
+                      const formatted = `${month} ${day}, ${year}, ${hour}:${minute}`;
+                  %>
+                    <%= formatted %>
+                  <% } catch(e) { %>
+                    <%= value.dateTime || '-' %>
+                  <% } %>
                 </td>
                 <td><%= value.peopleCount %></td>
                 <td class="note-cell">
