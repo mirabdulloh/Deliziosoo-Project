@@ -183,7 +183,17 @@ function applyStatusStyle(selectEl) {
   });
   
 // Edit Product Modal Functions
-function openEditModal(id, name, collection, price, leftCount, size, volume, desc) {
+function openEditModal(button) {
+  // Get data from button attributes instead of function parameters
+  const id = button.getAttribute("data-product-id");
+  const name = button.getAttribute("data-product-name");
+  const collection = button.getAttribute("data-product-collection");
+  const price = button.getAttribute("data-product-price");
+  const leftCount = button.getAttribute("data-product-left");
+  const size = button.getAttribute("data-product-size");
+  const volume = button.getAttribute("data-product-volume");
+  const desc = button.getAttribute("data-product-desc");
+
   $("#editProductId").val(id);
   $("#editProductName").val(name);
   $("#editProductCollection").val(collection);

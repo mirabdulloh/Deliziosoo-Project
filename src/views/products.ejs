@@ -1,4 +1,4 @@
-<%- include('includes/navbar') %><%- include('includes/header') %>
+<%- include('includes/header') %>
 <link
   rel="stylesheet"
   href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
@@ -10,7 +10,6 @@
 </head>
 <body>
 <div class="dashboard-container">
-  <!-- Sidebar -->
   <%- include('includes/navbar') %>
 
   <!-- Main Content -->
@@ -50,10 +49,8 @@
                     <div class="product-info">
                         <img
                             class="product-img"
-                            src="<%= product.productImages?.[0]
-                             ? '/' + product.productImages[0]
-                              : '/img/default-food.jpg' %>"
-                              alt="product"
+                            src="<% if (product.productImages && product.productImages[0]) { %>/<%= product.productImages[0] %><% } else { %>/img/default-food.jpg<% } %>"
+                            alt="product"
                         />
 
                       
@@ -99,7 +96,7 @@
                   </td>
                   
                   <td>
-                    <button class="btn-edit-product" onclick="openEditModal('<%= product._id %>', '<%= product.productName %>', '<%= product.productCollection %>', <%= product.productPrice %>, <%= product.productLeftCount %>, '<%= product.productSize %>', '<%= product.productVolume %>', '<%= product.productDesc || '' %>')">
+                    <button class="btn-edit-product" data-product-id="<%= product._id %>" data-product-name="<%= product.productName %>" data-product-collection="<%= product.productCollection %>" data-product-price="<%= product.productPrice %>" data-product-left="<%= product.productLeftCount %>" data-product-size="<%= product.productSize %>" data-product-volume="<%= product.productVolume %>" data-product-desc="<%= (product.productDesc || '').replace(/"/g, '&quot;') %>" onclick="openEditModal(this)">
                       <i class="fas fa-edit"></i> Edit
                     </button>
                   </td>
