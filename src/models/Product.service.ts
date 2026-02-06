@@ -111,6 +111,7 @@ class ProductService {
         productPromotion: 1,
         discountedPrice: 1,
         memberLiked: 1,
+        productLikes: 1, // ✅ LIKE COUNT - WAS MISSING
       },
     });
 
