@@ -15,8 +15,17 @@ import MemberModel from "../schema/Member.model";
 
 const memberService = new MemberService();
 const authService = new AuthService();
+const isProduction = process.env.NODE_ENV === "production";
 
 const memberController: T = {};
+
+const authCookieOptions = {
+  maxAge: AUTH_TIME * 3600 * 1000,
+  httpOnly: true,
+  sameSite: (isProduction ? "none" : "lax") as "none" | "lax",
+  secure: isProduction,
+  path: "/",
+};
 
 memberController.signUp = async (req: Request, res: Response) => {
   // service model
@@ -28,10 +37,7 @@ memberController.signUp = async (req: Request, res: Response) => {
     // TODO: Token Authentication
     const token = await authService.createToken(result);
     // browser cookies ichiga joylanishi
-    res.cookie("accessToken", token, {
-      maxAge: AUTH_TIME * 3600 * 1000,
-      httpOnly: false,
-    });
+    res.cookie("accessToken", token, authCookieOptions);
 
     res.status(HttpCode.CREATED).json({ member: result });
   } catch (err) {
@@ -51,12 +57,9 @@ memberController.login = async (req: Request, res: Response) => {
     // token creation
     const token = await authService.createToken(result);
     // browser cookies ichiga joylanishi
-    res.cookie("accessToken", token, {
-      maxAge: AUTH_TIME * 3600 * 1000,
-      httpOnly: false,
-    });
+    res.cookie("accessToken", token, authCookieOptions);
 
-    res.status(HttpCode.OK).json({ member: result, accessToken: token });
+    res.status(HttpCode.OK).json({ member: result });
   } catch (err) {
     if (err instanceof Errors) res.status(err.code).json(err);
     else res.status(Errors.standard.code).json(Errors.standard);
@@ -67,7 +70,10 @@ memberController.login = async (req: Request, res: Response) => {
 memberController.logout = async (req: ExtendedRequest, res: Response) => {
   try {
     console.log("logout:");
-    res.cookie("accessToken", null, { maxAge: 0, httpOnly: true });
+    res.cookie("accessToken", "", {
+      ...authCookieOptions,
+      maxAge: 0,
+    });
     res.status(HttpCode.OK).json({ logout: true });
   } catch (err) {
     if (err instanceof Errors) res.status(err.code).json(err);

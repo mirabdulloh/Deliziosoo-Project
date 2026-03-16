@@ -6,6 +6,13 @@ import app from "./app";
 import { createServer } from "http";
 import { initializeSocketService } from "./models/socket.service";
 
+const requiredEnv = ["MONGO_URL", "SESSION_SECRET", "SECRET_TOKEN"];
+const missingEnv = requiredEnv.filter((key) => !process.env[key]);
+
+if (missingEnv.length > 0) {
+  throw new Error(`Missing required environment variables: ${missingEnv.join(", ")}`);
+}
+
 // Create HTTP server
 const httpServer = createServer(app);
 

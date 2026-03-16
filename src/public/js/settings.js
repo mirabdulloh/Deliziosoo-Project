@@ -15,15 +15,9 @@ function previewFile(event) {
       const fd = new FormData(form);
   
       try {
-        const res = await axios.post("/admin/settings/update", fd); // axios already included
-        const updated = res.data?.data;
-  
-        if (updated?.memberImage) {
-          document.getElementById("previewImg").src =
-            (updated.memberImage.startsWith("/") ? "" : "/") + updated.memberImage;
-        }
-  
+        await axios.post("/admin/settings/update", fd); // axios already included
         alert("Saved ✅");
+        window.location.reload();
       } catch (err) {
         console.log(err);
         alert("Update failed ❌");

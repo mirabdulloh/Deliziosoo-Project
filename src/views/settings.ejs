@@ -79,6 +79,33 @@
             />
           </div>
 
+          <div class="settings-divider"></div>
+
+          <div class="settings-head settings-head-inline">
+            <h3>Reward Coupon Settings</h3>
+            <span class="settings-badge"><i class="fas fa-ticket-alt"></i> Loyalty</span>
+          </div>
+
+          <div class="toggle-card">
+            <div class="toggle-copy">
+              <div class="toggle-title">Reward coupon after 5 finished orders</div>
+              <p class="toggle-text">
+                When enabled, users receive a loyalty coupon every time they reach
+                5, 10, 15 finished orders. The welcome signup coupon always stays active.
+              </p>
+            </div>
+
+            <label class="toggle-switch">
+              <input
+                type="checkbox"
+                name="loyaltyRewardCouponEnabled"
+                value="true"
+                <%= settings?.loyaltyRewardCouponEnabled !== false ? 'checked' : '' %>
+              />
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
           <div class="actions">
             <button type="submit" class="btn-primary">
               <i class="fas fa-save"></i> Save Changes

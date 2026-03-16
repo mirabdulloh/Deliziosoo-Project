@@ -24,7 +24,6 @@ router.post(
 
 router.post(
   "/member/logout",
-  memberController.verifyAuth,
   memberController.logout,
 );
 
@@ -129,37 +128,6 @@ router.get(
 );
 router.get("/public/top/reviews", reviewController.getTopReviews);
 
-// ! AI CHAT SETUP
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
-// ================= AI CHAT =================
-router.post("/ai/chat", async (req, res) => {
-  try {
-    const { message } = req.body;
-
-    if (!message) {
-      return res.status(400).json({ error: "message required" });
-    }
-
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: [
-        { role: "system", content: "You are a helpful restaurant assistant." },
-        { role: "user", content: message },
-      ],
-    });
-
-    const reply = completion.choices[0].message.content;
-
-    res.json({ reply });
-  } catch (err) {
-    console.error("AI error:", err);
-    res.status(500).json({ error: "AI failed" });
-  }
-});
-
 const provider = process.env.AI_PROVIDER || "groq";
 
 const baseURL =
@@ -178,7 +146,7 @@ router.post("/ai/chat", async (req, res) => {
     if (!message) return res.status(400).json({ error: "message required" });
 
     const completion = await ai.chat.completions.create({
-      model: "llama3-8b-8192", // good cheap/free Groq model (or pick from /models)
+      model: provider === "groq" ? "llama3-8b-8192" : "gpt-4o-mini",
       messages: [
         { role: "system", content: "You are a helpful restaurant assistant." },
         { role: "user", content: message },

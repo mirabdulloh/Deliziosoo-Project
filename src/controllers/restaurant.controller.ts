@@ -6,9 +6,11 @@ import { MemberType } from "../libs/enum/member.enum";
 import Errors, { HttpCode, Message } from "../libs/Errors";
 import ReservationService from "../models/Reservation.service";
 import { ReservationStatus } from "../libs/enum/reservation.enum";
+import AppSettingService from "../models/AppSetting.service";
 
 const memberService = new MemberService();
 const reservationService = new ReservationService();
+const appSettingService = new AppSettingService();
 
 const restaurantController: T = {};
 restaurantController.goHome = (req: Request, res: Response) => {
@@ -206,8 +208,10 @@ restaurantController.updateReservation = async (
 
 restaurantController.getAdminSettingsPage = async (req: any, res: Response) => {
   try {
+    const settings = await appSettingService.getSettings();
     return res.render("settings", {
       admin: req.member,
+      settings,
       currentPath: req.path,
     });
   } catch (err) {
@@ -221,6 +225,8 @@ restaurantController.updateAdminSettings = async (req: any, res: Response) => {
     const input: any = {
       memberNick: req.body.memberNick,
     };
+    const loyaltyRewardCouponEnabled =
+      req.body.loyaltyRewardCouponEnabled === "true";
 
     // if new image uploaded, save web path into DB
     if (req.file) {
@@ -228,6 +234,7 @@ restaurantController.updateAdminSettings = async (req: any, res: Response) => {
     }
 
     const updated = await memberService.updateAdminSettings(req.member, input);
+    await appSettingService.updateSettings({ loyaltyRewardCouponEnabled });
 
     // ✅ CRITICAL: refresh session + locals so header/settings show new image
     (req.session as any).member = updated;

@@ -12,22 +12,59 @@ import { T } from "./libs/types/common";
 import MemberModel from "./schema/Member.model";
 
 const MongoDBStore = ConnectMongoDB(session);
+const isProduction = process.env.NODE_ENV === "production";
+const configuredOrigins = (process.env.CLIENT_ORIGINS || process.env.CLIENT_ORIGIN || "")
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+const defaultDevOrigins = ["http://localhost:3000", "http://127.0.0.1:3000"];
+const allowedOrigins = configuredOrigins.length > 0 ? configuredOrigins : defaultDevOrigins;
+
+const isLocalDevOrigin = (origin: string) => {
+  try {
+    const { hostname } = new URL(origin);
+    return hostname === "localhost" || hostname === "127.0.0.1" || hostname === "::1";
+  } catch {
+    return false;
+  }
+};
 
 const store = new MongoDBStore({
   uri: String(process.env.MONGO_URL),
   collection: "sessions",
 });
 
+store.on("error", (err) => {
+  console.error("Session store error:", err);
+});
+
 /** Entrance  */
 
 const app = express();
+
+if (isProduction) {
+  app.set("trust proxy", 1);
+}
+
+app.disable("x-powered-by");
 
 app.use(express.static(path.join(__dirname, "public")));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(
   cors({
-    origin: true,
+    origin(origin, callback) {
+      if (
+        !origin ||
+        allowedOrigins.includes(origin) ||
+        (!isProduction && isLocalDevOrigin(origin))
+      ) {
+        callback(null, true);
+        return;
+      }
+
+      callback(new Error("CORS origin is not allowed"));
+    },
     credentials: true,
   }),
 );
@@ -41,12 +78,17 @@ app.use(morgan(MORGAN_FORMAT));
 app.use(
   session({
     secret: String(process.env.SESSION_SECRET),
+    name: "delizioso.sid",
     cookie: {
       maxAge: 1000 * 3600 * 6, // 6h
+      httpOnly: true,
+      sameSite: isProduction ? "none" : "lax",
+      secure: isProduction,
     },
     store: store,
-    resave: true,
-    saveUninitialized: true,
+    resave: false,
+    saveUninitialized: false,
+    proxy: isProduction,
   }),
 );
 
@@ -85,6 +127,10 @@ app.use((req, res, next) => {
 
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
+
+app.get("/health", (_req, res) => {
+  res.status(200).json({ ok: true });
+});
 
 /** Routers  */
 

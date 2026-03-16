@@ -225,20 +225,6 @@ class MemberService {
       )
       .exec();
 
-    if (!updatedMember) return updatedMember as any;
-
-    if (updatedMember.memberPoints >= 5) {
-      const issued = await this.generateLoyaltyCoupon(member);
-      if (issued) {
-        const newPoints = updatedMember.memberPoints - 5;
-        await this.memberModel.updateOne(
-          { _id: memberId },
-          { $set: { memberPoints: newPoints } },
-        );
-        return await this.memberModel.findById(memberId).exec();
-      }
-    }
-
     return updatedMember;
   }
 
@@ -263,6 +249,23 @@ class MemberService {
       .findOne({ _id: memberId, memberStatus: MemberStatus.ACTIVE })
       .exec();
     if (!result) throw new Errors(HttpCode.NOT_FOUND, Message.NO_DATA_FOUND);
+    return result;
+  }
+
+  public async syncTotalOrders(
+    member: Member,
+    totalOrders: number,
+  ): Promise<Member> {
+    const memberId = shapeIntoMongooseObjectId(member._id);
+    const result = await this.memberModel
+      .findOneAndUpdate(
+        { _id: memberId },
+        { $set: { totalOrders } },
+        { new: true },
+      )
+      .exec();
+
+    if (!result) throw new Errors(HttpCode.NOT_MODIFIED, Message.UPDATE_FAILED);
     return result;
   }
 

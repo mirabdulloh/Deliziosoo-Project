@@ -14,16 +14,19 @@ import Errors, { HttpCode, Message } from "../libs/Errors";
 import { ObjectId } from "mongoose";
 import { OrderStatus } from "../libs/enum/order.enum";
 import MemberService from "./Member.service";
+import AppSettingService from "./AppSetting.service";
 import { T } from "../libs/types/common";
 
 class OrderService {
   public readonly orderModel;
   public readonly orderItemModel;
   public memberService;
+  public appSettingService;
   constructor() {
     this.orderModel = OrderModel;
     this.orderItemModel = OrderItemModel;
     this.memberService = new MemberService();
+    this.appSettingService = new AppSettingService();
   }
   //! ORders SSR ADMIN
 
@@ -384,10 +387,6 @@ class OrderService {
       .exec();
     if (!result) throw new Errors(HttpCode.NOT_MODIFIED, Message.UPDATE_FAILED);
 
-    if (orderStatus === OrderStatus.PROCESS) {
-      await this.memberService.addUserPoint(member, 1);
-    }
-
     if (
       input.couponCode &&
       (orderStatus === OrderStatus.PROCESS ||
@@ -406,18 +405,19 @@ class OrderService {
     if (orderStatus === OrderStatus.FINISH && !wasFinished) {
       // Get current count of finished orders
       const finishedOrdersCount = await this.getFinishedOrdersCount(memberId);
+      const loyaltyRewardCouponEnabled =
+        await this.appSettingService.isLoyaltyRewardCouponEnabled();
 
-      // Increment totalOrders using memberStatsEdits
-      await this.memberService.memberStatsEdits({
-        _id: memberId,
-        targetKey: "memberPoints",
-        modifier: 1,
-      });
+      // Award one loyalty point only after a successful finished order.
+      await this.memberService.addUserPoint(member, 1);
+
+      // Keep totalOrders aligned with actual finished orders count.
+      await this.memberService.syncTotalOrders(member, finishedOrdersCount);
 
       // Give loyalty coupon every 5 finished orders
       // finishedOrdersCount includes the current order that just moved to FINISH
       // So we check if it's divisible by 5 (5, 10, 15, etc.)
-      if (finishedOrdersCount % 5 === 0) {
+      if (loyaltyRewardCouponEnabled && finishedOrdersCount % 5 === 0) {
         await this.memberService.generateLoyaltyCoupon(member);
       }
     }

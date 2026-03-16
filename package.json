@@ -5,12 +5,12 @@
   "license": "ISC",
   "author": "MIT",
   "type": "commonjs",
-  "main": "src/server.ts",
+  "main": "dist/server.js",
   "scripts": {
-    "start": "ts-node src/server.ts",
+    "start": "node dist/server.js",
     "train": "nodemon --exec ts-node src/train.ts",
     "start:dev": "nodemon --exec ts-node src/server.ts",
-    "build": "tsc",
+    "build": "tsc && mkdir -p dist/views dist/public && cp -R src/views/. dist/views && cp -R src/public/. dist/public",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
