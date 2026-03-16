@@ -381,7 +381,7 @@ class OrderService {
     if (orderStatus === OrderStatus.PROCESS) {
       const sourceItems =
         input.orderItems && input.orderItems.length > 0
-          ? input.orderItems
+          ? await this.resolveSubmittedOrderItems(orderId, input.orderItems)
           : await this.getExistingOrderItems(orderId);
       const sanitizedItems = await this.sanitizeOrderItems(sourceItems);
 
@@ -495,6 +495,26 @@ class OrderService {
       productId: item.productId,
       itemQuantity: item.itemQuantity,
       itemPrice: item.itemPrice,
+    }));
+  }
+
+  private async resolveSubmittedOrderItems(
+    orderId: ObjectId,
+    submittedItems: OrderItemInput[],
+  ): Promise<OrderItemInput[]> {
+    const existingOrderItems = await this.orderItemModel
+      .find({ orderId }, { _id: 1, productId: 1 })
+      .lean()
+      .exec();
+
+    const orderItemIdMap = new Map(
+      existingOrderItems.map((item: any) => [String(item._id), item.productId]),
+    );
+
+    return submittedItems.map((item) => ({
+      ...item,
+      productId: (orderItemIdMap.get(String(item.productId)) ||
+        item.productId) as any,
     }));
   }
 
