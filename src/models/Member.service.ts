@@ -247,6 +247,7 @@ class MemberService {
     const memberId = shapeIntoMongooseObjectId(member._id);
     const result = await this.memberModel
       .findOne({ _id: memberId, memberStatus: MemberStatus.ACTIVE })
+      .lean()
       .exec();
     if (!result) throw new Errors(HttpCode.NOT_FOUND, Message.NO_DATA_FOUND);
     return result;

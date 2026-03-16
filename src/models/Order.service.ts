@@ -362,7 +362,11 @@ class OrderService {
       orderId = shapeIntoMongooseObjectId(input.orderId),
       orderStatus = input.orderStatus;
     const currentOrder = await this.orderModel
-      .findOne({ memberId: memberId, _id: orderId })
+      .findOne(
+        { memberId: memberId, _id: orderId },
+        { orderStatus: 1 },
+      )
+      .lean()
       .exec();
     if (!currentOrder) throw new Errors(HttpCode.NOT_FOUND, Message.NO_DATA_FOUND);
     const wasFinished = currentOrder.orderStatus === OrderStatus.FINISH;

@@ -36,6 +36,7 @@ class NotificationService {
       })
         .sort({ createdAt: -1 })
         .limit(50)
+        .lean()
         .exec();
 
       return notifications;
@@ -61,6 +62,7 @@ class NotificationService {
         .sort({ createdAt: -1 })
         .limit(limit)
         .skip(skip)
+        .lean()
         .exec();
 
       return notifications;

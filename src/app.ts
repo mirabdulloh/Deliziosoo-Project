@@ -19,6 +19,7 @@ const configuredOrigins = (process.env.CLIENT_ORIGINS || process.env.CLIENT_ORIG
   .filter(Boolean);
 const defaultDevOrigins = ["http://localhost:3000", "http://127.0.0.1:3000"];
 const allowedOrigins = configuredOrigins.length > 0 ? configuredOrigins : defaultDevOrigins;
+const publicStaticMaxAge = isProduction ? "1h" : 0;
 
 const isLocalDevOrigin = (origin: string) => {
   try {
@@ -48,7 +49,13 @@ if (isProduction) {
 
 app.disable("x-powered-by");
 
-app.use(express.static(path.join(__dirname, "public")));
+app.use(
+  express.static(path.join(__dirname, "public"), {
+    maxAge: publicStaticMaxAge,
+    etag: true,
+    lastModified: true,
+  }),
+);
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(
@@ -102,10 +109,14 @@ app.use(async (req, res, next) => {
     if (!s.lastActivePing || now - s.lastActivePing > 60_000) {
       s.lastActivePing = now;
 
-      await MemberModel.updateOne(
+      void MemberModel.updateOne(
         { _id: s.member._id },
         { $set: { lastActiveAt: new Date() } },
-      );
+      )
+        .exec()
+        .catch((err) => {
+          console.error("Failed to update member activity:", err);
+        });
     }
   }
 

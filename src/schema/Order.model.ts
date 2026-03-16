@@ -42,5 +42,7 @@ const orderSchema = new Schema(
 orderSchema.index({ orderStatus: 1, createdAt: 1 });
 orderSchema.index({ paidAt: 1 });
 orderSchema.index({ finishedAt: 1 });
+orderSchema.index({ memberId: 1, orderStatus: 1, updatedAt: -1 });
+orderSchema.index({ memberId: 1, updatedAt: -1 });
 
 export default mongoose.model("Order", orderSchema);
