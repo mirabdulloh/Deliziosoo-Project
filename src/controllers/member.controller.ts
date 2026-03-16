@@ -115,7 +115,14 @@ memberController.updateMember = async (req: ExtendedRequest, res: Response) => {
     console.log("updateMember:");
     console.log("req.file:", req.file);
     console.log("req.body:", req.body);
-    const input: memberUpdateInput = req.body;
+    const input: memberUpdateInput = {
+      memberNick: req.body.memberNick,
+      memberPhone: req.body.memberPhone,
+      memberEmail: req.body.memberEmail,
+      memberAddress: req.body.memberAddress ?? req.body.memberAdress,
+      memberDesc: req.body.memberDesc,
+      memberPassword: req.body.memberPassword,
+    } as memberUpdateInput;
     if (req.file) {
       input.memberImage = req.file.path.replace(/\\/g, "/");
       console.log("Updated memberImage path:", input.memberImage);

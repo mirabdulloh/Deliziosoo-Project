@@ -74,8 +74,10 @@ notificationController.markAsRead = async (
     }
 
     const { notificationId } = req.params;
-    const notification =
-      await notificationService.markAsRead(notificationId);
+    const notification = await notificationService.markAsRead(
+      req.member._id,
+      notificationId,
+    );
 
     res.status(HttpCode.OK).json(notification);
   } catch (err) {
@@ -117,8 +119,10 @@ notificationController.deleteNotification = async (
     }
 
     const { notificationId } = req.params;
-    const notification =
-      await notificationService.deleteNotification(notificationId);
+    const notification = await notificationService.deleteNotification(
+      req.member._id,
+      notificationId,
+    );
 
     res.status(HttpCode.OK).json(notification);
   } catch (err) {

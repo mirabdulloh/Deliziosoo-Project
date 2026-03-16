@@ -31,7 +31,7 @@ export interface Order {
 
 export interface OrderItemInput {
   itemQuantity: number;
-  itemPrice: number;
+  itemPrice?: number;
   productId: ObjectId;
   orderId?: ObjectId;
   couponCode?: string;
@@ -50,6 +50,7 @@ export interface OrderUpdateInput {
   deliveryFee?: number;
   couponDiscount?: number;
   totalAmount?: number;
+  orderItems?: OrderItemInput[];
 }
 
 export interface OrderStatsResponse {
@@ -67,4 +68,3 @@ export interface OrderStatsResponse {
   topProductsToday: any[];
   orders: any[];
 }
-

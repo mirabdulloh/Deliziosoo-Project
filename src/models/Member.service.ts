@@ -234,9 +234,44 @@ class MemberService {
     input: memberUpdateInput,
   ): Promise<Member> {
     const memberId = shapeIntoMongooseObjectId(member._id);
+    const updateData: T = {};
+
+    if (typeof input.memberNick === "string" && input.memberNick.trim()) {
+      updateData.memberNick = input.memberNick.trim();
+    }
+
+    if (typeof input.memberPhone === "string" && input.memberPhone.trim()) {
+      updateData.memberPhone = input.memberPhone.trim();
+    }
+
+    if (typeof input.memberEmail === "string") {
+      updateData.memberEmail = input.memberEmail.trim();
+    }
+
+    if (typeof input.memberAddress === "string") {
+      updateData.memberAddress = input.memberAddress.trim();
+    }
+
+    if (typeof input.memberDesc === "string") {
+      updateData.memberDesc = input.memberDesc.trim();
+    }
+
+    if (typeof input.memberImage === "string" && input.memberImage.trim()) {
+      updateData.memberImage = input.memberImage;
+    }
+
+    if (typeof input.memberPassword === "string" && input.memberPassword.trim()) {
+      const salt = await bcrypt.genSalt();
+      updateData.memberPassword = await bcrypt.hash(input.memberPassword, salt);
+    }
+
+    if (Object.keys(updateData).length === 0) {
+      return await this.getMemberDetail(member);
+    }
+
     const result = await this.memberModel.findOneAndUpdate(
       { _id: memberId },
-      input,
+      { $set: updateData },
       { new: true },
     );
     if (!result) throw new Errors(HttpCode.NOT_MODIFIED, Message.UPDATE_FAILED);

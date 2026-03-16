@@ -1,5 +1,6 @@
 import OrderItemModel from "../schema/OrderItem.model";
 import OrderModel from "../schema/Order.model";
+import ProductModel from "../schema/Product.model";
 import { Member } from "../libs/types/member";
 import {
   OrderInquiry,
@@ -16,15 +17,18 @@ import { OrderStatus } from "../libs/enum/order.enum";
 import MemberService from "./Member.service";
 import AppSettingService from "./AppSetting.service";
 import { T } from "../libs/types/common";
+import { ProductStatus } from "../libs/enum/product.enum";
 
 class OrderService {
   public readonly orderModel;
   public readonly orderItemModel;
+  public readonly productModel;
   public memberService;
   public appSettingService;
   constructor() {
     this.orderModel = OrderModel;
     this.orderItemModel = OrderItemModel;
+    this.productModel = ProductModel;
     this.memberService = new MemberService();
     this.appSettingService = new AppSettingService();
   }
@@ -223,9 +227,12 @@ class OrderService {
     input: OrderItemInput[],
   ): Promise<Order> {
     const memberId = shapeIntoMongooseObjectId(member._id);
-    const amount = input.reduce((accumulator: number, item: OrderItemInput) => {
-      return accumulator + item.itemPrice * item.itemQuantity;
-    }, 0);
+    const sanitizedItems = await this.sanitizeOrderItems(input);
+    const amount = this.roundCurrency(
+      sanitizedItems.reduce((accumulator: number, item: OrderItemInput) => {
+        return accumulator + (item.itemPrice || 0) * item.itemQuantity;
+      }, 0),
+    );
 
     let delivery = amount < 100 ? 5 : 0;
     let discount = 0;
@@ -254,7 +261,7 @@ class OrderService {
       });
       const orderId = newOrder._id;
       console.log("orderId", orderId);
-      await this.recordOrderItems(orderId, input);
+      await this.recordOrderItems(orderId, sanitizedItems);
 
       // Mark coupon as used AFTER successful order creation
       if (couponCode) {
@@ -272,16 +279,14 @@ class OrderService {
     orderId: ObjectId,
     input: OrderItemInput[],
   ): Promise<void> {
-    const promisedList = input.map(async (item: OrderItemInput) => {
-      item.orderId = orderId;
-      item.productId = shapeIntoMongooseObjectId(item.productId);
-      await this.orderItemModel.create(item);
-      return "INSERTED";
-    });
+    const orderItems = input.map((item: OrderItemInput) => ({
+      itemQuantity: item.itemQuantity,
+      itemPrice: item.itemPrice,
+      orderId,
+      productId: shapeIntoMongooseObjectId(item.productId),
+    }));
 
-    console.log("promisedList:", promisedList);
-    const orderItemState = await Promise.all(promisedList);
-    console.log("orderItemState:", orderItemState);
+    await this.orderItemModel.insertMany(orderItems);
   }
 
   public async getMyOrders(
@@ -374,9 +379,51 @@ class OrderService {
     // Build update object with financial fields when moving to PROCESS (payment)
     const updateData: any = { orderStatus: orderStatus };
     if (orderStatus === OrderStatus.PROCESS) {
-      if (input.deliveryFee !== undefined) updateData.deliveryFee = input.deliveryFee;
-      if (input.couponDiscount !== undefined) updateData.couponDiscount = input.couponDiscount;
-      if (input.totalAmount !== undefined) updateData.totalAmount = input.totalAmount;
+      const sourceItems =
+        input.orderItems && input.orderItems.length > 0
+          ? input.orderItems
+          : await this.getExistingOrderItems(orderId);
+      const sanitizedItems = await this.sanitizeOrderItems(sourceItems);
+
+      if (!sanitizedItems.length) {
+        throw new Errors(HttpCode.BAD_REQUEST, Message.CREATE_FAILED);
+      }
+
+      const subtotal = this.roundCurrency(
+        sanitizedItems.reduce(
+          (sum, item) => sum + (item.itemPrice || 0) * item.itemQuantity,
+          0,
+        ),
+      );
+
+      let couponDiscount = 0;
+      if (input.couponCode) {
+        const validation = await this.memberService.validateCoupon(
+          member,
+          input.couponCode,
+        );
+
+        if (!validation.valid) {
+          throw new Errors(
+            HttpCode.BAD_REQUEST,
+            validation.message || Message.CREATE_FAILED,
+          );
+        }
+
+        couponDiscount = validation.discount;
+      }
+
+      const deliveryFee = input.couponCode ? 0 : 5;
+      const totalAmount = this.roundCurrency(
+        subtotal + deliveryFee - couponDiscount,
+      );
+
+      await this.replaceOrderItems(orderId, sanitizedItems);
+
+      updateData.deliveryFee = deliveryFee;
+      updateData.couponDiscount = couponDiscount;
+      updateData.totalAmount = totalAmount;
+      updateData.orderTotal = totalAmount;
     }
     
     const result = await this.orderModel
@@ -436,6 +483,113 @@ class OrderService {
         orderStatus: OrderStatus.FINISH,
       })
       .exec();
+  }
+
+  private async getExistingOrderItems(orderId: ObjectId): Promise<OrderItemInput[]> {
+    const orderItems = await this.orderItemModel
+      .find({ orderId }, { productId: 1, itemQuantity: 1, itemPrice: 1 })
+      .lean()
+      .exec();
+
+    return orderItems.map((item: any) => ({
+      productId: item.productId,
+      itemQuantity: item.itemQuantity,
+      itemPrice: item.itemPrice,
+    }));
+  }
+
+  private async replaceOrderItems(
+    orderId: ObjectId,
+    items: OrderItemInput[],
+  ): Promise<void> {
+    await this.orderItemModel.deleteMany({ orderId }).exec();
+    await this.recordOrderItems(orderId, items);
+  }
+
+  private async sanitizeOrderItems(
+    items: OrderItemInput[],
+  ): Promise<OrderItemInput[]> {
+    if (!Array.isArray(items) || items.length === 0) {
+      throw new Errors(HttpCode.BAD_REQUEST, Message.CREATE_FAILED);
+    }
+
+    const normalizedMap = new Map<string, { productId: ObjectId; itemQuantity: number }>();
+
+    items.forEach((item) => {
+      const quantity = Math.floor(Number(item.itemQuantity));
+      if (!item.productId || !Number.isFinite(quantity) || quantity <= 0) {
+        throw new Errors(HttpCode.BAD_REQUEST, Message.CREATE_FAILED);
+      }
+
+      const productId = shapeIntoMongooseObjectId(item.productId);
+      const key = String(productId);
+      const existing = normalizedMap.get(key);
+
+      normalizedMap.set(key, {
+        productId,
+        itemQuantity: (existing?.itemQuantity || 0) + quantity,
+      });
+    });
+
+    const normalizedItems = Array.from(normalizedMap.values());
+
+    const productIds = normalizedItems.map((item) => item.productId);
+    const products = await this.productModel
+      .find(
+        {
+          _id: { $in: productIds },
+          productStatus: { $in: [ProductStatus.ACTIVE, ProductStatus.PROMOTION, ProductStatus.PAUSED] },
+        },
+        {
+          productPrice: 1,
+          productPriceDiscount: 1,
+          productPromotion: 1,
+          productStatus: 1,
+        },
+      )
+      .lean()
+      .exec();
+
+    if (products.length !== normalizedMap.size) {
+      throw new Errors(HttpCode.BAD_REQUEST, Message.NO_DATA_FOUND);
+    }
+
+    const productMap = new Map(
+      products.map((product: any) => [String(product._id), product]),
+    );
+
+    return normalizedItems.map((item) => {
+      const product = productMap.get(String(item.productId));
+
+      if (!product) {
+        throw new Errors(HttpCode.BAD_REQUEST, Message.NO_DATA_FOUND);
+      }
+
+      return {
+        productId: item.productId,
+        itemQuantity: item.itemQuantity,
+        itemPrice: this.resolveProductPrice(product),
+      };
+    });
+  }
+
+  private resolveProductPrice(product: any): number {
+    if (typeof product.productPriceDiscount === "number") {
+      return this.roundCurrency(product.productPriceDiscount);
+    }
+
+    if (typeof product.productPromotion === "number" && product.productPromotion > 0) {
+      return this.roundCurrency(
+        product.productPrice -
+          product.productPrice * (product.productPromotion / 100),
+      );
+    }
+
+    return this.roundCurrency(product.productPrice);
+  }
+
+  private roundCurrency(value: number): number {
+    return Math.round(value * 100) / 100;
   }
 }
 

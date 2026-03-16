@@ -75,16 +75,25 @@ class NotificationService {
     }
   }
 
-  public async markAsRead(notificationId: string): Promise<any> {
+  public async markAsRead(
+    memberId: Types.ObjectId,
+    notificationId: string,
+  ): Promise<any> {
     try {
-      const notification = await NotificationModel.findByIdAndUpdate(
-        notificationId,
+      const notification = await NotificationModel.findOneAndUpdate(
+        {
+          _id: notificationId,
+          memberId,
+          deletedAt: null,
+        },
         {
           read: true,
           readAt: new Date(),
         },
-        { new: true }
-      ).exec();
+        { new: true },
+      )
+        .lean()
+        .exec();
 
       if (!notification) {
         throw new Errors(HttpCode.NOT_FOUND, Message.NO_DATA_FOUND);
@@ -103,7 +112,7 @@ class NotificationService {
   public async markAllAsRead(memberId: Types.ObjectId): Promise<any> {
     try {
       const result = await NotificationModel.updateMany(
-        { memberId: memberId, read: false },
+        { memberId: memberId, read: false, deletedAt: null },
         {
           read: true,
           readAt: new Date(),
@@ -120,15 +129,24 @@ class NotificationService {
     }
   }
 
-  public async deleteNotification(notificationId: string): Promise<any> {
+  public async deleteNotification(
+    memberId: Types.ObjectId,
+    notificationId: string,
+  ): Promise<any> {
     try {
-      const notification = await NotificationModel.findByIdAndUpdate(
-        notificationId,
+      const notification = await NotificationModel.findOneAndUpdate(
+        {
+          _id: notificationId,
+          memberId,
+          deletedAt: null,
+        },
         {
           deletedAt: new Date(),
         },
-        { new: true }
-      ).exec();
+        { new: true },
+      )
+        .lean()
+        .exec();
 
       if (!notification) {
         throw new Errors(HttpCode.NOT_FOUND, Message.NO_DATA_FOUND);
