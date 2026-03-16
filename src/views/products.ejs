@@ -96,9 +96,23 @@
                   </td>
                   
                   <td>
-                    <button class="btn-edit-product" data-product-id="<%= product._id %>" data-product-name="<%= product.productName %>" data-product-collection="<%= product.productCollection %>" data-product-price="<%= product.productPrice %>" data-product-left="<%= product.productLeftCount %>" data-product-size="<%= product.productSize %>" data-product-volume="<%= product.productVolume %>" data-product-desc="<%= (product.productDesc || '').replace(/"/g, '&quot;') %>" onclick="openEditModal(this)">
-                      <i class="fas fa-edit"></i> Edit
-                    </button>
+                    <div class="product-actions">
+                      <button class="btn-edit-product" data-product-id="<%= product._id %>" data-product-name="<%= product.productName %>" data-product-collection="<%= product.productCollection %>" data-product-price="<%= product.productPrice %>" data-product-left="<%= product.productLeftCount %>" data-product-size="<%= product.productSize %>" data-product-volume="<%= product.productVolume %>" data-product-desc="<%= (product.productDesc || '').replace(/"/g, '&quot;') %>" onclick="openEditModal(this)">
+                        <i class="fas fa-edit"></i> Edit
+                      </button>
+                      <button
+                        class="btn-hard-delete-product"
+                        data-product-id="<%= product._id %>"
+                        data-product-name="<%= product.productName %>"
+                        data-product-status="<%= product.productStatus %>"
+                        <%= product.productStatus !== "DELETE" ? "disabled" : "" %>
+                        onclick="hardDeleteProduct(this)"
+                        title="<%= product.productStatus === 'DELETE' ? 'Hard delete product' : 'Set status to DELETE first' %>"
+                        aria-label="Hard delete product"
+                      >
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </div>
                   </td>
                 </tr>
               <% }) %>

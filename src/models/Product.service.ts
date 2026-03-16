@@ -9,6 +9,10 @@ import {
 } from "../libs/types/product";
 import ProductModel from "../schema/Product.model";
 import LikesModel from "../schema/Likes.model";
+import ViewModel from "../schema/View.model";
+import ReviewModel from "../schema/Review.model";
+import ReviewMessageModel from "../schema/ReviewMessage";
+import NotificationModel from "../schema/Notification.model";
 import { StatisticModifier, T } from "../libs/types/common";
 import { ObjectId, Types } from "mongoose";
 import ViewService from "./View.service";
@@ -21,6 +25,8 @@ import {
   addMemberLikedField,
   removeTemporaryLikeFields,
 } from "../libs/utils/aggregation";
+import fs from "fs/promises";
+import path from "path";
 
 class ProductService {
   private readonly productModel;
@@ -405,6 +411,48 @@ class ProductService {
     return result;
   }
 
+  public async hardDeleteProduct(id: string): Promise<{ deleted: boolean }> {
+    const productId = shapeIntoMongooseObjectId(id);
+    const product = await this.productModel.findById(productId).lean().exec();
+
+    if (!product) {
+      throw new Errors(HttpCode.NOT_FOUND, Message.NO_DATA_FOUND);
+    }
+
+    if (product.productStatus !== ProductStatus.DELETE) {
+      throw new Errors(
+        HttpCode.BAD_REQUEST,
+        Message.PRODUCT_NOT_READY_FOR_HARD_DELETE,
+      );
+    }
+
+    const reviews = await ReviewModel.find({ productId }, { _id: 1 }).lean().exec();
+    const reviewIds = reviews.map((review: any) => review._id);
+
+    await Promise.all([
+      this.productModel.deleteOne({ _id: productId }).exec(),
+      LikesModel.deleteMany({
+        likeGroup: LikeGroup.PRODUCT,
+        likeRefId: productId,
+      }).exec(),
+      ViewModel.deleteMany({
+        viewGroup: ViewGroup.PRODUCT,
+        viewRefId: productId,
+      }).exec(),
+      ReviewModel.deleteMany({ productId }).exec(),
+      reviewIds.length
+        ? ReviewMessageModel.deleteMany({ reviewId: { $in: reviewIds } }).exec()
+        : Promise.resolve(),
+      reviewIds.length
+        ? NotificationModel.deleteMany({ reviewId: { $in: reviewIds } }).exec()
+        : Promise.resolve(),
+    ]);
+
+    await this.removeProductImages(product.productImages || []);
+
+    return { deleted: true };
+  }
+
   public async productStatsEditor(input: StatisticModifier): Promise<Product> {
     const { _id, targetKey, modifier } = input;
     const result = await this.productModel
@@ -455,6 +503,27 @@ class ProductService {
       productLikes: result.productLikes,
       memberLiked: memberLiked,
     };
+  }
+
+  private async removeProductImages(imagePaths: string[]): Promise<void> {
+    await Promise.all(
+      imagePaths.map(async (imagePath) => {
+        if (!imagePath) return;
+
+        const absolutePath = path.resolve(
+          process.cwd(),
+          imagePath.replace(/^\/+/, ""),
+        );
+
+        try {
+          await fs.unlink(absolutePath);
+        } catch (err: any) {
+          if (err?.code !== "ENOENT") {
+            console.error("Failed to remove product image:", absolutePath, err);
+          }
+        }
+      }),
+    );
   }
 }
 

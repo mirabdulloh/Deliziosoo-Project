@@ -22,6 +22,7 @@ export enum Message {
   FORBIDDEN = "Forbidden",
   REVIEW_ALREADY_EXISTS = "Review already exists",
   PRODUCT_NOT_FOUND = "Product not found in your orders",
+  PRODUCT_NOT_READY_FOR_HARD_DELETE = "Set product status to DELETE before hard deleting",
   ORDER_NOT_FINISHED = "Order is not finished",
   ORDER_ID_REQUIRED = "orderId required",
   PRODUCT_ID_REQUIRED = "productId required",

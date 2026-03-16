@@ -35,6 +35,7 @@ $(function () {
       const result = response.data;
       if (result.data) {
         console.log("product Updated:");
+        updateHardDeleteButtonState(id, productStatus);
         $(".new-product-status").blur();
       } else alert("Product Update Failed: 12");
     } catch (err) {
@@ -69,6 +70,7 @@ $(function () {
             // Update the status dropdown UI
             $(`#${id}.new-product-status`).val("PROMOTION");
             applyStatusStyle($(`#${id}.new-product-status`)[0]);
+            updateHardDeleteButtonState(id, "PROMOTION");
             console.log("Status automatically changed to PROMOTION");
           }
         }
@@ -82,6 +84,7 @@ $(function () {
             // Update the status dropdown UI
             $(`#${id}.new-product-status`).val("ACTIVE");
             applyStatusStyle($(`#${id}.new-product-status`)[0]);
+            updateHardDeleteButtonState(id, "ACTIVE");
             console.log("Status automatically changed to ACTIVE");
           }
         }
@@ -207,6 +210,52 @@ function openEditModal(button) {
 
 function closeEditModal() {
   $("#editProductModal").fadeOut(200);
+}
+
+async function hardDeleteProduct(button) {
+  const id = button.getAttribute("data-product-id");
+  const name = button.getAttribute("data-product-name");
+  const status = button.getAttribute("data-product-status");
+
+  if (status !== "DELETE") {
+    alert("Set product status to DELETE before hard deleting.");
+    return;
+  }
+
+  const confirmed = window.confirm(
+    `Hard delete "${name}"?\n\nThis will permanently remove the product, its images, likes, views, reviews, and review messages. Order history will stay, but the product itself cannot be restored.`,
+  );
+
+  if (!confirmed) return;
+
+  try {
+    button.disabled = true;
+    const response = await axios.delete(`/admin/product/${id}/hard-delete`);
+
+    if (response.data?.deleted) {
+      $(button).closest("tr").remove();
+      alert("Product permanently deleted.");
+      return;
+    }
+
+    alert("Hard delete failed!");
+  } catch (err) {
+    console.error(err);
+    alert(err?.response?.data?.message || "Hard delete failed!");
+  } finally {
+    button.disabled = false;
+  }
+}
+
+function updateHardDeleteButtonState(id, status) {
+  const button = document.querySelector(
+    `.btn-hard-delete-product[data-product-id="${id}"]`,
+  );
+
+  if (!button) return;
+
+  button.setAttribute("data-product-status", status);
+  button.disabled = status !== "DELETE";
 }
 
 async function submitEditProduct() {

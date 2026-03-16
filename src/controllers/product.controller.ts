@@ -183,6 +183,22 @@ productController.updateProductPromotion = async (
   }
 };
 
+productController.hardDeleteProduct = async (req: Request, res: Response) => {
+  try {
+    console.log("hardDeleteProduct:");
+    const { id } = req.params;
+
+    const result = await productService.hardDeleteProduct(id);
+
+    res.status(HttpCode.OK).json(result);
+  } catch (err) {
+    console.log("ERROR, hardDeleteProduct:", err);
+
+    if (err instanceof Errors) res.status(err.code).json(err);
+    else res.status(Errors.standard.code).json(Errors.standard);
+  }
+};
+
 // ! Like Product
 productController.likeTargetProduct = async (
   req: ExtendedRequest,

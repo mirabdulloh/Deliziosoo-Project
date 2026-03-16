@@ -28,6 +28,12 @@ td {
 }
 
 /* Edit Button */
+.product-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .btn-edit-product {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
@@ -51,6 +57,39 @@ td {
 
 .btn-edit-product i {
   font-size: 14px;
+}
+
+.btn-hard-delete-product {
+  background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+  color: white;
+  border: none;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.28);
+}
+
+.btn-hard-delete-product:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.36);
+}
+
+.btn-hard-delete-product:disabled {
+  opacity: 0.75;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+  background: #d1d5db;
+  color: #6b7280;
 }
 
 /* Modal Styles */
@@ -375,4 +414,3 @@ td {
   overflow: hidden;
   text-overflow: ellipsis;
 }
-

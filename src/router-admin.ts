@@ -85,6 +85,12 @@ routerAdmin.post(
   productController.updateProductPromotion,
 );
 
+routerAdmin.delete(
+  "/product/:id/hard-delete",
+  restaurantController.verifyRestaurant,
+  productController.hardDeleteProduct,
+);
+
 // ! For Admin Controlling Orders
 
 routerAdmin.get(
