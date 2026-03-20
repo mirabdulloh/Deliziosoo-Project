@@ -22,6 +22,7 @@ import {
 const MongoDBStore = ConnectMongoDB(session);
 const allowedOrigins = getAllowedOrigins();
 const publicStaticMaxAge = isProduction ? "1h" : 0;
+const uploadStaticMaxAge = isProduction ? "365d" : 0;
 
 const store = new MongoDBStore({
   uri: String(process.env.MONGO_URL),
@@ -69,7 +70,15 @@ app.use(
   }),
 );
 app.use(cookieParser());
-app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
+app.use(
+  "/uploads",
+  express.static(path.join(__dirname, "../uploads"), {
+    maxAge: uploadStaticMaxAge,
+    etag: true,
+    lastModified: true,
+    immutable: isProduction,
+  }),
+);
 
 app.use(morgan(MORGAN_FORMAT));
 
