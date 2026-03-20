@@ -44,12 +44,17 @@
       
             <tbody>
               <% products.map((product) => { %>
+                <%
+                  const productImage = product.productImages && product.productImages[0]
+                    ? (product.productImages[0].startsWith("/") ? product.productImages[0] : `/${product.productImages[0]}`)
+                    : "/img/default-food.jpg";
+                %>
                 <tr>
                   <td>
                     <div class="product-info">
                         <img
                             class="product-img"
-                            src="<% if (product.productImages && product.productImages[0]) { %>/<%= product.productImages[0] %><% } else { %>/img/default-food.jpg<% } %>"
+                            src="<%= productImage %>"
                             alt="product"
                         />
 

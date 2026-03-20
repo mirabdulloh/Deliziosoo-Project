@@ -55,14 +55,22 @@
                     <tbody>
                         <% if (reviews && reviews.length > 0) { %>
                             <% reviews.forEach(function(review) { %>
+                                <%
+                                  const reviewMemberImage = review.memberId && review.memberId.memberImage
+                                    ? (review.memberId.memberImage.startsWith("/")
+                                        ? `${serverApi}${review.memberId.memberImage}`
+                                        : `${serverApi}/${review.memberId.memberImage}`)
+                                    : `${serverApi}/img/default_img.jpg`;
+                                  const reviewProductImage = review.productId && review.productId.productImages && review.productId.productImages[0]
+                                    ? (review.productId.productImages[0].startsWith("/")
+                                        ? `${serverApi}${review.productId.productImages[0]}`
+                                        : `${serverApi}/${review.productId.productImages[0]}`)
+                                    : null;
+                                %>
                                 <tr class="review-row <%= review.isLowRating ? 'low-rating' : '' %>" data-review-id="<%= review._id %>">
                                     <td>
                                         <div class="customer-info">
-                                            <% if (review.memberId && review.memberId.memberImage) { %>
-                                                <img src="<%= serverApi %>/<%= review.memberId.memberImage %>" alt="<%= review.memberId.memberNick %>" class="customer-avatar">
-                                            <% } else { %>
-                                                <img src="<%= serverApi %>/img/default_img.jpg" alt="Customer" class="customer-avatar">
-                                            <% } %>
+                                            <img src="<%= reviewMemberImage %>" alt="<%= review.memberId ? review.memberId.memberNick : 'Customer' %>" class="customer-avatar">
                                             <div>
                                                 <div class="customer-name"><%= review.memberId ? review.memberId.memberNick : 'Unknown' %></div>
                                                 <div class="customer-email"><%= review.memberId ? review.memberId.memberEmail : 'N/A' %></div>
@@ -71,8 +79,8 @@
                                     </td>
                                     <td>
                                         <div class="product-info">
-                                            <% if (review.productId && review.productId.productImages && review.productId.productImages[0]) { %>
-                                                <img src="<%= serverApi %>/<%= review.productId.productImages[0] %>" alt="<%= review.productId.productName %>" class="product-image">
+                                            <% if (reviewProductImage) { %>
+                                                <img src="<%= reviewProductImage %>" alt="<%= review.productId.productName %>" class="product-image">
                                             <% } %>
                                             <span class="product-name"><%= review.productId ? review.productId.productName : 'N/A' %></span>
                                         </div>
