@@ -6,11 +6,17 @@
   "author": "MIT",
   "type": "commonjs",
   "main": "dist/server.js",
+  "engines": {
+    "node": "18.x || 20.x"
+  },
   "scripts": {
     "start": "node dist/server.js",
+    "start:src": "ts-node src/server.ts",
+    "start:prod": "NODE_ENV=production node dist/server.js",
+    "start:pm2": "pm2 start ecosystem.config.cjs --env production",
     "train": "nodemon --exec ts-node src/train.ts",
     "start:dev": "nodemon --exec ts-node src/server.ts",
-    "build": "tsc && mkdir -p dist/views dist/public && cp -R src/views/. dist/views && cp -R src/public/. dist/public",
+    "build": "tsc && node scripts/copy-assets.cjs",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
@@ -23,6 +29,7 @@
     "ejs": "^3.1.6",
     "express": "^4.17.3",
     "express-session": "^1.17.3",
+    "fs-extra": "^11.3.2",
     "jsonwebtoken": "^8.5.1",
     "moment": "^2.30.1",
     "mongodb": "^3.2.6",

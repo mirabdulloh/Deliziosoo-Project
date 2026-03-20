@@ -5,6 +5,7 @@ import mongoose from "mongoose";
 import app from "./app";
 import { createServer } from "http";
 import { initializeSocketService } from "./models/socket.service";
+import { getServerBaseUrl } from "./libs/runtime";
 
 const requiredEnv = ["MONGO_URL", "SESSION_SECRET", "SECRET_TOKEN"];
 const missingEnv = requiredEnv.filter((key) => !process.env[key]);
@@ -27,8 +28,9 @@ mongoose
     console.log("MongoDB connection succeed");
     const PORT = process.env.PORT ?? 3003;
     httpServer.listen(PORT, function () {
+      const baseUrl = getServerBaseUrl();
       console.info(`The server is running successfully on port: ${PORT}`);
-      console.info(`Admin project on http://localhost:${PORT}/admin \n`);
+      console.info(`Admin project on ${baseUrl}/admin \n`);
     });
   })
   .catch((err) => {

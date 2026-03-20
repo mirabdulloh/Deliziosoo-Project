@@ -1,3 +1,4 @@
+import fs from "fs";
 import path from "path";
 import multer from "multer";
 import { v4 }  from 'uuid';
@@ -13,7 +14,9 @@ const productStorage = multer.diskStorage({
 function getTargetImageStorage(address:any){
     return multer.diskStorage({
         destination: function(req, file, cb){ 
-            cb (null, `./uploads/${address}`);
+            const uploadDir = path.resolve("uploads", address);
+            fs.mkdirSync(uploadDir, { recursive: true });
+            cb (null, uploadDir);
             },
             filename: function (req, file, cb){
             console. log (file);

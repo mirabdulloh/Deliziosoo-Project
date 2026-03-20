@@ -10,25 +10,18 @@ import session from "express-session";
 import ConnectMongoDB from "connect-mongodb-session";
 import { T } from "./libs/types/common";
 import MemberModel from "./schema/Member.model";
+import {
+  getAllowedOrigins,
+  getCookieSameSite,
+  getCookieSecure,
+  getServerBaseUrl,
+  isLocalDevOrigin,
+  isProduction,
+} from "./libs/runtime";
 
 const MongoDBStore = ConnectMongoDB(session);
-const isProduction = process.env.NODE_ENV === "production";
-const configuredOrigins = (process.env.CLIENT_ORIGINS || process.env.CLIENT_ORIGIN || "")
-  .split(",")
-  .map((origin) => origin.trim())
-  .filter(Boolean);
-const defaultDevOrigins = ["http://localhost:3000", "http://127.0.0.1:3000"];
-const allowedOrigins = configuredOrigins.length > 0 ? configuredOrigins : defaultDevOrigins;
+const allowedOrigins = getAllowedOrigins();
 const publicStaticMaxAge = isProduction ? "1h" : 0;
-
-const isLocalDevOrigin = (origin: string) => {
-  try {
-    const { hostname } = new URL(origin);
-    return hostname === "localhost" || hostname === "127.0.0.1" || hostname === "::1";
-  } catch {
-    return false;
-  }
-};
 
 const store = new MongoDBStore({
   uri: String(process.env.MONGO_URL),
@@ -89,8 +82,8 @@ app.use(
     cookie: {
       maxAge: 1000 * 3600 * 6, // 6h
       httpOnly: true,
-      sameSite: isProduction ? "none" : "lax",
-      secure: isProduction,
+      sameSite: getCookieSameSite(),
+      secure: getCookieSecure(),
     },
     store: store,
     resave: false,
@@ -131,6 +124,7 @@ app.use(function (req, res, next) {
 
 app.use((req, res, next) => {
   res.locals.currentPath = req.path;
+  res.locals.serverApi = getServerBaseUrl(req);
   next();
 });
 

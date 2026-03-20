@@ -3,6 +3,7 @@ import { Server as HTTPServer } from "http";
 import ReviewMessageModel from "../schema/ReviewMessage";
 import NotificationService from "./Notification.service";
 import { Types } from "mongoose";
+import { getAllowedOrigins } from "../libs/runtime";
 
 interface SocketUser {
   memberId: string;
@@ -18,7 +19,7 @@ class SocketService {
   constructor(server: HTTPServer) {
     this.io = new SocketIOServer(server, {
       cors: {
-        origin: process.env.CLIENT_URL || "http://localhost:3000",
+        origin: getAllowedOrigins(),
         credentials: true,
       },
     });

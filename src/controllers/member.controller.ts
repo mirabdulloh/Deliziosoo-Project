@@ -12,18 +12,18 @@ import {
 import AuthService from "../models/Auth.service";
 import { AUTH_TIME } from "../libs/config";
 import MemberModel from "../schema/Member.model";
+import { getCookieSameSite, getCookieSecure } from "../libs/runtime";
 
 const memberService = new MemberService();
 const authService = new AuthService();
-const isProduction = process.env.NODE_ENV === "production";
 
 const memberController: T = {};
 
 const authCookieOptions = {
   maxAge: AUTH_TIME * 3600 * 1000,
   httpOnly: true,
-  sameSite: (isProduction ? "none" : "lax") as "none" | "lax",
-  secure: isProduction,
+  sameSite: getCookieSameSite(),
+  secure: getCookieSecure(),
   path: "/",
 };
 
