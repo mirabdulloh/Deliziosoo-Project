@@ -3,10 +3,18 @@
 <%
   const normalizeUploadPath = (value) => {
     if (!value) return "";
-    const normalized = String(value)
-      .replace(/^\/+app\/+uploads/i, "/uploads")
-      .replace(/^\/+/, "/");
-    return normalized;
+    let normalized = String(value).trim().replace(/\\/g, "/");
+    const uploadsMatch = normalized.match(/(?:^|\/)(uploads\/.*)$/i);
+    if (uploadsMatch) {
+      normalized = `/${uploadsMatch[1]}`;
+    } else {
+      normalized = normalized
+        .replace(/^https?:\/\/[^/]+/i, "")
+        .replace(/^\/?app\/+uploads/i, "/uploads")
+        .replace(/^\/?uploads/i, "/uploads");
+    }
+    if (!normalized.startsWith("/")) normalized = `/${normalized}`;
+    return normalized.replace(/\/{2,}/g, "/");
   };
   const avatarPath = member && member.memberImage
     ? normalizeUploadPath(member.memberImage)

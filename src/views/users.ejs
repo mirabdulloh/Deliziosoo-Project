@@ -51,9 +51,18 @@
                 <%
                   const normalizeUploadPath = (value) => {
                     if (!value) return "";
-                    return String(value)
-                      .replace(/^\/+app\/+uploads/i, "/uploads")
-                      .replace(/^\/+/, "/");
+                    let normalized = String(value).trim().replace(/\\/g, "/");
+                    const uploadsMatch = normalized.match(/(?:^|\/)(uploads\/.*)$/i);
+                    if (uploadsMatch) {
+                      normalized = `/${uploadsMatch[1]}`;
+                    } else {
+                      normalized = normalized
+                        .replace(/^https?:\/\/[^/]+/i, "")
+                        .replace(/^\/?app\/+uploads/i, "/uploads")
+                        .replace(/^\/?uploads/i, "/uploads");
+                    }
+                    if (!normalized.startsWith("/")) normalized = `/${normalized}`;
+                    return normalized.replace(/\/{2,}/g, "/");
                   };
                   const rowUserImg = user.memberImage
                     ? normalizeUploadPath(user.memberImage)
