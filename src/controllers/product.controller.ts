@@ -123,7 +123,7 @@ productController.createNewProduct = async (
 
     const data: ProductInput = req.body;
     data.productImages = req.files?.map((ele) => {
-      return ele.path.replace(/\\/g, "/");
+      return `/uploads/products/${ele.filename}`;
     });
     console.log("data on createNewProduct Module,", data);
 
