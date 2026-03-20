@@ -9,7 +9,15 @@
 
 <%
   const adminSafe = typeof admin !== "undefined" ? admin : (locals?.admin || {});
-  const imgPath = adminSafe?.memberImage ? (adminSafe.memberImage.startsWith("/") ? adminSafe.memberImage : "/" + adminSafe.memberImage) : "/img/default_img.jpg";
+  const normalizeUploadPath = (value) => {
+    if (!value) return "";
+    return String(value)
+      .replace(/^\/+app\/+uploads/i, "/uploads")
+      .replace(/^\/+/, "/");
+  };
+  const imgPath = adminSafe?.memberImage
+    ? normalizeUploadPath(adminSafe.memberImage)
+    : "/img/default_img.jpg";
 %>
 
 <div class="dashboard-container">

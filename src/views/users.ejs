@@ -49,9 +49,15 @@
             <tbody>
               <% users.filter(user => user.memberType === 'USER').forEach((user) => { %>
                 <%
+                  const normalizeUploadPath = (value) => {
+                    if (!value) return "";
+                    return String(value)
+                      .replace(/^\/+app\/+uploads/i, "/uploads")
+                      .replace(/^\/+/, "/");
+                  };
                   const rowUserImg = user.memberImage
-                    ? `${serverApi}/${user.memberImage}`
-                    : `${serverApi}/img/default_img.jpg`;
+                    ? normalizeUploadPath(user.memberImage)
+                    : "/img/default_img.jpg";
                   const now = new Date();
                   const lastActive = user.lastActiveAt
                     ? new Date(user.lastActiveAt)

@@ -56,15 +56,17 @@
                         <% if (reviews && reviews.length > 0) { %>
                             <% reviews.forEach(function(review) { %>
                                 <%
+                                  const normalizeUploadPath = (value) => {
+                                    if (!value) return "";
+                                    return String(value)
+                                      .replace(/^\/+app\/+uploads/i, "/uploads")
+                                      .replace(/^\/+/, "/");
+                                  };
                                   const reviewMemberImage = review.memberId && review.memberId.memberImage
-                                    ? (review.memberId.memberImage.startsWith("/")
-                                        ? `${serverApi}${review.memberId.memberImage}`
-                                        : `${serverApi}/${review.memberId.memberImage}`)
-                                    : `${serverApi}/img/default_img.jpg`;
+                                    ? normalizeUploadPath(review.memberId.memberImage)
+                                    : "/img/default_img.jpg";
                                   const reviewProductImage = review.productId && review.productId.productImages && review.productId.productImages[0]
-                                    ? (review.productId.productImages[0].startsWith("/")
-                                        ? `${serverApi}${review.productId.productImages[0]}`
-                                        : `${serverApi}/${review.productId.productImages[0]}`)
+                                    ? normalizeUploadPath(review.productId.productImages[0])
                                     : null;
                                 %>
                                 <tr class="review-row <%= review.isLowRating ? 'low-rating' : '' %>" data-review-id="<%= review._id %>">

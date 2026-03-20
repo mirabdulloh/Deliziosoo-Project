@@ -45,8 +45,14 @@
             <tbody>
               <% products.map((product) => { %>
                 <%
+                  const normalizeUploadPath = (value) => {
+                    if (!value) return "";
+                    return String(value)
+                      .replace(/^\/+app\/+uploads/i, "/uploads")
+                      .replace(/^\/+/, "/");
+                  };
                   const productImage = product.productImages && product.productImages[0]
-                    ? (product.productImages[0].startsWith("/") ? product.productImages[0] : `/${product.productImages[0]}`)
+                    ? normalizeUploadPath(product.productImages[0])
                     : "/img/default-food.jpg";
                 %>
                 <tr>
